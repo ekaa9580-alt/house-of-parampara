@@ -2,6 +2,7 @@ import {
   wcApi,
   wpApi,
   ensureConfigured,
+  getWcBaseUrl,
 } from "./client";
 import type {
   WooReview,
@@ -50,50 +51,42 @@ export async function getCoupon(code: string): Promise<WooCoupon | null> {
 }
 
 /**
- * Hero banners from WooCommerce products tagged "hero-banner".
+ * Hero banners from WordPress Customizer via GET /wp-json/hop/v1/banners
+ * (wordpress/hop-banners.php). Optional ACF options fallback.
  */
 export async function getHeroBanners(): Promise<HeroBanner[]> {
   ensureConfigured();
+  const endpoint =
+    process.env.NEXT_PUBLIC_BANNERS_ENDPOINT || "/wp-json/hop/v1/banners";
 
+  // 1. Custom HOP banners endpoint (Customizer theme_mods)
   try {
-    const tagsRes = await wcApi.get<{ id: number }[]>("/products/tags", {
-      params: { slug: "hero-banner" },
-    });
-    const tagId = Array.isArray(tagsRes.data) ? tagsRes.data[0]?.id : undefined;
-    if (!tagId) return [];
-
-    const response = await wcApi.get("/products", {
-      params: {
-        tag: tagId,
-        per_page: 3,
-        status: "publish",
-      },
-    });
-
-    if (!Array.isArray(response.data) || !response.data.length) return [];
-
-    return response.data.slice(0, 3).map(
-      (p: {
-        id: number;
-        name: string;
-        slug?: string;
-        short_description: string;
-        permalink: string;
-        images: { src: string }[];
-      }) => ({
-        id: p.id,
-        title: p.name,
-        subtitle: "",
-        description: p.short_description?.replace(/<[^>]*>/g, "") || "",
-        image: p.images?.[0]?.src || "",
-        cta_text: "Shop Now",
-        cta_url: `/product/${p.slug || p.id}`,
-        text_position: "left" as const,
-      })
-    );
+    const base = getWcBaseUrl();
+    let path = "/hop/v1/banners";
+    if (endpoint.startsWith("http")) {
+      path = endpoint.replace(base, "").replace(/^\/wp-json/, "") || path;
+    } else {
+      path = endpoint.replace(/^\/wp-json/, "") || path;
+    }
+    const response = await wpApi.get<HeroBanner[]>(path);
+    if (Array.isArray(response.data) && response.data.length) {
+      return response.data;
+    }
   } catch {
-    return [];
+    /* try next source */
   }
+
+  // 2. WordPress options / ACF options page
+  try {
+    const response = await wpApi.get<{ banners?: HeroBanner[] }>(
+      "/acf/v3/options/options"
+    );
+    if (response.data?.banners?.length) return response.data.banners;
+  } catch {
+    /* empty */
+  }
+
+  return [];
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {

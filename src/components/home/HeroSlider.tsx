@@ -95,8 +95,8 @@ export function HeroSlider() {
               Modern Grace.
             </h1>
             <p className="mt-5 max-w-md text-sm text-cream/75 sm:text-base md:text-lg">
-              Tag published products with “hero-banner” in WooCommerce to
-              show them here.
+              Configure slides in Appearance → Customize → Hero Slider, and
+              install the HOP Banners WordPress plugin.
             </p>
             <Link
               href="/shop"

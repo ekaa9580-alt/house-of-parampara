@@ -122,13 +122,22 @@ Switching sources is controlled only by environment variables (`src/lib/data/mod
 
 ## Hero banners (no code changes)
 
-When live, banners are loaded in order from:
+When live, banners are loaded from:
 
 1. Custom endpoint `NEXT_PUBLIC_BANNERS_ENDPOINT` (default `/wp-json/hop/v1/banners`)
-2. ACF options `banners`
-3. Products tagged `hero-banner`
+2. ACF options `banners` (optional fallback)
 
-Recommended: register a small WP plugin/theme endpoint returning:
+### Install the banners bridge (required)
+
+The Customizer Hero Slider lives in the WordPress theme. Next.js reads it via REST:
+
+1. Copy `wordpress/hop-banners.php` to `wp-content/plugins/hop-banners/hop-banners.php`
+   (or `wp-content/mu-plugins/hop-banners.php`)
+2. Activate the plugin (skip for mu-plugins)
+3. Keep slides under **Appearance → Customize → Hero Slider**
+4. Confirm: `https://your-wordpress-site.com/wp-json/hop/v1/banners`
+
+Expected JSON shape:
 
 ```json
 [
