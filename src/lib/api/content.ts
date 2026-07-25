@@ -87,11 +87,17 @@ export async function getHeroBanners(): Promise<HeroBanner[]> {
     /* try next source */
   }
 
-  // 3. Fallback: featured products as visual placeholders (images from WC)
+  // 3. Fallback: products tagged "hero-banner" (images from WC)
   try {
+    const tagsRes = await wcApi.get<{ id: number }[]>("/products/tags", {
+      params: { slug: "hero-banner" },
+    });
+    const tagId = Array.isArray(tagsRes.data) ? tagsRes.data[0]?.id : undefined;
+    if (!tagId) return [];
+
     const response = await wcApi.get("/products", {
       params: {
-        tag: "hero-banner",
+        tag: tagId,
         per_page: 5,
         status: "publish",
       },
