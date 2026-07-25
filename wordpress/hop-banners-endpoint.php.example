@@ -1,0 +1,50 @@
+/**
+ * Optional WordPress MU-plugin / snippet
+ * Register: wp-content/mu-plugins/hop-banners.php
+ *
+ * Exposes GET /wp-json/hop/v1/banners so the Next.js frontend
+ * can load hero slides without code changes.
+ *
+ * Edit banners in WP Admin → Options / ACF Options, or replace
+ * the hardcoded $banners array with get_option('hop_banners').
+ */
+
+/*
+<?php
+/**
+ * Plugin Name: House of Parampara Banners API
+ */
+
+add_action('rest_api_init', function () {
+  register_rest_route('hop/v1', '/banners', [
+    'methods'  => 'GET',
+    'permission_callback' => '__return_true',
+    'callback' => function () {
+      $banners = get_option('hop_banners', []);
+      return rest_ensure_response($banners);
+    },
+  ]);
+
+  // Site settings live in wordpress/hop-site-settings.php
+  // (Admin: House of Parampara → Site Settings → GET /wp-json/hop/v1/settings)
+
+  register_rest_route('hop/v1', '/testimonials', [
+    'methods'  => 'GET',
+    'permission_callback' => '__return_true',
+    'callback' => function () {
+      return rest_ensure_response(get_option('hop_testimonials', []));
+    },
+  ]);
+
+  register_rest_route('hop/v1', '/newsletter', [
+    'methods'  => 'POST',
+    'permission_callback' => '__return_true',
+    'callback' => function (WP_REST_Request $request) {
+      $email = sanitize_email($request->get_param('email'));
+      // Hook into Mailchimp / FluentCRM / etc.
+      do_action('hop_newsletter_subscribe', $email);
+      return rest_ensure_response(['success' => true]);
+    },
+  ]);
+});
+*/

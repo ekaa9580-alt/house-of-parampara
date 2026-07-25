@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 247 243 237;
+    --foreground: 26 22 20;
+    --muted: 107 97 88;
+    --accent: 196 165 116;
+    --border: 230 221 208;
+    --card: 255 255 255;
+  }
+
+  .dark {
+    --background: 26 22 20;
+    --foreground: 247 243 237;
+    --muted: 196 165 116;
+    --accent: 196 165 116;
+    --border: 61 53 48;
+    --card: 49 35 28;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-cream text-ink font-body antialiased;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    overflow-x: clip;
+  }
+
+  .dark body {
+    @apply bg-brand-950 text-cream;
+  }
+
+  ::selection {
+    @apply bg-gold/30 text-ink;
+  }
+}
+
+@layer components {
+  .container-luxury {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-royal px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-cream transition-all duration-300 hover:bg-royal-600 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50 dark:bg-royal dark:text-cream dark:hover:bg-royal-400;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 border border-ink/20 bg-transparent px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-ink transition-all duration-300 hover:border-ink hover:bg-ink hover:text-cream dark:border-cream/30 dark:text-cream dark:hover:bg-cream dark:hover:text-ink;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm tracking-wide text-ink/70 transition-colors hover:text-ink dark:text-cream/70 dark:hover:text-cream;
+  }
+
+  .section-heading {
+    @apply font-display text-4xl font-light tracking-wide text-ink md:text-5xl lg:text-[3.25rem] dark:text-cream;
+  }
+
+  .section-subheading {
+    @apply mt-3 max-w-xl font-body text-base leading-relaxed text-ink-muted md:text-[1.05rem] dark:text-brand-300;
+  }
+
+  .glass {
+    @apply border border-white/20 bg-white/70 shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-brand-950/70;
+  }
+
+  .input-field {
+    @apply w-full border border-brand-200 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink-muted/50 focus:border-gold dark:border-brand-800 dark:bg-brand-900 dark:text-cream dark:focus:border-gold;
+  }
+
+  .link-underline {
+    @apply relative inline-block after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full;
+  }
+
+  .skeleton {
+    @apply animate-shimmer bg-gradient-to-r from-brand-100 via-brand-50 to-brand-100 bg-[length:200%_100%] dark:from-brand-900 dark:via-brand-800 dark:to-brand-900;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
