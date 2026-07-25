@@ -95,8 +95,8 @@ export function HeroSlider() {
               Modern Grace.
             </h1>
             <p className="mt-5 max-w-md text-sm text-cream/75 sm:text-base md:text-lg">
-              Configure hero banners in WooCommerce Admin to replace this
-              placeholder.
+              Tag published products with “hero-banner” in WooCommerce to
+              show them here.
             </p>
             <Link
               href="/shop"
