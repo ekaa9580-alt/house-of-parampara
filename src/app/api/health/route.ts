@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getDataMode, useMockData } from "@/lib/data/mode";
+import { getDataMode, isMockDataMode } from "@/lib/data/mode";
 import { getWcBaseUrl, pingWooCommerce } from "@/lib/api/client";
 
 export async function GET() {
   const mode = getDataMode();
   const url = getWcBaseUrl();
 
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return NextResponse.json({
       mode,
       connected: false,

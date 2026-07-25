@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { useMockData } from "@/lib/data/mode";
+import { isMockDataMode } from "@/lib/data/mode";
 import { getMockCart } from "@/lib/data/seed";
 import { parseApiError } from "@/lib/api/client";
 import { sessionFromRequest, jsonWithCartSession } from "@/lib/api/cart-cookies";
@@ -8,7 +8,7 @@ import { sessionFromRequest, jsonWithCartSession } from "@/lib/api/cart-cookies"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    if (useMockData()) {
+    if (isMockDataMode()) {
       return NextResponse.json(getMockCart());
     }
     const { selectShippingRate } = await import("@/lib/api/cart");

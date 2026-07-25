@@ -141,7 +141,7 @@ async function loginViaWpLogin(
 
   const page = await jar.get("/wp-login.php");
   const setCookies = page.headers["set-cookie"] || [];
-  let cookieHeader = setCookies.map((c) => c.split(";")[0]).join("; ");
+  const cookieHeader = setCookies.map((c) => c.split(";")[0]).join("; ");
 
   const body = new URLSearchParams({
     log: credentials.username,

@@ -9,7 +9,7 @@
  * Otherwise mock seed data (same shapes as WooCommerce REST).
  */
 
-export function useMockData(): boolean {
+export function isMockDataMode(): boolean {
   if (process.env.NEXT_PUBLIC_USE_MOCK === "true") return true;
   if (process.env.NEXT_PUBLIC_USE_MOCK === "false") return false;
 
@@ -28,5 +28,5 @@ export function useMockData(): boolean {
 }
 
 export function getDataMode(): "mock" | "woocommerce" {
-  return useMockData() ? "mock" : "woocommerce";
+  return isMockDataMode() ? "mock" : "woocommerce";
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { useMockData } from "@/lib/data/mode";
+import { isMockDataMode } from "@/lib/data/mode";
 import { parseApiError } from "@/lib/api/client";
 
 /** POST /api/contact — soft capture for atelier enquiries */
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!useMockData()) {
+    if (!isMockDataMode()) {
       try {
         const { subscribeNewsletter } = await import("@/lib/api/content");
         await subscribeNewsletter(email).catch(() => null);

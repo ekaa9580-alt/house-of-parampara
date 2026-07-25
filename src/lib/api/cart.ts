@@ -215,13 +215,20 @@ export async function getShippingRates(
   const raw = response.data;
   let packages: WooShippingPackage[] = [];
   if (Array.isArray(raw)) {
-    packages = raw.map((pkg: any, i: number) => {
-      if (pkg && Array.isArray(pkg.shipping_rates)) {
-        return {
-          package_id: pkg.package_id ?? i,
-          name: pkg.name,
-          shipping_rates: pkg.shipping_rates,
+    packages = raw.map((pkg: unknown, i: number) => {
+      if (pkg && typeof pkg === "object" && !Array.isArray(pkg)) {
+        const p = pkg as {
+          package_id?: number;
+          name?: string;
+          shipping_rates?: WooShippingMethod[];
         };
+        if (Array.isArray(p.shipping_rates)) {
+          return {
+            package_id: p.package_id ?? i,
+            name: p.name,
+            shipping_rates: p.shipping_rates,
+          };
+        }
       }
       if (Array.isArray(pkg)) {
         return { package_id: i, shipping_rates: pkg as WooShippingMethod[] };

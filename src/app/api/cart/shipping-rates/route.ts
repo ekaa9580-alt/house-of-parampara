@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { useMockData } from "@/lib/data/mode";
+import { isMockDataMode } from "@/lib/data/mode";
 import { parseApiError } from "@/lib/api/client";
 import { sessionFromRequest, jsonWithCartSession } from "@/lib/api/cart-cookies";
 
 /** GET /api/cart/shipping-rates */
 export async function GET(request: NextRequest) {
   try {
-    if (useMockData()) {
+    if (isMockDataMode()) {
       return NextResponse.json([
         {
           package_id: 0,

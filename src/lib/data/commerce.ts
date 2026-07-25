@@ -1,4 +1,4 @@
-import { useMockData } from "./mode";
+import { isMockDataMode } from "./mode";
 import {
   seedBanners,
   seedSettings,
@@ -35,25 +35,25 @@ function emptySession(): CartSession {
 }
 
 export async function fetchBanners(): Promise<HeroBanner[]> {
-  if (useMockData()) return seedBanners;
+  if (isMockDataMode()) return seedBanners;
   const { getHeroBanners } = await import("@/lib/api/content");
   return getHeroBanners();
 }
 
 export async function fetchSettings(): Promise<SiteSettings> {
-  if (useMockData()) return seedSettings;
+  if (isMockDataMode()) return seedSettings;
   const { getSiteSettings } = await import("@/lib/api/content");
   return getSiteSettings();
 }
 
 export async function fetchTestimonials(): Promise<Testimonial[]> {
-  if (useMockData()) return seedTestimonials;
+  if (isMockDataMode()) return seedTestimonials;
   const { getTestimonials } = await import("@/lib/api/content");
   return getTestimonials();
 }
 
 export async function fetchReviews(productId: number) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     const reviews = seedReviews.filter((r) => r.product_id === productId);
     return { reviews, total: reviews.length };
   }
@@ -68,7 +68,7 @@ export async function createReview(data: {
   reviewer_email: string;
   rating: number;
 }) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return {
       id: Date.now(),
       date_created: new Date().toISOString(),
@@ -82,7 +82,7 @@ export async function createReview(data: {
 }
 
 export async function fetchPage(slug: string) {
-  if (useMockData()) return seedPages[slug] ?? null;
+  if (isMockDataMode()) return seedPages[slug] ?? null;
   const { getPageBySlug } = await import("@/lib/api/content");
   return getPageBySlug(slug);
 }
@@ -90,7 +90,7 @@ export async function fetchPage(slug: string) {
 export async function fetchCart(
   session: CartSession = emptySession()
 ): Promise<{ cart: WooCart; session: CartSession }> {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return { cart: getMockCart(), session };
   }
   const { getCart } = await import("@/lib/api/cart");
@@ -104,7 +104,7 @@ export async function addItemToCart(
   variation?: { attribute: string; value: string }[],
   session: CartSession = emptySession()
 ) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return { cart: mockAddToCart(productId, quantity), session };
   }
   const { addToCart } = await import("@/lib/api/cart");
@@ -116,7 +116,7 @@ export async function updateItemInCart(
   quantity: number,
   session: CartSession = emptySession()
 ) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return { cart: mockUpdateCartItem(key, quantity), session };
   }
   const { updateCartItem } = await import("@/lib/api/cart");
@@ -127,7 +127,7 @@ export async function removeItemFromCart(
   key: string,
   session: CartSession = emptySession()
 ) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return { cart: mockRemoveCartItem(key), session };
   }
   const { removeCartItem } = await import("@/lib/api/cart");
@@ -138,7 +138,7 @@ export async function applyCartCoupon(
   code: string,
   session: CartSession = emptySession()
 ) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return { cart: mockApplyCoupon(code), session };
   }
   const { applyCoupon } = await import("@/lib/api/cart");
@@ -149,7 +149,7 @@ export async function removeCartCoupon(
   code: string,
   session: CartSession = emptySession()
 ) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return { cart: mockRemoveCoupon(), session };
   }
   const { removeCoupon } = await import("@/lib/api/cart");
@@ -157,7 +157,7 @@ export async function removeCartCoupon(
 }
 
 export async function fetchPaymentMethods() {
-  if (useMockData()) return seedPaymentMethods;
+  if (isMockDataMode()) return seedPaymentMethods;
   const { getPaymentMethods } = await import("@/lib/api/cart");
   return getPaymentMethods();
 }
@@ -166,7 +166,7 @@ export async function placeOrder(
   payload: CheckoutPayload,
   session: CartSession = emptySession()
 ) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     const cart = getMockCart();
     const result = {
       order_id: 9000 + Math.floor(Math.random() * 1000),
@@ -188,7 +188,7 @@ export async function placeOrder(
 }
 
 export async function loginUser(credentials: LoginCredentials) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     if (credentials.password.length < 4) {
       throw Object.assign(new Error("Invalid credentials"), {
         response: {
@@ -226,7 +226,7 @@ export async function loginUser(credentials: LoginCredentials) {
 }
 
 export async function registerUser(data: RegisterData) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return {
       ...seedCustomer,
       id: Date.now(),
@@ -241,7 +241,7 @@ export async function registerUser(data: RegisterData) {
 }
 
 export async function fetchCustomer(id: number) {
-  if (useMockData()) return { ...seedCustomer, id };
+  if (isMockDataMode()) return { ...seedCustomer, id };
   const { getCustomer } = await import("@/lib/api/auth");
   return getCustomer(id);
 }
@@ -250,13 +250,13 @@ export async function updateCustomerProfile(
   id: number,
   data: Record<string, unknown>
 ) {
-  if (useMockData()) return { ...seedCustomer, ...data, id };
+  if (isMockDataMode()) return { ...seedCustomer, ...data, id };
   const { updateCustomer } = await import("@/lib/api/auth");
   return updateCustomer(id, data);
 }
 
 export async function fetchOrders(customerId: number, page = 1) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return {
       orders: seedOrders.filter((o) => o.customer_id === customerId),
       total: seedOrders.length,
@@ -268,7 +268,7 @@ export async function fetchOrders(customerId: number, page = 1) {
 }
 
 export async function subscribeEmail(email: string) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return {
       success: true,
       message: "Thank you for subscribing to House of Parampara.",
@@ -279,7 +279,7 @@ export async function subscribeEmail(email: string) {
 }
 
 export async function requestReset(email: string) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return {
       success: true,
       message: "If an account exists, a reset link has been sent.",

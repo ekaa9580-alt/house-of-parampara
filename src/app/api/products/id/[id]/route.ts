@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProductById } from "@/lib/api/products";
-import { useMockData } from "@/lib/data/mode";
+import { isMockDataMode } from "@/lib/data/mode";
 import { seedProducts } from "@/lib/data/seed";
 import { parseApiError } from "@/lib/api/client";
 
@@ -19,7 +19,7 @@ export async function GET(
       );
     }
 
-    if (useMockData()) {
+    if (isMockDataMode()) {
       const product = seedProducts.find((p) => p.id === numericId);
       if (!product) {
         return NextResponse.json(

@@ -437,7 +437,7 @@ export const seedPaymentMethods: WooPaymentMethod[] = [
 ];
 
 /** In-memory cart for mock mode */
-let mockCart: WooCart = {
+const mockCart: WooCart = {
   items: [],
   coupons: [],
   totals: {

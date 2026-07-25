@@ -3,7 +3,7 @@
  * Components/hooks call Next.js API routes; routes call these functions.
  * Switching sources never requires UI changes.
  */
-import { useMockData } from "./mode";
+import { isMockDataMode } from "./mode";
 import {
   seedProducts,
   seedCategories,
@@ -97,7 +97,7 @@ function filterProducts(
 export async function fetchProducts(
   params: ProductsQueryParams = {}
 ): Promise<PaginatedResponse<WooProduct>> {
-  if (useMockData()) return filterProducts(seedProducts, params);
+  if (isMockDataMode()) return filterProducts(seedProducts, params);
   const api = await live();
   // Resolve category slug → id for WC
   if (params.category && Number.isNaN(Number(params.category))) {
@@ -111,7 +111,7 @@ export async function fetchProducts(
 export async function fetchProductBySlug(
   slug: string
 ): Promise<WooProduct | null> {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return seedProducts.find((p) => p.slug === slug) ?? null;
   }
   const api = await live();
@@ -119,7 +119,7 @@ export async function fetchProductBySlug(
 }
 
 export async function fetchFeaturedProducts(perPage = 8) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     const featured = filterProducts(seedProducts, {
       featured: true,
       per_page: perPage,
@@ -136,7 +136,7 @@ export async function fetchFeaturedProducts(perPage = 8) {
 }
 
 export async function fetchLatestProducts(perPage = 8) {
-  if (useMockData())
+  if (isMockDataMode())
     return filterProducts(seedProducts, {
       orderby: "date",
       order: "desc",
@@ -147,7 +147,7 @@ export async function fetchLatestProducts(perPage = 8) {
 }
 
 export async function fetchBestSellers(perPage = 8) {
-  if (useMockData())
+  if (isMockDataMode())
     return filterProducts(seedProducts, {
       orderby: "popularity",
       order: "desc",
@@ -158,7 +158,7 @@ export async function fetchBestSellers(perPage = 8) {
 }
 
 export async function fetchSaleProducts(perPage = 8) {
-  if (useMockData())
+  if (isMockDataMode())
     return filterProducts(seedProducts, { on_sale: true, per_page: perPage })
       .data;
   const api = await live();
@@ -168,7 +168,7 @@ export async function fetchSaleProducts(perPage = 8) {
 export async function fetchRelatedProducts(slug: string, limit = 4) {
   const product = await fetchProductBySlug(slug);
   if (!product) return [];
-  if (useMockData()) {
+  if (isMockDataMode()) {
     const ids = product.related_ids.slice(0, limit);
     return seedProducts.filter((p) => ids.includes(p.id));
   }
@@ -177,7 +177,7 @@ export async function fetchRelatedProducts(slug: string, limit = 4) {
 }
 
 export async function fetchSearchProducts(query: string, perPage = 10) {
-  if (useMockData())
+  if (isMockDataMode())
     return filterProducts(seedProducts, { search: query, per_page: perPage })
       .data;
   const api = await live();
@@ -185,7 +185,7 @@ export async function fetchSearchProducts(query: string, perPage = 10) {
 }
 
 export async function fetchCategories(parent?: number) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return seedCategories.filter((c) =>
       parent !== undefined ? c.parent === parent : true
     );
@@ -198,7 +198,7 @@ export async function fetchCategories(parent?: number) {
 }
 
 export async function fetchCategoryBySlug(slug: string) {
-  if (useMockData()) {
+  if (isMockDataMode()) {
     return seedCategories.find((c) => c.slug === slug) ?? null;
   }
   const { getCategoryBySlug } = await import("@/lib/api/categories");

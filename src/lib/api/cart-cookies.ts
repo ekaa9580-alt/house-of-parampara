@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { CartSession } from "@/lib/api/cart";
-import { useMockData } from "@/lib/data/mode";
+import { isMockDataMode } from "@/lib/data/mode";
 
 export function sessionFromRequest(request: NextRequest): CartSession {
   return {
@@ -15,7 +15,7 @@ export function jsonWithCartSession(
   status = 200
 ) {
   const response = NextResponse.json(data, { status });
-  if (!useMockData()) {
+  if (!isMockDataMode()) {
     if (session.nonce) {
       response.cookies.set("wc_nonce", session.nonce, {
         httpOnly: true,

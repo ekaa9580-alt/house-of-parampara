@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { Heart, Minus, Plus, ShoppingBag } from "lucide-react";
 import type { WooProduct, WooProductVariation } from "@/types/woocommerce";
 import {
@@ -51,8 +50,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
   });
 
   const isVariable = product.type === "variable";
-  const variationAttrs =
-    product.attributes?.filter((a) => a.variation) || [];
+  const variationAttrs = useMemo(
+    () => product.attributes?.filter((a) => a.variation) || [],
+    [product.attributes]
+  );
 
   useEffect(() => setMounted(true), []);
 

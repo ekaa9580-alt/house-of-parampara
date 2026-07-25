@@ -119,14 +119,8 @@ export default function CheckoutPage() {
     };
   }, [
     addressReady,
-    billing.address_1,
-    billing.city,
-    billing.postcode,
-    billing.country,
-    shipAddress.address_1,
-    shipAddress.city,
-    shipAddress.postcode,
-    shipAddress.country,
+    billing,
+    shipAddress,
     cart?.items?.length,
     refetchCart,
   ]);
@@ -140,7 +134,7 @@ export default function CheckoutPage() {
         rate_id: rate.rate_id,
       });
       refetchCart();
-    } catch (err) {
+    } catch {
       toast.error("Could not select shipping rate");
     }
   };

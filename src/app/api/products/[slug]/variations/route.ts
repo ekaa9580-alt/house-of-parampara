@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProductVariations } from "@/lib/api/products";
-import { useMockData } from "@/lib/data/mode";
+import { isMockDataMode } from "@/lib/data/mode";
 import { parseApiError } from "@/lib/api/client";
 import { fetchProductBySlug } from "@/lib/data/products";
 
@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    if (useMockData()) {
+    if (isMockDataMode()) {
       return NextResponse.json([]);
     }
 
