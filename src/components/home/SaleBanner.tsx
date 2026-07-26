@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useSaleProducts } from "@/hooks/useWooCommerce";
+import { useSaleProducts, useSiteSettings } from "@/hooks/useWooCommerce";
 
 export function SaleBanner() {
   const { data: saleProducts } = useSaleProducts(1);
+  const { data: s } = useSiteSettings();
 
-  // Only show if there are sale products from WooCommerce
+  if (s?.show_sale_banner === false) return null;
   if (!saleProducts?.length) return null;
+  if (!s?.home_sale_title && !s?.home_sale_eyebrow) return null;
 
   return (
     <section className="relative overflow-hidden bg-ink py-20 text-cream md:py-28">
@@ -20,21 +22,29 @@ export function SaleBanner() {
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
-          <p className="mb-4 text-xs tracking-[0.3em] uppercase text-gold">
-            Limited Time
-          </p>
-          <h2 className="font-display text-4xl font-light tracking-wide md:text-6xl">
-            The Sale Collection
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-cream/60">
-            Selected pieces at special prices. While stocks last.
-          </p>
-          <Link
-            href="/shop?on_sale=true"
-            className="btn-primary mt-8 inline-flex bg-cream text-ink hover:bg-brand-100"
-          >
-            Shop Sale
-          </Link>
+          {s?.home_sale_eyebrow && (
+            <p className="mb-4 text-xs tracking-[0.3em] uppercase text-gold">
+              {s.home_sale_eyebrow}
+            </p>
+          )}
+          {s?.home_sale_title && (
+            <h2 className="font-display text-4xl font-light tracking-wide md:text-6xl">
+              {s.home_sale_title}
+            </h2>
+          )}
+          {s?.home_sale_subtitle && (
+            <p className="mx-auto mt-4 max-w-md text-cream/60">
+              {s.home_sale_subtitle}
+            </p>
+          )}
+          {s?.home_sale_cta && s?.home_sale_cta_url && (
+            <Link
+              href={s.home_sale_cta_url}
+              className="btn-primary mt-8 inline-flex bg-cream text-ink hover:bg-brand-100"
+            >
+              {s.home_sale_cta}
+            </Link>
+          )}
         </motion.div>
       </div>
     </section>

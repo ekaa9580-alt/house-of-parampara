@@ -9,11 +9,10 @@ import { safeImageSrc } from "@/lib/utils";
 export function InstagramFeed() {
   const { data: settings } = useSiteSettings();
   const posts = settings?.instagram_posts;
-  const instagramUrl =
-    settings?.instagram || process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const instagramUrl = settings?.instagram;
+  const handle = settings?.instagram_handle;
 
   if (!posts?.length) {
-    // Soft section linking to Instagram when feed not configured
     if (!instagramUrl) return null;
     return (
       <section className="container-luxury py-16 text-center md:py-20">
@@ -25,7 +24,7 @@ export function InstagramFeed() {
         >
           <Instagram className="h-5 w-5" strokeWidth={1.5} />
           <span className="text-xs tracking-[0.2em] uppercase">
-            Follow @houseofparampara
+            {handle ? `@${handle.replace(/^@/, "")}` : settings?.home_instagram_title}
           </span>
         </a>
       </section>
@@ -35,10 +34,15 @@ export function InstagramFeed() {
   return (
     <section className="py-16 md:py-24">
       <div className="container-luxury mb-10 text-center">
-        <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
-          @houseofparampara
-        </p>
-        <h2 className="section-heading">On Instagram</h2>
+        {(settings?.home_instagram_eyebrow || handle) && (
+          <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
+            {settings?.home_instagram_eyebrow ||
+              (handle ? `@${handle.replace(/^@/, "")}` : "")}
+          </p>
+        )}
+        {settings?.home_instagram_title && (
+          <h2 className="section-heading">{settings.home_instagram_title}</h2>
+        )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
         {posts.slice(0, 6).map((post, i) => (
@@ -56,7 +60,7 @@ export function InstagramFeed() {
             {safeImageSrc(post.media_url) ? (
               <SafeImage
                 src={post.media_url}
-                alt={post.caption || "Instagram"}
+                alt={post.caption || ""}
                 fill
                 sizes="(max-width: 768px) 50vw, 16vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"

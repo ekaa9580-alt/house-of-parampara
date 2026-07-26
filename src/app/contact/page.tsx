@@ -112,7 +112,7 @@ export default function ContactPage() {
                 "/contact",
                 form
               );
-              toast.success(data.message || "Thank you — we will be in touch.");
+              toast.success(data.message || "Sent");
               setForm({ name: "", email: "", message: "" });
             } catch (err) {
               toast.error(parseApiError(err).message || "Could not send message");

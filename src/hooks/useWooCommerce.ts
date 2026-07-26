@@ -343,6 +343,20 @@ export function useSiteSettings() {
   });
 }
 
+export function useMenu(location: string) {
+  return useQuery({
+    queryKey: ["menu", location],
+    queryFn: async () => {
+      const { data } = await clientApi.get<{
+        location: string;
+        items: import("@/types/woocommerce").CmsMenuItem[];
+      }>(`/menus/${location}`);
+      return data.items || [];
+    },
+    enabled: !!location,
+  });
+}
+
 export function useTestimonials() {
   return useQuery({
     queryKey: ["testimonials"],

@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLogin } from "@/hooks/useWooCommerce";
+import { useLogin, useSiteSettings } from "@/hooks/useWooCommerce";
 import { useAuthStore } from "@/store";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const login = useLogin();
+  const { data: settings } = useSiteSettings();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -37,11 +38,13 @@ export default function LoginPage() {
     <div className="container-luxury flex min-h-[70vh] items-center justify-center py-28">
       <div className="w-full max-w-md">
         <h1 className="text-center font-display text-4xl font-light">
-          Welcome Back
+          {settings?.auth_login_title || "Login"}
         </h1>
-        <p className="mt-2 text-center text-sm text-ink-muted">
-          Sign in to your House of Parampara account
-        </p>
+        {settings?.auth_login_subtitle && (
+          <p className="mt-2 text-center text-sm text-ink-muted">
+            {settings.auth_login_subtitle}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-4">
           <input
@@ -67,7 +70,7 @@ export default function LoginPage() {
             disabled={login.isPending}
             className="btn-primary w-full"
           >
-            {login.isPending ? "Signing in…" : "Sign In"}
+            {login.isPending ? "…" : "Sign In"}
           </button>
         </form>
 
@@ -79,9 +82,6 @@ export default function LoginPage() {
           <Link href="/login/forgot-password" className="link-underline">
             Forgot password
           </Link>
-        </p>
-        <p className="mt-4 text-center text-[11px] text-ink-muted">
-          Mock mode: any email + password (4+ chars)
         </p>
       </div>
     </div>

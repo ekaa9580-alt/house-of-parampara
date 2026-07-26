@@ -8,7 +8,7 @@ import { formatPrice, getDiscountPercent, cn, safeImageSrc } from "@/lib/utils";
 import { Rating } from "@/components/ui/Rating";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useWishlistStore, useUIStore } from "@/store";
-import { useAddToCart } from "@/hooks/useWooCommerce";
+import { useAddToCart, useSiteSettings } from "@/hooks/useWooCommerce";
 import { useEffect, useState } from "react";
 
 interface ProductCardProps {
@@ -22,6 +22,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { toggle, has } = useWishlistStore();
   const setQuickView = useUIStore((s) => s.setQuickView);
   const addToCart = useAddToCart();
+  const { data: settings } = useSiteSettings();
+  const atcLabel = settings?.add_to_cart_label || "Add to Bag";
   const wished = mounted && has(product.id);
 
   useEffect(() => setMounted(true), []);
@@ -135,7 +137,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               className="flex w-full items-center justify-center gap-2 bg-ink py-3 text-[11px] font-medium tracking-[0.15em] text-cream uppercase transition hover:bg-brand-800 disabled:opacity-50 dark:bg-cream dark:text-ink"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
-              {addToCart.isPending ? "Adding…" : "Add to Bag"}
+              {addToCart.isPending ? "…" : atcLabel}
             </button>
           )}
         </div>

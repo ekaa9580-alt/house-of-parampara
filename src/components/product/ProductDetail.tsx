@@ -18,6 +18,7 @@ import {
   useRelatedProducts,
   useReviews,
   useCreateReview,
+  useSiteSettings,
 } from "@/hooks/useWooCommerce";
 import { useWishlistStore, useRecentlyViewedStore } from "@/store";
 import { clientApi } from "@/lib/api/client";
@@ -35,6 +36,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
     {}
   );
   const addToCart = useAddToCart();
+  const { data: settings } = useSiteSettings();
+  const atcLabel = settings?.add_to_cart_label || "Add to Bag";
   const { toggle, has } = useWishlistStore();
   const addRecent = useRecentlyViewedStore((s) => s.add);
   const recent = useRecentlyViewedStore((s) => s.items);
@@ -275,10 +278,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
             >
               <ShoppingBag className="h-4 w-4" />
               {addToCart.isPending
-                ? "Adding…"
+                ? "…"
                 : isVariable && !matchedVariation
                   ? "Select Options"
-                  : "Add to Bag"}
+                  : atcLabel}
             </button>
 
             <button

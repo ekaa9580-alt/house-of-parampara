@@ -3,17 +3,19 @@
 import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-export default function PrivacyPolicyPage() {
-  const { data: page, isLoading: pageLoading } = usePage("privacy-policy");
+export default function TermsPage() {
+  const { data: page, isLoading: pageLoading } = usePage("terms");
   const { data: settings, isLoading: settingsLoading } = useSiteSettings();
-  const fromSettings = settings?.privacy_policy?.trim();
-  const html = fromSettings || page?.content?.rendered || "";
-  const isLoading = settingsLoading || (!fromSettings && pageLoading);
+  const html =
+    settings?.terms_policy?.trim() ||
+    page?.content?.rendered ||
+    "";
+  const isLoading = settingsLoading || (!settings?.terms_policy && pageLoading);
 
   return (
     <div className="container-luxury pb-20 pt-32 md:pt-36">
       <h1 className="section-heading">
-        {page?.title?.rendered || "Privacy Policy"}
+        {page?.title?.rendered || "Terms"}
       </h1>
       {isLoading ? (
         <div className="mt-8 space-y-3">

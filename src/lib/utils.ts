@@ -84,7 +84,6 @@ export function cartItemHref(permalink?: string | null): string {
   return "/shop";
 }
 
-export const SITE_NAME =
-  process.env.NEXT_PUBLIC_SITE_NAME || "House of Parampara";
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";

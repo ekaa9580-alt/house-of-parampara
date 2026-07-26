@@ -3,25 +3,32 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { motion } from "framer-motion";
-import { useTestimonials } from "@/hooks/useWooCommerce";
+import { useTestimonials, useSiteSettings } from "@/hooks/useWooCommerce";
 import { Rating } from "@/components/ui/Rating";
 import "swiper/css";
 import "swiper/css/pagination";
 
 export function Testimonials() {
   const { data: testimonials, isLoading } = useTestimonials();
+  const { data: s } = useSiteSettings();
 
   if (isLoading || !testimonials?.length) return null;
 
   return (
     <section className="bg-brand-50 py-16 dark:bg-brand-900/30 md:py-20 lg:py-24">
       <div className="container-luxury">
-        <div className="mb-12 text-center">
-          <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
-            Kind Words
-          </p>
-          <h2 className="section-heading">From Our Patrons</h2>
-        </div>
+        {(s?.home_testimonials_eyebrow || s?.home_testimonials_title) && (
+          <div className="mb-12 text-center">
+            {s?.home_testimonials_eyebrow && (
+              <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
+                {s.home_testimonials_eyebrow}
+              </p>
+            )}
+            {s?.home_testimonials_title && (
+              <h2 className="section-heading">{s.home_testimonials_title}</h2>
+            )}
+          </div>
+        )}
 
         <Swiper
           modules={[Autoplay, Pagination]}

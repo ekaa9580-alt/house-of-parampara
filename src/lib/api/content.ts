@@ -91,8 +91,7 @@ export async function getHeroBanners(): Promise<HeroBanner[]> {
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const defaults: SiteSettings = {
-    site_name:
-      process.env.NEXT_PUBLIC_SITE_NAME || "House of Parampara",
+    site_name: process.env.NEXT_PUBLIC_SITE_NAME || "",
     contact_email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
     contact_phone: process.env.NEXT_PUBLIC_CONTACT_PHONE,
     whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
@@ -107,8 +106,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     ][]) {
       if (value === undefined || value === null) continue;
       if (typeof value === "string" && value.trim() === "") continue;
-      (merged as Record<string, unknown>)[key] = value;
+      (merged as unknown as Record<string, unknown>)[key] = value;
     }
+    if (!merged.site_name) merged.site_name = "";
     return merged;
   };
 
@@ -165,6 +165,21 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   }
 }
 
+export async function getMenu(
+  location: string
+): Promise<{ location: string; items: import("@/types/woocommerce").CmsMenuItem[] }> {
+  try {
+    ensureConfigured();
+    const response = await wpApi.get<{
+      location: string;
+      items: import("@/types/woocommerce").CmsMenuItem[];
+    }>(`/hop/v1/menus/${location}`);
+    return response.data || { location, items: [] };
+  } catch {
+    return { location, items: [] };
+  }
+}
+
 export async function getPageBySlug(slug: string): Promise<{
   id: number;
   title: { rendered: string };
@@ -193,7 +208,7 @@ export async function subscribeNewsletter(
     // Soft success – admin can wire Mailchimp/Klaviyo later
     return {
       success: true,
-      message: "Thank you for subscribing to House of Parampara.",
+      message: "Thank you for subscribing.",
     };
   }
 }

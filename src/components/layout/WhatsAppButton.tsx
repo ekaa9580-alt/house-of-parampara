@@ -35,7 +35,7 @@ export function BrandLogo({
 }) {
   const { data: settings } = useSiteSettings();
   const logo = settings?.logo;
-  const name = settings?.site_name || "House of Parampara";
+  const name = settings?.site_name || "";
 
   if (safeImageSrc(logo)) {
     return (

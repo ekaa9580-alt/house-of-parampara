@@ -6,12 +6,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 export default function ShippingPolicyPage() {
   const { data: page, isLoading: pageLoading } = usePage("shipping-policy");
   const { data: settings, isLoading: settingsLoading } = useSiteSettings();
-
   const fromSettings = settings?.shipping_policy?.trim();
-  const html =
-    fromSettings ||
-    page?.content?.rendered ||
-    "<p>Content managed in WordPress Site Settings or Pages.</p>";
+  const html = fromSettings || page?.content?.rendered || "";
   const isLoading = settingsLoading || (!fromSettings && pageLoading);
 
   return (
@@ -22,7 +18,6 @@ export default function ShippingPolicyPage() {
       {isLoading ? (
         <div className="mt-8 space-y-3">
           <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
         </div>
       ) : (
         <div

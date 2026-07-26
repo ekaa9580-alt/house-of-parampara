@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Pagination, Navigation } from "swiper/modules";
 import { gsap } from "gsap";
-import { useHeroBanners } from "@/hooks/useWooCommerce";
+import { useHeroBanners, useSiteSettings } from "@/hooks/useWooCommerce";
 import { HeroSkeleton } from "@/components/ui/Skeleton";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
@@ -60,6 +60,7 @@ function HeroContent({ banner }: { banner: HeroBanner }) {
 
 export function HeroSlider() {
   const { data: banners, isLoading } = useHeroBanners();
+  const { data: settings } = useSiteSettings();
   const containerRef = useRef<HTMLDivElement>(null);
   const slides = useMemo(() => (banners || []).slice(0, 3), [banners]);
 
@@ -81,29 +82,41 @@ export function HeroSlider() {
   if (isLoading) return <HeroSkeleton />;
 
   if (!slides.length) {
+    if (
+      !settings?.home_hero_fallback_title &&
+      !settings?.home_hero_fallback_text
+    ) {
+      return null;
+    }
     return (
       <section className="relative flex h-[62vh] items-center bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 md:h-[78vh]">
         <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/45 to-transparent" />
-        <div className="container-luxury relative z-10 pb-14 pt-20 text-cream md:pb-16 md:pt-24">
+        <div className="container-luxury relative z-10 pb-14 pt-24 text-cream md:pb-16 md:pt-28">
           <div className="hero-content w-full max-w-xl md:w-[48%] md:max-w-[45%] lg:max-w-[42%]">
-            <p className="mb-4 text-xs tracking-[0.3em] uppercase text-gold">
-              House of Parampara
-            </p>
-            <h1 className="font-display text-[2rem] font-light tracking-wide sm:text-4xl md:text-5xl lg:text-[3.25rem]">
-              Timeless Craft.
-              <br />
-              Modern Grace.
-            </h1>
-            <p className="mt-5 max-w-md text-sm text-cream/75 sm:text-base md:text-lg">
-              Configure slides in Appearance → Customize → Hero Slider, and
-              install the HOP Banners WordPress plugin.
-            </p>
-            <Link
-              href="/shop"
-              className="btn-primary mt-8 inline-flex bg-cream text-ink hover:bg-brand-100"
-            >
-              Explore Collection
-            </Link>
+            {settings.home_hero_fallback_eyebrow && (
+              <p className="mb-4 text-xs tracking-[0.3em] uppercase text-gold">
+                {settings.home_hero_fallback_eyebrow}
+              </p>
+            )}
+            {settings.home_hero_fallback_title && (
+              <h1 className="font-display text-[2rem] font-light tracking-wide whitespace-pre-line sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+                {settings.home_hero_fallback_title}
+              </h1>
+            )}
+            {settings.home_hero_fallback_text && (
+              <p className="mt-5 max-w-md text-sm text-cream/75 sm:text-base md:text-lg">
+                {settings.home_hero_fallback_text}
+              </p>
+            )}
+            {settings.home_hero_fallback_cta &&
+              settings.home_hero_fallback_cta_url && (
+                <Link
+                  href={settings.home_hero_fallback_cta_url}
+                  className="btn-primary mt-8 inline-flex bg-cream text-ink hover:bg-brand-100"
+                >
+                  {settings.home_hero_fallback_cta}
+                </Link>
+              )}
           </div>
         </div>
       </section>

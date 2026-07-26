@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      message: "Thank you — we will be in touch.",
+      message: "Sent",
     });
   } catch (error) {
     const err = parseApiError(error);

@@ -1,18 +1,14 @@
 <?php
 /**
- * Plugin Name: House of Parampara – Site Settings
- * Description: Admin page for store contact, social, and footer settings. Exposes GET /wp-json/hop/v1/settings for the Next.js storefront.
+ * Plugin Name: House of Parampara – Site Settings (legacy)
+ * Description: LEGACY — prefer hop-storefront-cms.php. Do not run both plugins.
  * Version: 1.0.0
  * Author: House of Parampara
  * Requires at least: 5.8
  * Requires PHP: 7.4
  *
  * Install:
- *   1. Copy this file to: wp-content/plugins/hop-site-settings/hop-site-settings.php
- *      (or wp-content/mu-plugins/hop-site-settings.php)
- *   2. Activate under Plugins (not required for mu-plugins)
- *   3. Edit under: House of Parampara → Site Settings
- *   4. Confirm: https://yoursite.com/wp-json/hop/v1/settings
+ *   Prefer wordpress/hop-storefront-cms.php instead of this file.
  */
 
 if (!defined('ABSPATH')) {

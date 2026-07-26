@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Heart, ShoppingBag } from "lucide-react";
 import { useUIStore, useWishlistStore } from "@/store";
-import { useAddToCart } from "@/hooks/useWooCommerce";
+import { useAddToCart, useSiteSettings } from "@/hooks/useWooCommerce";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatPrice, stripHtml, isCatalogProduct } from "@/lib/utils";
 import { Rating } from "@/components/ui/Rating";
@@ -20,6 +20,8 @@ export function QuickView() {
   const [notFound, setNotFound] = useState(false);
   const [mounted, setMounted] = useState(false);
   const addToCart = useAddToCart();
+  const { data: settings } = useSiteSettings();
+  const atcLabel = settings?.add_to_cart_label || "Add to Bag";
   const { toggle, has } = useWishlistStore();
 
   useEffect(() => setMounted(true), []);
@@ -169,7 +171,7 @@ export function QuickView() {
                       <ShoppingBag className="h-4 w-4" />
                       {product.type === "variable"
                         ? "Select Options"
-                        : "Add to Bag"}
+                        : atcLabel}
                     </button>
                     <button
                       type="button"

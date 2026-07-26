@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useCategories } from "@/hooks/useWooCommerce";
+import { useCategories, useSiteSettings } from "@/hooks/useWooCommerce";
 import { CategoryCardSkeleton } from "@/components/ui/Skeleton";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
 
 export function CategoryCards() {
   const { data: categories, isLoading } = useCategories(0);
+  const { data: s } = useSiteSettings();
 
   if (isLoading) {
     return (
@@ -22,28 +23,32 @@ export function CategoryCards() {
     );
   }
 
-  const preferred = ["women", "men", "kids", "handicrafts"];
-  const sorted = [...(categories || [])].sort((a, b) => {
-    const ai = preferred.findIndex((p) => a.slug.includes(p) || a.name.toLowerCase().includes(p));
-    const bi = preferred.findIndex((p) => b.slug.includes(p) || b.name.toLowerCase().includes(p));
-    const av = ai === -1 ? 99 : ai;
-    const bv = bi === -1 ? 99 : bi;
-    return av - bv;
-  });
-  const items = sorted.slice(0, 4);
+  const items = [...(categories || [])]
+    .sort((a, b) => a.menu_order - b.menu_order)
+    .slice(0, 8);
   if (!items.length) return null;
 
   return (
     <section className="container-luxury py-16 md:py-24">
-      <div className="mb-10 text-center md:mb-14">
-        <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold md:text-sm">
-          Collections
-        </p>
-        <h2 className="section-heading">Shop by Category</h2>
-        <p className="section-subheading mx-auto mt-3 text-center">
-          Explore our heritage collections — crafted for every occasion.
-        </p>
-      </div>
+      {(s?.home_categories_eyebrow ||
+        s?.home_categories_title ||
+        s?.home_categories_subtitle) && (
+        <div className="mb-10 text-center md:mb-14">
+          {s?.home_categories_eyebrow && (
+            <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold md:text-sm">
+              {s.home_categories_eyebrow}
+            </p>
+          )}
+          {s?.home_categories_title && (
+            <h2 className="section-heading">{s.home_categories_title}</h2>
+          )}
+          {s?.home_categories_subtitle && (
+            <p className="section-subheading mx-auto mt-3 text-center">
+              {s.home_categories_subtitle}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-7">
         {items.map((cat, i) => (
@@ -76,9 +81,11 @@ export function CategoryCards() {
                   <h3 className="font-display text-2xl font-light tracking-wide text-cream md:text-3xl">
                     {cat.name}
                   </h3>
-                  <p className="mt-1.5 text-xs tracking-wider text-cream/75 uppercase md:text-sm">
-                    {cat.count} pieces
-                  </p>
+                  {typeof cat.count === "number" && (
+                    <p className="mt-1.5 text-xs tracking-wider text-cream/75 uppercase md:text-sm">
+                      {cat.count}
+                    </p>
+                  )}
                 </div>
               </div>
             </Link>

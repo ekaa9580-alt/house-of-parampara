@@ -87,6 +87,14 @@ export async function fetchPage(slug: string) {
   return getPageBySlug(slug);
 }
 
+export async function fetchMenu(location: string) {
+  if (isMockDataMode()) {
+    return { location, items: [] as import("@/types/woocommerce").CmsMenuItem[] };
+  }
+  const { getMenu } = await import("@/lib/api/content");
+  return getMenu(location);
+}
+
 export async function fetchCart(
   session: CartSession = emptySession()
 ): Promise<{ cart: WooCart; session: CartSession }> {
@@ -271,7 +279,7 @@ export async function subscribeEmail(email: string) {
   if (isMockDataMode()) {
     return {
       success: true,
-      message: "Thank you for subscribing to House of Parampara.",
+      message: "Thank you for subscribing.",
     };
   }
   const { subscribeNewsletter } = await import("@/lib/api/content");

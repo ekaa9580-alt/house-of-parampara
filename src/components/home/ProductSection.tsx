@@ -5,12 +5,13 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import type { WooProduct } from "@/types/woocommerce";
 
 interface ProductSectionProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   eyebrow?: string;
   products: WooProduct[] | undefined;
   isLoading: boolean;
   viewAllHref?: string;
+  viewAllLabel?: string;
 }
 
 export function ProductSection({
@@ -19,9 +20,11 @@ export function ProductSection({
   eyebrow,
   products,
   isLoading,
-  viewAllHref = "/shop",
+  viewAllHref,
+  viewAllLabel,
 }: ProductSectionProps) {
   if (!isLoading && !(products?.length)) return null;
+  if (!title && !eyebrow) return null;
 
   return (
     <section className="container-luxury py-14 md:py-20">
@@ -32,15 +35,17 @@ export function ProductSection({
               {eyebrow}
             </p>
           )}
-          <h2 className="section-heading">{title}</h2>
+          {title && <h2 className="section-heading">{title}</h2>}
           {subtitle && <p className="section-subheading">{subtitle}</p>}
         </div>
-        <Link
-          href={viewAllHref}
-          className="link-underline shrink-0 text-xs tracking-[0.2em] uppercase"
-        >
-          View All
-        </Link>
+        {viewAllHref && viewAllLabel && (
+          <Link
+            href={viewAllHref}
+            className="link-underline shrink-0 text-xs tracking-[0.2em] uppercase"
+          >
+            {viewAllLabel}
+          </Link>
+        )}
       </div>
       <ProductGrid products={products || []} isLoading={isLoading} />
     </section>

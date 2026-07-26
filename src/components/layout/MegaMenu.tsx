@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import type { WooCategory } from "@/types/woocommerce";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
+import { useSiteSettings } from "@/hooks/useWooCommerce";
 
 interface MegaMenuProps {
   categories: WooCategory[];
@@ -12,7 +13,12 @@ interface MegaMenuProps {
 }
 
 export function MegaMenu({ categories, onClose }: MegaMenuProps) {
-  const featured = categories.slice(0, 6);
+  const { data: settings } = useSiteSettings();
+  const featured = [...categories]
+    .sort((a, b) => (a.menu_order ?? 0) - (b.menu_order ?? 0))
+    .slice(0, 6);
+  const ctaLabel = settings?.mega_menu_cta_label;
+  const ctaUrl = settings?.mega_menu_cta_url;
 
   return (
     <motion.div
@@ -54,22 +60,21 @@ export function MegaMenu({ categories, onClose }: MegaMenuProps) {
               <span className="font-display text-lg font-light tracking-wide transition-colors group-hover:text-gold">
                 {cat.name}
               </span>
-              <span className="mt-0.5 block text-xs text-ink-muted">
-                {cat.count} pieces
-              </span>
             </Link>
           </motion.div>
         ))}
       </div>
-      <div className="border-t border-brand-200/50 py-4 text-center dark:border-brand-800">
-        <Link
-          href="/shop"
-          onClick={onClose}
-          className="link-underline text-xs tracking-[0.2em] uppercase"
-        >
-          View All Collections
-        </Link>
-      </div>
+      {ctaLabel && ctaUrl && (
+        <div className="border-t border-brand-200/50 py-4 text-center dark:border-brand-800">
+          <Link
+            href={ctaUrl}
+            onClick={onClose}
+            className="link-underline text-xs tracking-[0.2em] uppercase"
+          >
+            {ctaLabel}
+          </Link>
+        </div>
+      )}
     </motion.div>
   );
 }

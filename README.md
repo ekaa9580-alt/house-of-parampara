@@ -120,39 +120,38 @@ Switching sources is controlled only by environment variables (`src/lib/data/mod
 
 ---
 
-## Hero banners (no code changes)
+## Storefront CMS (WordPress → Next.js)
 
-When live, banners are loaded from:
+Install **`wordpress/hop-storefront-cms.php`** on WordPress (deactivate legacy Site Settings if present).
 
-1. Custom endpoint `NEXT_PUBLIC_BANNERS_ENDPOINT` (default `/wp-json/hop/v1/banners`)
-2. ACF options `banners` (optional fallback)
+Also install **`wordpress/hop-banners.php`** for Customizer hero slides.
 
-### Install the banners bridge (required)
+### WordPress setup
 
-The Customizer Hero Slider lives in the WordPress theme. Next.js reads it via REST:
+1. **Storefront CMS** → fill identity, branding, homepage section titles, policies, SEO
+2. **Appearance → Menus** → assign menus to:
+   - Storefront Primary (Header)
+   - Storefront Footer Quick Links
+   - Storefront Footer Policies
+3. **Appearance → Customize → Hero Slider** (theme) + hop-banners plugin
+4. WooCommerce products/categories as usual (featured, etc.)
 
-1. Copy `wordpress/hop-banners.php` to `wp-content/plugins/hop-banners/hop-banners.php`
-   (or `wp-content/mu-plugins/hop-banners.php`)
-2. Activate the plugin (skip for mu-plugins)
-3. Keep slides under **Appearance → Customize → Hero Slider**
-4. Confirm: `https://your-wordpress-site.com/wp-json/hop/v1/banners`
+### REST used by Next.js
 
-Expected JSON shape:
+- `GET /wp-json/hop/v1/settings`
+- `GET /wp-json/hop/v1/menus/{primary|footer|footer_policies}`
+- `GET /wp-json/hop/v1/banners`
+- WooCommerce REST + Store API for catalogue/cart
 
-```json
-[
-  {
-    "id": 1,
-    "title": "…",
-    "subtitle": "…",
-    "description": "…",
-    "image": "https://…",
-    "cta_text": "Shop Now",
-    "cta_url": "/shop",
-    "text_position": "left"
-  }
-]
-```
+The Next.js app is a rendering layer only — business content is edited in WordPress Admin.
+
+---
+
+## Hero banners
+
+When live, banners load from `/wp-json/hop/v1/banners` (Customizer via hop-banners.php), then optional ACF.
+
+---
 
 ---
 

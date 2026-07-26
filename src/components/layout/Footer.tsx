@@ -3,18 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
-import { SITE_NAME } from "@/lib/utils";
-import { useNewsletter, useSiteSettings } from "@/hooks/useWooCommerce";
+import { useNewsletter, useSiteSettings, useMenu } from "@/hooks/useWooCommerce";
 
 export function Footer() {
   const { data: settings } = useSiteSettings();
+  const { data: quickLinks = [] } = useMenu("footer");
+  const { data: policyLinks = [] } = useMenu("footer_policies");
   const newsletter = useNewsletter();
   const [email, setEmail] = useState("");
 
-  const whatsapp =
-    settings?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-  const instagram =
-    settings?.instagram || process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const whatsapp = settings?.whatsapp;
+  const instagram = settings?.instagram;
   const facebook = settings?.facebook;
   const youtube = settings?.youtube;
 
@@ -26,86 +25,74 @@ export function Footer() {
 
   return (
     <footer className="border-t border-brand-200 bg-brand-50 dark:border-brand-800 dark:bg-brand-950">
-      <div className="border-b border-brand-200 dark:border-brand-800">
-        <div className="container-luxury grid gap-8 py-16 md:grid-cols-2 md:items-center">
-          <div>
-            <h2 className="font-display text-3xl font-light tracking-wide md:text-4xl">
-              {settings?.newsletter_heading || "Join the Parampara Circle"}
-            </h2>
-            <p className="section-subheading">
-              {settings?.newsletter_text ||
-                "Be first to discover new collections, private sales, and stories from the atelier."}
-            </p>
-          </div>
-          <form
-            onSubmit={handleSubscribe}
-            className="flex flex-col gap-0 sm:flex-row"
-          >
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              className="input-field min-w-0 flex-1 border-r-0 sm:border-r-0"
-            />
-            <button
-              type="submit"
-              disabled={newsletter.isPending}
-              className="btn-primary shrink-0 px-6"
+      {(settings?.newsletter_heading || settings?.newsletter_text) && (
+        <div className="border-b border-brand-200 dark:border-brand-800">
+          <div className="container-luxury grid gap-8 py-16 md:grid-cols-2 md:items-center">
+            <div>
+              {settings?.newsletter_heading && (
+                <h2 className="font-display text-3xl font-light tracking-wide md:text-4xl">
+                  {settings.newsletter_heading}
+                </h2>
+              )}
+              {settings?.newsletter_text && (
+                <p className="section-subheading">{settings.newsletter_text}</p>
+              )}
+            </div>
+            <form
+              onSubmit={handleSubscribe}
+              className="flex flex-col gap-0 sm:flex-row"
             >
-              {newsletter.isPending ? "…" : "Subscribe"}
-            </button>
-          </form>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className="input-field min-w-0 flex-1 border-r-0 sm:border-r-0"
+              />
+              <button
+                type="submit"
+                disabled={newsletter.isPending}
+                className="btn-primary shrink-0 px-6"
+              >
+                {newsletter.isPending ? "…" : "Subscribe"}
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="container-luxury grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <h3 className="font-display text-xl font-light tracking-wide">
-            {settings?.site_name || SITE_NAME}
-          </h3>
+          {settings?.site_name && (
+            <h3 className="font-display text-xl font-light tracking-wide">
+              {settings.site_name}
+            </h3>
+          )}
           {settings?.tagline && (
             <p className="mt-2 text-xs tracking-[0.18em] uppercase text-gold">
               {settings.tagline}
             </p>
           )}
-          <p className="mt-4 text-sm leading-relaxed text-ink-muted">
-            {settings?.about_preview ||
-              "Timeless Indian craftsmanship reimagined for the modern wardrobe. Heritage weaves, contemporary silhouettes."}
-          </p>
+          {settings?.about_preview && (
+            <p className="mt-4 text-sm leading-relaxed text-ink-muted">
+              {settings.about_preview}
+            </p>
+          )}
           <div className="mt-6 flex items-center gap-4">
             {instagram && (
-              <a
-                href={instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
-              >
-                <Instagram className="h-5 w-5" strokeWidth={1.5} />
+              <a href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <Instagram className="h-5 w-5 text-ink-muted" strokeWidth={1.5} />
               </a>
             )}
             {facebook && (
-              <a
-                href={facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
-              >
-                <Facebook className="h-5 w-5" strokeWidth={1.5} />
+              <a href={facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <Facebook className="h-5 w-5 text-ink-muted" strokeWidth={1.5} />
               </a>
             )}
             {youtube && (
-              <a
-                href={youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
-              >
-                <Youtube className="h-5 w-5" strokeWidth={1.5} />
+              <a href={youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <Youtube className="h-5 w-5 text-ink-muted" strokeWidth={1.5} />
               </a>
             )}
             {whatsapp && (
@@ -114,114 +101,59 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
               >
-                <MessageCircle className="h-5 w-5" strokeWidth={1.5} />
+                <MessageCircle className="h-5 w-5 text-ink-muted" strokeWidth={1.5} />
               </a>
             )}
           </div>
         </div>
 
-        <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase">
-            Quick Links
-          </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-muted">
-            <li>
-              <Link href="/shop" className="hover:text-ink dark:hover:text-cream">
-                Shop
-              </Link>
-            </li>
-            <li>
-              <Link href="/about" className="hover:text-ink dark:hover:text-cream">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" className="hover:text-ink dark:hover:text-cream">
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link href="/my-account" className="hover:text-ink dark:hover:text-cream">
-                My Account
-              </Link>
-            </li>
-          </ul>
-        </div>
+        {quickLinks.length > 0 && (
+          <div>
+            <ul className="mt-0 space-y-2.5 text-sm text-ink-muted">
+              {quickLinks.map((item) => (
+                <li key={item.id}>
+                  <Link href={item.url || "/"} className="hover:text-ink dark:hover:text-cream">
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {policyLinks.length > 0 && (
+          <div>
+            <ul className="mt-0 space-y-2.5 text-sm text-ink-muted">
+              {policyLinks.map((item) => (
+                <li key={item.id}>
+                  <Link href={item.url || "/"} className="hover:text-ink dark:hover:text-cream">
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase">
-            Policies
-          </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-muted">
-            <li>
-              <Link
-                href="/shipping-policy"
-                className="hover:text-ink dark:hover:text-cream"
-              >
-                Shipping Policy
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/return-policy"
-                className="hover:text-ink dark:hover:text-cream"
-              >
-                Return &amp; Exchange
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/privacy-policy"
-                className="hover:text-ink dark:hover:text-cream"
-              >
-                Privacy Policy
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase">
-            Contact
-          </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-muted">
-            {(settings?.contact_email ||
-              process.env.NEXT_PUBLIC_CONTACT_EMAIL) && (
+          <ul className="mt-0 space-y-2.5 text-sm text-ink-muted">
+            {settings?.contact_email && (
               <li>
-                <a
-                  href={`mailto:${settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL}`}
-                  className="hover:text-ink dark:hover:text-cream"
-                >
-                  {settings?.contact_email ||
-                    process.env.NEXT_PUBLIC_CONTACT_EMAIL}
-                </a>
+                <a href={`mailto:${settings.contact_email}`}>{settings.contact_email}</a>
               </li>
             )}
-            {(settings?.contact_phone ||
-              process.env.NEXT_PUBLIC_CONTACT_PHONE) && (
+            {settings?.contact_phone && (
               <li>
-                <a
-                  href={`tel:${settings?.contact_phone || process.env.NEXT_PUBLIC_CONTACT_PHONE}`}
-                  className="hover:text-ink dark:hover:text-cream"
-                >
-                  {settings?.contact_phone ||
-                    process.env.NEXT_PUBLIC_CONTACT_PHONE}
-                </a>
+                <a href={`tel:${settings.contact_phone}`}>{settings.contact_phone}</a>
               </li>
             )}
             {settings?.working_hours && <li>{settings.working_hours}</li>}
             {settings?.address && <li>{settings.address}</li>}
             {settings?.maps_url && (
               <li>
-                <a
-                  href={settings.maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-ink dark:hover:text-cream"
-                >
-                  View on map
+                <a href={settings.maps_url} target="_blank" rel="noopener noreferrer">
+                  Map
                 </a>
               </li>
             )}
@@ -231,11 +163,8 @@ export function Footer() {
 
       <div className="border-t border-brand-200 py-6 dark:border-brand-800">
         <div className="container-luxury flex flex-col items-center justify-between gap-2 text-xs text-ink-muted sm:flex-row">
-          <p>
-            {settings?.footer_copyright ||
-              `© ${new Date().getFullYear()} ${settings?.site_name || SITE_NAME}. All rights reserved.`}
-          </p>
-          <p>Crafted with tradition.</p>
+          <p>{settings?.footer_copyright || settings?.site_name}</p>
+          {settings?.footer_tagline && <p>{settings.footer_tagline}</p>}
         </div>
       </div>
     </footer>

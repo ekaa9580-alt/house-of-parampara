@@ -10,6 +10,12 @@
     --accent: 196 165 116;
     --border: 230 221 208;
     --card: 255 255 255;
+    --cms-primary: #2B50A1;
+    --cms-accent: #8C6239;
+    --cms-gold: #8C6239;
+    --cms-ink: #1a1614;
+    --cms-cream: #FDFBF7;
+    --cms-bg: #FDFBF7;
   }
 
   .dark {
@@ -48,7 +54,8 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-royal px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-cream transition-all duration-300 hover:bg-royal-600 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50 dark:bg-royal dark:text-cream dark:hover:bg-royal-400;
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-cream transition-all duration-300 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50;
+    background-color: var(--cms-primary, #2B50A1);
   }
 
   .btn-outline {

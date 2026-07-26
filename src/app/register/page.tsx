@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRegister } from "@/hooks/useWooCommerce";
+import { useRegister, useSiteSettings } from "@/hooks/useWooCommerce";
 
 export default function RegisterPage() {
   const router = useRouter();
   const register = useRegister();
+  const { data: settings } = useSiteSettings();
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -35,11 +36,13 @@ export default function RegisterPage() {
     <div className="container-luxury flex min-h-[70vh] items-center justify-center py-28">
       <div className="w-full max-w-md">
         <h1 className="text-center font-display text-4xl font-light">
-          Create Account
+          {settings?.auth_register_title || "Create Account"}
         </h1>
-        <p className="mt-2 text-center text-sm text-ink-muted">
-          Join the House of Parampara circle
-        </p>
+        {settings?.auth_register_subtitle && (
+          <p className="mt-2 text-center text-sm text-ink-muted">
+            {settings.auth_register_subtitle}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-4">
           <div className="grid grid-cols-2 gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,35 +17,43 @@ import {
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { useUIStore, useWishlistStore, useAuthStore } from "@/store";
-import { useCart, useCategories } from "@/hooks/useWooCommerce";
+import { useCart, useCategories, useMenu, useSiteSettings } from "@/hooks/useWooCommerce";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { MegaMenu } from "./MegaMenu";
 import { SearchOverlay } from "./SearchOverlay";
 import { BrandLink } from "./WhatsAppButton";
-import type { WooCategory } from "@/types/woocommerce";
+import { AnnouncementBar } from "@/components/cms/BrandTheme";
+import type { CmsMenuItem } from "@/types/woocommerce";
 
 const NAV_LINK =
   "shrink-0 whitespace-nowrap text-[12px] font-medium tracking-[0.12em] uppercase transition-opacity hover:opacity-70 xl:text-[13px] xl:tracking-[0.14em]";
 
-const PRIMARY_CATS = [
-  { label: "Women", match: ["women", "womens", "woman"] },
-  { label: "Men", match: ["men", "mens", "man"] },
-  { label: "Kids", match: ["kids", "kid", "children", "child"] },
-  { label: "Handicrafts", match: ["handicrafts", "handicraft"] },
-] as const;
-
-function resolveCategory(
-  categories: WooCategory[] | undefined,
-  match: readonly string[]
-): WooCategory | undefined {
-  if (!categories?.length) return undefined;
-  return categories.find((c) => {
-    const slug = c.slug.toLowerCase();
-    const name = c.name.toLowerCase();
-    return match.some(
-      (m) => slug === m || slug.includes(m) || name === m || name.includes(m)
-    );
-  });
+function MenuLinks({
+  items,
+  className,
+  onNavigate,
+  linkClassName,
+}: {
+  items: CmsMenuItem[];
+  className?: string;
+  onNavigate?: () => void;
+  linkClassName?: string;
+}) {
+  return (
+    <nav className={className}>
+      {items.map((item) => (
+        <Link
+          key={item.id}
+          href={item.url || "/"}
+          target={item.target || undefined}
+          className={linkClassName || NAV_LINK}
+          onClick={onNavigate}
+        >
+          {item.title}
+        </Link>
+      ))}
+    </nav>
+  );
 }
 
 export function Header() {
@@ -65,25 +73,12 @@ export function Header() {
   const isAuth = useAuthStore((s) => s.isAuthenticated());
   const { data: cart } = useCart();
   const { data: categories } = useCategories(0);
+  const { data: menuItems = [] } = useMenu("primary");
+  const { data: settings } = useSiteSettings();
 
   const isHome = pathname === "/";
 
-  const navCategories = useMemo(
-    () =>
-      PRIMARY_CATS.map((item) => {
-        const cat = resolveCategory(categories, item.match);
-        return {
-          label: item.label,
-          href: cat
-            ? `/category/${cat.slug}`
-            : `/shop?search=${encodeURIComponent(item.label)}`,
-        };
-      }),
-    [categories]
-  );
-
   useEffect(() => setMounted(true), []);
-
   useBodyScrollLock(isMobileMenuOpen);
 
   useEffect(() => {
@@ -110,9 +105,7 @@ export function Header() {
   }, [setMobileMenuOpen, setMegaMenuOpen]);
 
   const transparent = isHome && !scrolled && !isMegaMenuOpen;
-
-  const iconBtn =
-    "transition-opacity hover:opacity-70";
+  const iconBtn = "transition-opacity hover:opacity-70";
 
   return (
     <>
@@ -124,8 +117,8 @@ export function Header() {
             : "glass text-ink dark:text-cream"
         )}
       >
+        <AnnouncementBar />
         <div className="container-luxury">
-          {/* Row 1 — full brand name + actions */}
           <div className="flex min-h-14 items-center gap-3 py-3 sm:min-h-16 sm:gap-4 lg:min-h-[4.25rem]">
             <button
               type="button"
@@ -153,7 +146,6 @@ export function Header() {
               >
                 <Search className="h-5 w-5" strokeWidth={1.5} />
               </button>
-
               {mounted && (
                 <button
                   type="button"
@@ -168,7 +160,6 @@ export function Header() {
                   )}
                 </button>
               )}
-
               {mounted && (
                 <Link
                   href={isAuth ? "/my-account" : "/login"}
@@ -178,7 +169,6 @@ export function Header() {
                   <User className="h-5 w-5" strokeWidth={1.5} />
                 </Link>
               )}
-
               <Link
                 href="/wishlist"
                 aria-label="Wishlist"
@@ -191,7 +181,6 @@ export function Header() {
                   </span>
                 )}
               </Link>
-
               <button
                 type="button"
                 aria-label="Cart"
@@ -208,39 +197,30 @@ export function Header() {
             </div>
           </div>
 
-          {/* Row 2 — desktop navigation */}
-          <nav
+          <div
             className={cn(
-              "hidden items-center justify-center gap-4 border-t py-2.5 xl:gap-6 2xl:gap-8 lg:flex",
+              "hidden items-center justify-center gap-4 border-t py-2.5 xl:gap-6 lg:flex",
               transparent
                 ? "border-cream/20"
                 : "border-brand-200/70 dark:border-brand-800"
             )}
           >
-            <Link href="/" className={NAV_LINK}>
-              Home
-            </Link>
-            {navCategories.map((item) => (
-              <Link key={item.label} href={item.href} className={NAV_LINK}>
-                {item.label}
-              </Link>
-            ))}
-            <button
-              type="button"
-              className={NAV_LINK}
-              aria-expanded={isMegaMenuOpen}
-              onMouseEnter={() => setMegaMenuOpen(true)}
-              onClick={() => setMegaMenuOpen(!isMegaMenuOpen)}
-            >
-              Shop
-            </button>
-            <Link href="/about" className={NAV_LINK}>
-              About
-            </Link>
-            <Link href="/contact" className={NAV_LINK}>
-              Contact
-            </Link>
-          </nav>
+            <MenuLinks
+              items={menuItems}
+              className="flex flex-wrap items-center justify-center gap-4 xl:gap-6"
+            />
+            {categories && categories.length > 0 && (
+              <button
+                type="button"
+                className={NAV_LINK}
+                aria-expanded={isMegaMenuOpen}
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                onClick={() => setMegaMenuOpen(!isMegaMenuOpen)}
+              >
+                {settings?.mega_menu_cta_label || settings?.home_categories_title || "Shop"}
+              </button>
+            )}
+          </div>
         </div>
 
         <AnimatePresence>
@@ -264,50 +244,23 @@ export function Header() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "-100%" }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-40 overflow-y-auto bg-cream pt-24 dark:bg-brand-950 lg:hidden"
+            className="fixed inset-0 z-40 overflow-y-auto bg-cream pt-28 dark:bg-brand-950 lg:hidden"
           >
-            <nav className="container-luxury flex flex-col gap-5 py-8">
+            <MenuLinks
+              items={menuItems}
+              className="container-luxury flex flex-col gap-5 py-8"
+              linkClassName="font-display text-[1.75rem] font-light tracking-wide"
+              onNavigate={() => setMobileMenuOpen(false)}
+            />
+            <div className="container-luxury border-t border-brand-200 pt-6 dark:border-brand-800">
               <Link
-                href="/"
-                className="font-display text-[1.75rem] font-light tracking-wide"
+                href={mounted && isAuth ? "/my-account" : "/login"}
                 onClick={() => setMobileMenuOpen(false)}
+                className="text-base tracking-wide"
               >
-                Home
+                {mounted && isAuth ? "Account" : "Login"}
               </Link>
-              {navCategories.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="font-display text-[1.75rem] font-light tracking-wide text-ink-soft dark:text-brand-200"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <Link
-                href="/shop"
-                className="font-display text-[1.75rem] font-light tracking-wide"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Shop
-              </Link>
-              <div className="mt-4 space-y-4 border-t border-brand-200 pt-6 text-base tracking-wide dark:border-brand-800">
-                <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
-                  About
-                </Link>
-                <br />
-                <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                  Contact
-                </Link>
-                <br />
-                <Link
-                  href={mounted && isAuth ? "/my-account" : "/login"}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {mounted && isAuth ? "My Account" : "Login"}
-                </Link>
-              </div>
-            </nav>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

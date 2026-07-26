@@ -12,11 +12,13 @@ export default function AboutPage() {
   return (
     <div className="pb-20 pt-32 md:pt-36">
       <div className="container-luxury">
-        <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
-          {settings?.tagline || "Bringing Tradition to Life"}
-        </p>
+        {settings?.tagline && (
+          <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
+            {settings.tagline}
+          </p>
+        )}
         <h1 className="section-heading">
-          {page?.title?.rendered || "About House of Parampara"}
+          {page?.title?.rendered || settings?.site_name}
         </h1>
       </div>
 
@@ -25,16 +27,12 @@ export default function AboutPage() {
           {safeImageSrc(settings?.about_image) ? (
             <SafeImage
               src={settings?.about_image}
-              alt="About"
+              alt=""
               fill
               className="object-cover"
               sizes="50vw"
             />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <span className="font-display text-5xl text-brand-400">परंपरा</span>
-            </div>
-          )}
+          ) : null}
         </div>
         <div>
           {isLoading ? (
@@ -48,9 +46,7 @@ export default function AboutPage() {
               className="prose prose-neutral max-w-none dark:prose-invert"
               dangerouslySetInnerHTML={{
                 __html:
-                  page?.content?.rendered ||
-                  settings?.about_preview ||
-                  "",
+                  page?.content?.rendered || settings?.about_preview || "",
               }}
             />
           )}

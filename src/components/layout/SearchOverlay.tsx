@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { useUIStore } from "@/store";
-import { useSearchProducts } from "@/hooks/useWooCommerce";
+import { useSearchProducts, useSiteSettings } from "@/hooks/useWooCommerce";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatPrice } from "@/lib/utils";
 import { SafeImage } from "@/components/ui/SafeImage";
@@ -14,6 +14,7 @@ export function SearchOverlay() {
   const { isSearchOpen, setSearchOpen } = useUIStore();
   const [query, setQuery] = useState("");
   const { data: results, isFetching } = useSearchProducts(query);
+  const { data: settings } = useSiteSettings();
 
   useBodyScrollLock(isSearchOpen);
 
@@ -53,7 +54,7 @@ export function SearchOverlay() {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search the collection…"
+                  placeholder={settings?.search_placeholder || "Search…"}
                   className="w-full min-w-0 bg-transparent font-display text-2xl font-light outline-none placeholder:text-ink-muted/40 md:text-3xl"
                 />
                 <button
