@@ -33,15 +33,20 @@ export function SafeImage({
     return (
       <div
         className={cn(
-          "flex h-full w-full items-center justify-center bg-brand-100 text-xs tracking-wider text-brand-400 uppercase dark:bg-brand-900 dark:text-brand-500",
+          "flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-brand-50 via-brand-100 to-brand-200 text-[var(--cms-primary,#1E3A8A)] dark:from-brand-900 dark:via-brand-950 dark:to-brand-900",
           fill && "absolute inset-0",
           fallbackClassName,
           className
         )}
         role="img"
-        aria-label={alt || "No image"}
+        aria-label={alt || "Image unavailable"}
       >
-        No image
+        <span className="font-display text-2xl font-light tracking-[0.2em] opacity-40">
+          HOP
+        </span>
+        <span className="text-[10px] tracking-[0.25em] uppercase opacity-50">
+          Image coming soon
+        </span>
       </div>
     );
   }

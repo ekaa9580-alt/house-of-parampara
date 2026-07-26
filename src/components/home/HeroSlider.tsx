@@ -38,7 +38,7 @@ function HeroContent({ banner }: { banner: HeroBanner }) {
             {banner.cta_text && banner.cta_url && (
               <Link
                 href={banner.cta_url}
-                className="btn-primary bg-cream px-6 py-3 text-xs text-ink hover:bg-brand-100 sm:text-sm"
+                className="btn-primary rounded-full px-7 py-3 text-xs sm:text-sm"
               >
                 {banner.cta_text}
               </Link>
@@ -112,7 +112,7 @@ export function HeroSlider() {
               settings.home_hero_fallback_cta_url && (
                 <Link
                   href={settings.home_hero_fallback_cta_url}
-                  className="btn-primary mt-8 inline-flex bg-cream text-ink hover:bg-brand-100"
+                  className="btn-primary mt-8 inline-flex rounded-full"
                 >
                   {settings.home_hero_fallback_cta}
                 </Link>

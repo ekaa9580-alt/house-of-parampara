@@ -5,6 +5,7 @@ import { PageTransition } from "@/components/providers/PageTransition";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { StoreShell } from "@/components/layout/StoreShell";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { QuickView } from "@/components/product/QuickView";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
@@ -74,7 +75,9 @@ export default function RootLayout({
           <ErrorBoundary>
             <Header />
             <main className="min-h-screen">
-              <PageTransition>{children}</PageTransition>
+              <StoreShell>
+                <PageTransition>{children}</PageTransition>
+              </StoreShell>
             </main>
             <Footer />
             <CartDrawer />

@@ -8,7 +8,7 @@ import { formatPrice, getDiscountPercent, cn, safeImageSrc } from "@/lib/utils";
 import { Rating } from "@/components/ui/Rating";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useWishlistStore, useUIStore } from "@/store";
-import { useAddToCart, useSiteSettings } from "@/hooks/useWooCommerce";
+import { useAddToCart } from "@/hooks/useWooCommerce";
 import { useEffect, useState } from "react";
 
 interface ProductCardProps {
@@ -22,8 +22,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { toggle, has } = useWishlistStore();
   const setQuickView = useUIStore((s) => s.setQuickView);
   const addToCart = useAddToCart();
-  const { data: settings } = useSiteSettings();
-  const atcLabel = settings?.add_to_cart_label || "Add to Bag";
   const wished = mounted && has(product.id);
 
   useEffect(() => setMounted(true), []);
@@ -118,11 +116,18 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </button>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 z-[2] p-3">
+        <div
+          className={cn(
+            "absolute inset-x-0 bottom-0 z-[2] p-3 transition-all duration-300",
+            hovered
+              ? "translate-y-0 opacity-100"
+              : "translate-y-2 opacity-0 max-md:translate-y-0 max-md:opacity-100"
+          )}
+        >
           {product.type === "variable" ? (
             <Link
               href={`/product/${product.slug}`}
-              className="flex w-full items-center justify-center gap-2 bg-ink py-3 text-[11px] font-medium tracking-[0.15em] text-cream uppercase transition hover:bg-brand-800 dark:bg-cream dark:text-ink"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--cms-primary,#1E3A8A)] py-3 text-[11px] font-medium tracking-[0.15em] text-cream uppercase transition hover:brightness-110"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
               Select Options
@@ -134,10 +139,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               onClick={() =>
                 addToCart.mutate({ productId: product.id, quantity: 1 })
               }
-              className="flex w-full items-center justify-center gap-2 bg-ink py-3 text-[11px] font-medium tracking-[0.15em] text-cream uppercase transition hover:bg-brand-800 disabled:opacity-50 dark:bg-cream dark:text-ink"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--cms-primary,#1E3A8A)] py-3 text-[11px] font-medium tracking-[0.15em] text-cream uppercase transition hover:brightness-110 disabled:opacity-50"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
-              {addToCart.isPending ? "…" : atcLabel}
+              {addToCart.isPending ? "…" : "Quick Add"}
             </button>
           )}
         </div>

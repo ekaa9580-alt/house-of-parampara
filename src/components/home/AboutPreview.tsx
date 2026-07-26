@@ -13,7 +13,7 @@ export function AboutPreview() {
   if (!settings?.about_preview && !settings?.home_about_title) return null;
 
   return (
-    <section className="container-luxury py-20 md:py-28">
+    <section className="py-16 md:py-24">
       <div className="grid items-center gap-12 md:grid-cols-2 md:gap-16">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -55,9 +55,14 @@ export function AboutPreview() {
           {settings?.home_about_cta && settings?.home_about_cta_url && (
             <Link
               href={settings.home_about_cta_url}
-              className="btn-outline mt-8 inline-flex"
+              className="btn-primary mt-8 inline-flex rounded-full"
             >
               {settings.home_about_cta}
+            </Link>
+          )}
+          {!settings?.home_about_cta && (
+            <Link href="/about" className="btn-primary mt-8 inline-flex rounded-full">
+              Read Our Story
             </Link>
           )}
         </motion.div>

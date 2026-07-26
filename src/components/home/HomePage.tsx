@@ -1,66 +1,54 @@
 "use client";
 
 import {
-  useFeaturedProducts,
   useLatestProducts,
   useBestSellers,
   useSiteSettings,
 } from "@/hooks/useWooCommerce";
 import { HeroSlider } from "./HeroSlider";
-import { CategoryCards } from "./CategoryCards";
-import { ProductSection } from "./ProductSection";
-import { Testimonials } from "./Testimonials";
-import { InstagramFeed } from "./InstagramFeed";
+import { ProductCarousel } from "./ProductCarousel";
 import { AboutPreview } from "./AboutPreview";
-import { SaleBanner } from "./SaleBanner";
+import { ComingSoon } from "./ComingSoon";
 
+/**
+ * Home order (fixed):
+ * Hero → New Arrivals → Best Sellers → About → Coming Soon
+ * (Newsletter lives in Footer)
+ */
 export function HomePage() {
   const { data: s } = useSiteSettings();
-  const featured = useFeaturedProducts(8);
-  const latest = useLatestProducts(8);
-  const bestsellers = useBestSellers(8);
+  const latest = useLatestProducts(10);
+  const bestsellers = useBestSellers(10);
 
   return (
-    <>
-      <HeroSlider />
-      {s?.show_categories !== false && <CategoryCards />}
+    <div className="min-w-0">
+      <div className="-mx-4 sm:-mx-6 lg:mx-0">
+        <HeroSlider />
+      </div>
+
+      <ProductCarousel
+        title={s?.home_latest_title || "New Arrivals"}
+        subtitle={s?.home_latest_subtitle}
+        products={latest.data}
+        isLoading={latest.isLoading}
+        viewAllHref={s?.home_latest_cta_url || "/shop?orderby=date"}
+        viewAllLabel={s?.home_latest_cta || "View all"}
+      />
+
+      <ProductCarousel
+        title={s?.home_bestsellers_title || "Best Sellers"}
+        subtitle={s?.home_bestsellers_subtitle}
+        products={bestsellers.data}
+        isLoading={bestsellers.isLoading}
+        viewAllHref={s?.home_bestsellers_cta_url || "/shop?orderby=popularity"}
+        viewAllLabel={s?.home_bestsellers_cta || "View all"}
+      />
+
       {s?.show_about_preview !== false && <AboutPreview />}
-      {s?.show_featured !== false && (
-        <ProductSection
-          eyebrow={s?.home_featured_eyebrow}
-          title={s?.home_featured_title}
-          subtitle={s?.home_featured_subtitle}
-          products={featured.data}
-          isLoading={featured.isLoading}
-          viewAllHref={s?.home_featured_cta_url}
-          viewAllLabel={s?.home_featured_cta}
-        />
-      )}
-      {s?.show_latest !== false && (
-        <ProductSection
-          eyebrow={s?.home_latest_eyebrow}
-          title={s?.home_latest_title}
-          subtitle={s?.home_latest_subtitle}
-          products={latest.data}
-          isLoading={latest.isLoading}
-          viewAllHref={s?.home_latest_cta_url}
-          viewAllLabel={s?.home_latest_cta}
-        />
-      )}
-      {s?.show_bestsellers !== false && (
-        <ProductSection
-          eyebrow={s?.home_bestsellers_eyebrow}
-          title={s?.home_bestsellers_title}
-          subtitle={s?.home_bestsellers_subtitle}
-          products={bestsellers.data}
-          isLoading={bestsellers.isLoading}
-          viewAllHref={s?.home_bestsellers_cta_url}
-          viewAllLabel={s?.home_bestsellers_cta}
-        />
-      )}
-      {s?.show_sale_banner !== false && <SaleBanner />}
-      {s?.show_testimonials !== false && <Testimonials />}
-      {s?.show_instagram !== false && <InstagramFeed />}
-    </>
+
+      <div className="-mx-4 sm:-mx-6 lg:-ml-0">
+        <ComingSoon />
+      </div>
+    </div>
   );
 }

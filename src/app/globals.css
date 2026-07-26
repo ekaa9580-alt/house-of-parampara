@@ -10,7 +10,7 @@
     --accent: 196 165 116;
     --border: 230 221 208;
     --card: 255 255 255;
-    --cms-primary: #2B50A1;
+    --cms-primary: #1E3A8A;
     --cms-accent: #8C6239;
     --cms-gold: #8C6239;
     --cms-ink: #1a1614;
@@ -55,7 +55,7 @@
 
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-cream transition-all duration-300 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50;
-    background-color: var(--cms-primary, #2B50A1);
+    background-color: var(--cms-primary, #1E3A8A);
   }
 
   .btn-outline {

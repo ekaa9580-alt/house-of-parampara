@@ -225,8 +225,7 @@ function FiltersPanel({
 
       {!categorySlug && (
         <p className="text-[11px] text-ink-muted">
-          Tip: browse Women, Men, Kids and Handicrafts from the header for
-          quicker discovery.
+          Tip: use Categories in the sidebar for Women, Men, Kids and Handicrafts.
         </p>
       )}
     </div>
@@ -379,7 +378,7 @@ export function ShopView({
         </div>
       )}
 
-      <div className="container-luxury py-10 md:py-14">
+      <div className="py-8 md:py-12">
         {!bannerImage && (
           <div className="mb-8 md:mb-10">
             <Breadcrumb
@@ -396,15 +395,24 @@ export function ShopView({
           </div>
         )}
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 lg:hidden">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <button
             type="button"
-            className="btn-outline gap-2 px-5 py-2.5 text-xs"
+            className="btn-outline gap-2 px-5 py-2.5 text-xs lg:hidden"
             onClick={() => setFiltersOpen(true)}
           >
             <SlidersHorizontal className="h-4 w-4" />
             Filters
           </button>
+          <p className="hidden text-sm text-ink-muted lg:block">
+            {data
+              ? `${color && products.length !== data.data.length ? products.length : data.total} ${
+                  (color ? products.length : data.total) === 1
+                    ? "piece"
+                    : "pieces"
+                }`
+              : "…"}
+          </p>
           <select
             className="input-field w-auto py-2 text-sm"
             value={`${orderby}-${order}`}
@@ -416,6 +424,7 @@ export function ShopView({
               sp.delete("page");
               router.push(`${pathname}?${sp.toString()}`);
             }}
+            aria-label="Sort products"
           >
             <option value="date-desc">Newest</option>
             <option value="popularity-desc">Best Selling</option>
@@ -426,63 +435,21 @@ export function ShopView({
           </select>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[240px_1fr]">
-          <aside className="hidden space-y-8 lg:sticky lg:top-28 lg:block lg:self-start">
-            <FiltersPanel {...filterProps} />
-          </aside>
+        <p className="mb-4 text-sm text-ink-muted lg:hidden">
+          {data
+            ? `${color && products.length !== data.data.length ? products.length : data.total} pieces`
+            : "…"}
+        </p>
 
-          <div>
-            <div className="mb-6 hidden flex-wrap items-center justify-between gap-4 lg:flex">
-              <p className="text-sm text-ink-muted">
-                {data
-                  ? `${color && products.length !== data.data.length ? products.length : data.total} ${
-                      (color ? products.length : data.total) === 1
-                        ? "piece"
-                        : "pieces"
-                    }`
-                  : "…"}
-              </p>
-              <select
-                className="input-field w-auto py-2 text-sm"
-                value={`${orderby}-${order}`}
-                onChange={(e) => {
-                  const [ob, o] = e.target.value.split("-");
-                  const sp = new URLSearchParams(searchParams.toString());
-                  sp.set("orderby", ob);
-                  sp.set("order", o);
-                  sp.delete("page");
-                  router.push(`${pathname}?${sp.toString()}`);
-                }}
-              >
-                <option value="date-desc">Newest</option>
-                <option value="popularity-desc">Best Selling</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="rating-desc">Top Rated</option>
-                <option value="title-asc">Name: A–Z</option>
-              </select>
-            </div>
+        <ProductGrid products={products} isLoading={isLoading && !data} />
 
-            <p className="mb-4 text-sm text-ink-muted lg:hidden">
-              {data
-                ? `${color && products.length !== data.data.length ? products.length : data.total} pieces`
-                : "…"}
-            </p>
-
-            <ProductGrid
-              products={products}
-              isLoading={isLoading && !data}
-            />
-
-            {data && (
-              <Pagination
-                page={data.page}
-                totalPages={data.totalPages}
-                onPageChange={(p) => setParam("page", String(p))}
-              />
-            )}
-          </div>
-        </div>
+        {data && (
+          <Pagination
+            page={data.page}
+            totalPages={data.totalPages}
+            onPageChange={(p) => setParam("page", String(p))}
+          />
+        )}
       </div>
 
       <AnimatePresence>
