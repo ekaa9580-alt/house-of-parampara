@@ -42,8 +42,8 @@ export function BrandLogo({
       <SafeImage
         src={logo}
         alt={name}
-        width={160}
-        height={64}
+        width={280}
+        height={72}
         className={
           className ||
           "h-9 w-auto max-w-full object-contain object-left sm:h-10 md:h-11"
@@ -57,7 +57,10 @@ export function BrandLogo({
     <span
       className={
         className ||
-        `font-display truncate text-lg font-light tracking-[0.1em] sm:text-xl md:text-2xl ${light ? "text-cream" : ""}`
+        cn(
+          "font-display block whitespace-nowrap text-base font-light tracking-[0.08em] sm:text-lg md:text-xl lg:text-2xl",
+          light ? "text-cream" : ""
+        )
       }
     >
       {name}
@@ -75,7 +78,7 @@ export function BrandLink({
   return (
     <Link
       href="/"
-      className={cn("relative z-10 flex shrink-0 items-center", className)}
+      className={cn("relative z-10 flex min-w-0 items-center", className)}
       aria-label="Home"
     >
       <BrandLogo light={light} />

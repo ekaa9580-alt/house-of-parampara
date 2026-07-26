@@ -1,13 +1,21 @@
 "use client";
 
-import { usePage } from "@/hooks/useWooCommerce";
+import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ShippingPolicyPage() {
-  const { data: page, isLoading } = usePage("shipping-policy");
+  const { data: page, isLoading: pageLoading } = usePage("shipping-policy");
+  const { data: settings, isLoading: settingsLoading } = useSiteSettings();
+
+  const fromSettings = settings?.shipping_policy?.trim();
+  const html =
+    fromSettings ||
+    page?.content?.rendered ||
+    "<p>Content managed in WordPress Site Settings or Pages.</p>";
+  const isLoading = settingsLoading || (!fromSettings && pageLoading);
 
   return (
-    <div className="container-luxury pb-20 pt-28">
+    <div className="container-luxury pb-20 pt-32 md:pt-36">
       <h1 className="section-heading">
         {page?.title?.rendered || "Shipping Policy"}
       </h1>
@@ -19,11 +27,7 @@ export default function ShippingPolicyPage() {
       ) : (
         <div
           className="prose prose-neutral mt-8 max-w-3xl dark:prose-invert"
-          dangerouslySetInnerHTML={{
-            __html:
-              page?.content?.rendered ||
-              "<p>Content managed in WordPress.</p>",
-          }}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       )}
     </div>

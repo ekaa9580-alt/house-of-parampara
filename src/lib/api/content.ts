@@ -99,20 +99,32 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL,
   };
 
+  const mergeRemote = (remote: Partial<SiteSettings>): SiteSettings => {
+    const merged: SiteSettings = { ...defaults };
+    for (const [key, value] of Object.entries(remote) as [
+      keyof SiteSettings,
+      SiteSettings[keyof SiteSettings],
+    ][]) {
+      if (value === undefined || value === null) continue;
+      if (typeof value === "string" && value.trim() === "") continue;
+      (merged as Record<string, unknown>)[key] = value;
+    }
+    return merged;
+  };
+
   try {
     ensureConfigured();
     const response = await wpApi.get<Partial<SiteSettings>>(
       "/hop/v1/settings"
     );
-    return { ...defaults, ...response.data };
+    return mergeRemote(response.data || {});
   } catch {
     try {
       const response = await wpApi.get("/wp/v2/settings");
-      return {
-        ...defaults,
+      return mergeRemote({
         site_name: response.data?.title || defaults.site_name,
         tagline: response.data?.description,
-      };
+      });
     } catch {
       return defaults;
     }

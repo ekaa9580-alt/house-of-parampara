@@ -10,7 +10,7 @@ export default function AboutPage() {
   const { data: settings } = useSiteSettings();
 
   return (
-    <div className="pb-20 pt-28">
+    <div className="pb-20 pt-32 md:pt-36">
       <div className="container-luxury">
         <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
           {settings?.tagline || "Bringing Tradition to Life"}

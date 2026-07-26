@@ -1,13 +1,39 @@
 "use client";
 
-import { usePage } from "@/hooks/useWooCommerce";
+import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { Skeleton } from "@/components/ui/Skeleton";
+import type { SiteSettings } from "@/types/woocommerce";
 
-function PolicyPage({ slug, fallbackTitle }: { slug: string; fallbackTitle: string }) {
-  const { data: page, isLoading } = usePage(slug);
+type PolicyKey = keyof Pick<
+  SiteSettings,
+  "privacy_policy" | "shipping_policy" | "return_policy" | "exchange_policy"
+>;
+
+function PolicyPage({
+  slug,
+  fallbackTitle,
+  settingsKeys,
+}: {
+  slug: string;
+  fallbackTitle: string;
+  settingsKeys: PolicyKey[];
+}) {
+  const { data: page, isLoading: pageLoading } = usePage(slug);
+  const { data: settings, isLoading: settingsLoading } = useSiteSettings();
+
+  const fromSettings = settingsKeys
+    .map((key) => settings?.[key])
+    .find((value) => typeof value === "string" && value.trim().length > 0);
+
+  const html =
+    fromSettings ||
+    page?.content?.rendered ||
+    "<p>Content managed in WordPress Site Settings or Pages.</p>";
+
+  const isLoading = settingsLoading || (!fromSettings && pageLoading);
 
   return (
-    <div className="container-luxury pb-20 pt-28">
+    <div className="container-luxury pb-20 pt-32 md:pt-36">
       <h1 className="section-heading">
         {page?.title?.rendered || fallbackTitle}
       </h1>
@@ -20,9 +46,7 @@ function PolicyPage({ slug, fallbackTitle }: { slug: string; fallbackTitle: stri
       ) : (
         <div
           className="prose prose-neutral mt-8 max-w-3xl dark:prose-invert"
-          dangerouslySetInnerHTML={{
-            __html: page?.content?.rendered || "<p>Content managed in WordPress.</p>",
-          }}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       )}
     </div>
@@ -30,5 +54,11 @@ function PolicyPage({ slug, fallbackTitle }: { slug: string; fallbackTitle: stri
 }
 
 export default function PrivacyPolicyPage() {
-  return <PolicyPage slug="privacy-policy" fallbackTitle="Privacy Policy" />;
+  return (
+    <PolicyPage
+      slug="privacy-policy"
+      fallbackTitle="Privacy Policy"
+      settingsKeys={["privacy_policy"]}
+    />
+  );
 }

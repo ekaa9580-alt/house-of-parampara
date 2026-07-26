@@ -111,6 +111,9 @@ export function Header() {
 
   const transparent = isHome && !scrolled && !isMegaMenuOpen;
 
+  const iconBtn =
+    "transition-opacity hover:opacity-70";
+
   return (
     <>
       <header
@@ -121,10 +124,9 @@ export function Header() {
             : "glass text-ink dark:text-cream"
         )}
       >
-        {/* 3-column on desktop: logo | centered nav | actions — 2-column on mobile */}
-        <div className="container-luxury grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 lg:h-[4.75rem] lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6">
-          {/* Left: menu (mobile) + logo */}
-          <div className="flex min-w-0 items-center gap-3 justify-self-start">
+        <div className="container-luxury">
+          {/* Row 1 — full brand name + actions */}
+          <div className="flex min-h-14 items-center gap-3 py-3 sm:min-h-16 sm:gap-4 lg:min-h-[4.25rem]">
             <button
               type="button"
               className="shrink-0 lg:hidden"
@@ -139,14 +141,82 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               )}
             </button>
-            <BrandLink
-              light={transparent}
-              className="min-w-0 max-w-[min(52vw,200px)] sm:max-w-[220px] lg:max-w-[240px]"
-            />
+
+            <BrandLink light={transparent} className="min-w-0 flex-1" />
+
+            <div className="flex shrink-0 items-center justify-end gap-2.5 sm:gap-3 md:gap-4">
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={() => setSearchOpen(true)}
+                className={iconBtn}
+              >
+                <Search className="h-5 w-5" strokeWidth={1.5} />
+              </button>
+
+              {mounted && (
+                <button
+                  type="button"
+                  aria-label="Toggle theme"
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className={cn(iconBtn, "hidden md:block")}
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-5 w-5" strokeWidth={1.5} />
+                  ) : (
+                    <Moon className="h-5 w-5" strokeWidth={1.5} />
+                  )}
+                </button>
+              )}
+
+              {mounted && (
+                <Link
+                  href={isAuth ? "/my-account" : "/login"}
+                  aria-label="Account"
+                  className={cn(iconBtn, "hidden sm:block")}
+                >
+                  <User className="h-5 w-5" strokeWidth={1.5} />
+                </Link>
+              )}
+
+              <Link
+                href="/wishlist"
+                aria-label="Wishlist"
+                className={cn(iconBtn, "relative")}
+              >
+                <Heart className="h-5 w-5" strokeWidth={1.5} />
+                {mounted && wishlistCount > 0 && (
+                  <span className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-medium text-ink">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
+              <button
+                type="button"
+                aria-label="Cart"
+                onClick={() => setCartDrawerOpen(true)}
+                className={cn(iconBtn, "relative")}
+              >
+                <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
+                {(cart?.items_count ?? 0) > 0 && (
+                  <span className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-medium text-ink">
+                    {cart?.items_count}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Center: navigation (desktop only) */}
-          <nav className="hidden min-w-0 max-w-full items-center justify-center gap-3 justify-self-center overflow-x-auto xl:gap-5 2xl:gap-7 lg:flex">
+          {/* Row 2 — desktop navigation */}
+          <nav
+            className={cn(
+              "hidden items-center justify-center gap-4 border-t py-2.5 xl:gap-6 2xl:gap-8 lg:flex",
+              transparent
+                ? "border-cream/20"
+                : "border-brand-200/70 dark:border-brand-800"
+            )}
+          >
             <Link href="/" className={NAV_LINK}>
               Home
             </Link>
@@ -171,70 +241,6 @@ export function Header() {
               Contact
             </Link>
           </nav>
-
-          {/* Right: icons */}
-          <div className="flex shrink-0 items-center justify-end gap-2.5 justify-self-end sm:gap-3 md:gap-4 lg:col-start-3">
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={() => setSearchOpen(true)}
-              className="transition-opacity hover:opacity-70"
-            >
-              <Search className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-
-            {mounted && (
-              <button
-                type="button"
-                aria-label="Toggle theme"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="hidden transition-opacity hover:opacity-70 md:block"
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-5 w-5" strokeWidth={1.5} />
-                ) : (
-                  <Moon className="h-5 w-5" strokeWidth={1.5} />
-                )}
-              </button>
-            )}
-
-            {mounted && (
-              <Link
-                href={isAuth ? "/my-account" : "/login"}
-                aria-label="Account"
-                className="hidden transition-opacity hover:opacity-70 sm:block"
-              >
-                <User className="h-5 w-5" strokeWidth={1.5} />
-              </Link>
-            )}
-
-            <Link
-              href="/wishlist"
-              aria-label="Wishlist"
-              className="relative transition-opacity hover:opacity-70"
-            >
-              <Heart className="h-5 w-5" strokeWidth={1.5} />
-              {mounted && wishlistCount > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-medium text-ink">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            <button
-              type="button"
-              aria-label="Cart"
-              onClick={() => setCartDrawerOpen(true)}
-              className="relative transition-opacity hover:opacity-70"
-            >
-              <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
-              {(cart?.items_count ?? 0) > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-medium text-ink">
-                  {cart?.items_count}
-                </span>
-              )}
-            </button>
-          </div>
         </div>
 
         <AnimatePresence>
@@ -258,7 +264,7 @@ export function Header() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "-100%" }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-40 overflow-y-auto bg-cream pt-20 dark:bg-brand-950 lg:hidden"
+            className="fixed inset-0 z-40 overflow-y-auto bg-cream pt-24 dark:bg-brand-950 lg:hidden"
           >
             <nav className="container-luxury flex flex-col gap-5 py-8">
               <Link

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Instagram, MessageCircle } from "lucide-react";
+import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
 import { SITE_NAME } from "@/lib/utils";
 import { useNewsletter, useSiteSettings } from "@/hooks/useWooCommerce";
 
@@ -15,6 +15,8 @@ export function Footer() {
     settings?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
   const instagram =
     settings?.instagram || process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const facebook = settings?.facebook;
+  const youtube = settings?.youtube;
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,6 @@ export function Footer() {
 
   return (
     <footer className="border-t border-brand-200 bg-brand-50 dark:border-brand-800 dark:bg-brand-950">
-      {/* Newsletter */}
       <div className="border-b border-brand-200 dark:border-brand-800">
         <div className="container-luxury grid gap-8 py-16 md:grid-cols-2 md:items-center">
           <div>
@@ -64,6 +65,11 @@ export function Footer() {
           <h3 className="font-display text-xl font-light tracking-wide">
             {settings?.site_name || SITE_NAME}
           </h3>
+          {settings?.tagline && (
+            <p className="mt-2 text-xs tracking-[0.18em] uppercase text-gold">
+              {settings.tagline}
+            </p>
+          )}
           <p className="mt-4 text-sm leading-relaxed text-ink-muted">
             {settings?.about_preview ||
               "Timeless Indian craftsmanship reimagined for the modern wardrobe. Heritage weaves, contemporary silhouettes."}
@@ -78,6 +84,28 @@ export function Footer() {
                 className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
               >
                 <Instagram className="h-5 w-5" strokeWidth={1.5} />
+              </a>
+            )}
+            {facebook && (
+              <a
+                href={facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
+              >
+                <Facebook className="h-5 w-5" strokeWidth={1.5} />
+              </a>
+            )}
+            {youtube && (
+              <a
+                href={youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="text-ink-muted transition-colors hover:text-ink dark:hover:text-cream"
+              >
+                <Youtube className="h-5 w-5" strokeWidth={1.5} />
               </a>
             )}
             {whatsapp && (
@@ -140,7 +168,7 @@ export function Footer() {
                 href="/return-policy"
                 className="hover:text-ink dark:hover:text-cream"
               >
-                Return Policy
+                Return &amp; Exchange
               </Link>
             </li>
             <li>
@@ -183,7 +211,20 @@ export function Footer() {
                 </a>
               </li>
             )}
+            {settings?.working_hours && <li>{settings.working_hours}</li>}
             {settings?.address && <li>{settings.address}</li>}
+            {settings?.maps_url && (
+              <li>
+                <a
+                  href={settings.maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ink dark:hover:text-cream"
+                >
+                  View on map
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </div>
@@ -191,8 +232,8 @@ export function Footer() {
       <div className="border-t border-brand-200 py-6 dark:border-brand-800">
         <div className="container-luxury flex flex-col items-center justify-between gap-2 text-xs text-ink-muted sm:flex-row">
           <p>
-            © {new Date().getFullYear()} {settings?.site_name || SITE_NAME}. All
-            rights reserved.
+            {settings?.footer_copyright ||
+              `© ${new Date().getFullYear()} ${settings?.site_name || SITE_NAME}. All rights reserved.`}
           </p>
           <p>Crafted with tradition.</p>
         </div>

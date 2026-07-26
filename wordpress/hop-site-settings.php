@@ -44,6 +44,10 @@ function hop_settings_defaults() {
     'newsletter_heading'  => 'Join the Parampara Circle',
     'newsletter_text'     => 'Be first to discover new collections, private sales, and stories from the atelier.',
     'contact_page_info'   => '',
+    'privacy_policy'      => '',
+    'shipping_policy'     => '',
+    'return_policy'       => '',
+    'exchange_policy'     => '',
   );
 }
 
@@ -84,6 +88,10 @@ function hop_sanitize_settings($input) {
     'about_preview',
     'newsletter_text',
     'contact_page_info',
+    'privacy_policy',
+    'shipping_policy',
+    'return_policy',
+    'exchange_policy',
   );
 
   $url_fields = array(
@@ -260,6 +268,17 @@ function hop_render_settings_page() {
         <?php
         hop_settings_field('newsletter_heading', 'Newsletter Title', 'text', '', 'Join the Parampara Circle');
         hop_settings_field('newsletter_text', 'Newsletter Subtitle', 'textarea', '', 'Be first to discover new collections…');
+        ?>
+      </table>
+
+      <h2 class="title">Policies (storefront pages)</h2>
+      <p class="description">HTML or plain text shown on Next.js policy pages. Leave blank to fall back to matching WordPress pages.</p>
+      <table class="form-table" role="presentation">
+        <?php
+        hop_settings_field('privacy_policy', 'Privacy Policy', 'textarea');
+        hop_settings_field('shipping_policy', 'Shipping Policy', 'textarea');
+        hop_settings_field('return_policy', 'Return Policy', 'textarea');
+        hop_settings_field('exchange_policy', 'Exchange Policy', 'textarea', 'Shown on the Return / Exchange page when set.');
         ?>
       </table>
 

@@ -359,7 +359,17 @@ export interface SiteSettings {
   whatsapp?: string;
   instagram?: string;
   facebook?: string;
+  youtube?: string;
+  pinterest?: string;
   address?: string;
+  maps_url?: string;
+  working_hours?: string;
+  contact_page_info?: string;
+  footer_copyright?: string;
+  privacy_policy?: string;
+  shipping_policy?: string;
+  return_policy?: string;
+  exchange_policy?: string;
   testimonials?: Testimonial[];
   instagram_posts?: InstagramPost[];
 }
