@@ -6,6 +6,12 @@ import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
 import { useNewsletter, useSiteSettings, useMenu } from "@/hooks/useWooCommerce";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
+import {
+  BUSINESS_INSTAGRAM,
+  BUSINESS_PHONE,
+  BUSINESS_WHATSAPP,
+  resolveBusinessEmail,
+} from "@/lib/site-contact";
 import type { CmsMenuItem } from "@/types/woocommerce";
 
 const DEFAULT_CATEGORIES = [
@@ -34,18 +40,11 @@ export function Footer() {
 
   const brand = settings?.site_name || "HOUSE OF PARAMPARA";
   const logo = settings?.logo;
-  const contactEmail =
-    process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
-    settings?.contact_email ||
-    "support@houseofparampara.net";
-  const contactPhone =
-    process.env.NEXT_PUBLIC_CONTACT_PHONE || settings?.contact_phone;
+  const contactEmail = resolveBusinessEmail(settings?.contact_email);
+  const contactPhone = BUSINESS_PHONE || settings?.contact_phone;
   const instagramUrl =
-    settings?.instagram ||
-    process.env.NEXT_PUBLIC_INSTAGRAM_URL ||
-    "https://www.instagram.com/houseof_parampara";
-  const whatsappRaw =
-    settings?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+    settings?.instagram || BUSINESS_INSTAGRAM;
+  const whatsappRaw = settings?.whatsapp || BUSINESS_WHATSAPP;
   const whatsappUrl = whatsappRaw
     ? whatsappRaw.startsWith("http")
       ? whatsappRaw
@@ -197,7 +196,7 @@ export function Footer() {
                 aria-label="Instagram"
               >
                 <Instagram
-                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -210,7 +209,7 @@ export function Footer() {
                 aria-label="WhatsApp"
               >
                 <MessageCircle
-                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -223,7 +222,7 @@ export function Footer() {
                 aria-label="Facebook"
               >
                 <Facebook
-                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -236,7 +235,7 @@ export function Footer() {
                 aria-label="YouTube"
               >
                 <Youtube
-                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>

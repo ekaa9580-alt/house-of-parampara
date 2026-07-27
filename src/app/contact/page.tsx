@@ -4,6 +4,11 @@ import { useState } from "react";
 import { Mail, Phone, MessageCircle, MapPin, Clock } from "lucide-react";
 import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { clientApi, parseApiError } from "@/lib/api/client";
+import {
+  BUSINESS_PHONE,
+  BUSINESS_WHATSAPP,
+  resolveBusinessEmail,
+} from "@/lib/site-contact";
 import toast from "react-hot-toast";
 
 export default function ContactPage() {
@@ -16,14 +21,10 @@ export default function ContactPage() {
     message: "",
   });
 
-  const contactEmail =
-    process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
-    settings?.contact_email ||
-    "support@houseofparampara.net";
-  const contactPhone =
-    process.env.NEXT_PUBLIC_CONTACT_PHONE || settings?.contact_phone;
+  const contactEmail = resolveBusinessEmail(settings?.contact_email);
+  const contactPhone = BUSINESS_PHONE || settings?.contact_phone;
   const whatsapp =
-    settings?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+    settings?.whatsapp || BUSINESS_WHATSAPP;
   const whatsappHref = whatsapp
     ? whatsapp.startsWith("http")
       ? whatsapp
@@ -50,7 +51,7 @@ export default function ContactPage() {
             href={`mailto:${contactEmail}`}
             className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
           >
-            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+            <Mail className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
             <span>
               <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                 Email
@@ -64,7 +65,7 @@ export default function ContactPage() {
               href={`tel:${contactPhone}`}
               className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
             >
-              <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <Phone className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   Phone
@@ -81,7 +82,7 @@ export default function ContactPage() {
               rel="noopener noreferrer"
               className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
             >
-              <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <MessageCircle className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   WhatsApp
@@ -93,7 +94,7 @@ export default function ContactPage() {
 
           {settings?.working_hours && (
             <div className="flex items-start gap-3 text-ink">
-              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <Clock className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   Hours
@@ -105,7 +106,7 @@ export default function ContactPage() {
 
           {settings?.address && (
             <div className="flex items-start gap-3 text-ink">
-              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   Address

@@ -17,6 +17,29 @@ import type {
 } from "@/types/woocommerce";
 import toast from "react-hot-toast";
 
+function RequiredField({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className={className || "block"}>
+      <span className="mb-1.5 block text-sm font-medium text-ink-soft">
+        {label}{" "}
+        <span className="text-red-700" aria-hidden>
+          *
+        </span>
+        <span className="sr-only">(required)</span>
+      </span>
+      {children}
+    </label>
+  );
+}
+
 const emptyAddress: WooAddress = {
   first_name: "",
   last_name: "",
@@ -210,70 +233,97 @@ export default function CheckoutPage() {
               Billing Details
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
-                className="input-field"
-                required
-                placeholder="First name"
-                value={billing.first_name}
-                onChange={(e) => setB("first_name", e.target.value)}
-              />
-              <input
-                className="input-field"
-                required
-                placeholder="Last name"
-                value={billing.last_name}
-                onChange={(e) => setB("last_name", e.target.value)}
-              />
-              <input
-                className="input-field sm:col-span-2"
-                required
-                type="email"
-                placeholder="Email"
-                value={billing.email}
-                onChange={(e) => setB("email", e.target.value)}
-              />
-              <input
-                className="input-field sm:col-span-2"
-                required
-                placeholder="Phone"
-                value={billing.phone}
-                onChange={(e) => setB("phone", e.target.value)}
-              />
-              <input
-                className="input-field sm:col-span-2"
-                required
-                placeholder="Address"
-                value={billing.address_1}
-                onChange={(e) => setB("address_1", e.target.value)}
-              />
-              <input
-                className="input-field"
-                required
-                placeholder="City"
-                value={billing.city}
-                onChange={(e) => setB("city", e.target.value)}
-              />
-              <input
-                className="input-field"
-                required
-                placeholder="State"
-                value={billing.state}
-                onChange={(e) => setB("state", e.target.value)}
-              />
-              <input
-                className="input-field"
-                required
-                placeholder="Postcode"
-                value={billing.postcode}
-                onChange={(e) => setB("postcode", e.target.value)}
-              />
-              <input
-                className="input-field"
-                required
-                placeholder="Country"
-                value={billing.country}
-                onChange={(e) => setB("country", e.target.value)}
-              />
+              <RequiredField label="First name">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="given-name"
+                  placeholder="First name"
+                  value={billing.first_name}
+                  onChange={(e) => setB("first_name", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="Last name">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="family-name"
+                  placeholder="Last name"
+                  value={billing.last_name}
+                  onChange={(e) => setB("last_name", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="Email" className="block sm:col-span-2">
+                <input
+                  className="input-field"
+                  required
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Email"
+                  value={billing.email}
+                  onChange={(e) => setB("email", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="Phone" className="block sm:col-span-2">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="tel"
+                  placeholder="Phone"
+                  value={billing.phone}
+                  onChange={(e) => setB("phone", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="Address" className="block sm:col-span-2">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="street-address"
+                  placeholder="Street address"
+                  value={billing.address_1}
+                  onChange={(e) => setB("address_1", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="City">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="address-level2"
+                  placeholder="City"
+                  value={billing.city}
+                  onChange={(e) => setB("city", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="State">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="address-level1"
+                  placeholder="State"
+                  value={billing.state}
+                  onChange={(e) => setB("state", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="Postcode">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="postal-code"
+                  placeholder="Postcode"
+                  value={billing.postcode}
+                  onChange={(e) => setB("postcode", e.target.value)}
+                />
+              </RequiredField>
+              <RequiredField label="Country">
+                <input
+                  className="input-field"
+                  required
+                  autoComplete="country-name"
+                  placeholder="Country"
+                  value={billing.country}
+                  onChange={(e) => setB("country", e.target.value)}
+                />
+              </RequiredField>
             </div>
           </section>
 
@@ -292,55 +342,69 @@ export default function CheckoutPage() {
                 Shipping Details
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <input
-                  className="input-field"
-                  required
-                  placeholder="First name"
-                  value={shipping.first_name}
-                  onChange={(e) => setS("first_name", e.target.value)}
-                />
-                <input
-                  className="input-field"
-                  required
-                  placeholder="Last name"
-                  value={shipping.last_name}
-                  onChange={(e) => setS("last_name", e.target.value)}
-                />
-                <input
-                  className="input-field sm:col-span-2"
-                  required
-                  placeholder="Address"
-                  value={shipping.address_1}
-                  onChange={(e) => setS("address_1", e.target.value)}
-                />
-                <input
-                  className="input-field"
-                  required
-                  placeholder="City"
-                  value={shipping.city}
-                  onChange={(e) => setS("city", e.target.value)}
-                />
-                <input
-                  className="input-field"
-                  required
-                  placeholder="State"
-                  value={shipping.state}
-                  onChange={(e) => setS("state", e.target.value)}
-                />
-                <input
-                  className="input-field"
-                  required
-                  placeholder="Postcode"
-                  value={shipping.postcode}
-                  onChange={(e) => setS("postcode", e.target.value)}
-                />
-                <input
-                  className="input-field"
-                  required
-                  placeholder="Country"
-                  value={shipping.country}
-                  onChange={(e) => setS("country", e.target.value)}
-                />
+                <RequiredField label="First name">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="First name"
+                    value={shipping.first_name}
+                    onChange={(e) => setS("first_name", e.target.value)}
+                  />
+                </RequiredField>
+                <RequiredField label="Last name">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="Last name"
+                    value={shipping.last_name}
+                    onChange={(e) => setS("last_name", e.target.value)}
+                  />
+                </RequiredField>
+                <RequiredField label="Address" className="block sm:col-span-2">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="Street address"
+                    value={shipping.address_1}
+                    onChange={(e) => setS("address_1", e.target.value)}
+                  />
+                </RequiredField>
+                <RequiredField label="City">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="City"
+                    value={shipping.city}
+                    onChange={(e) => setS("city", e.target.value)}
+                  />
+                </RequiredField>
+                <RequiredField label="State">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="State"
+                    value={shipping.state}
+                    onChange={(e) => setS("state", e.target.value)}
+                  />
+                </RequiredField>
+                <RequiredField label="Postcode">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="Postcode"
+                    value={shipping.postcode}
+                    onChange={(e) => setS("postcode", e.target.value)}
+                  />
+                </RequiredField>
+                <RequiredField label="Country">
+                  <input
+                    className="input-field"
+                    required
+                    placeholder="Country"
+                    value={shipping.country}
+                    onChange={(e) => setS("country", e.target.value)}
+                  />
+                </RequiredField>
               </div>
             </section>
           )}

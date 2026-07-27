@@ -111,10 +111,10 @@ export function StoreSidebar({ className }: { className?: string }) {
       )}
     >
       <div>
-        <h2 className="mb-4 font-display text-xl font-light tracking-wide text-[var(--cms-primary,#1E3A8A)]">
+        <h2 className="mb-4 font-display text-2xl font-light tracking-wide text-[var(--cms-primary,#1E3A8A)]">
           Categories
         </h2>
-        <nav className="space-y-1" aria-label="Product categories">
+        <nav className="space-y-1.5" aria-label="Product categories">
           {CAT_META.map((item) => {
             const cat = resolveCat(categories, item.match);
             const href = cat
@@ -130,17 +130,17 @@ export function StoreSidebar({ className }: { className?: string }) {
                 key={item.label}
                 href={href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm tracking-wide transition-all duration-300",
+                  "group flex items-center gap-3 rounded-xl px-3 py-3 text-base tracking-wide transition-all duration-300 md:text-lg",
                   active
                     ? "bg-[var(--cms-primary,#1E3A8A)] text-cream shadow-sm"
-                    : "text-ink-soft hover:bg-brand-100/80 dark:text-brand-200 dark:hover:bg-brand-900"
+                    : "text-ink hover:bg-brand-100/80 dark:text-brand-200 dark:hover:bg-brand-900"
                 )}
               >
-                <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.5} />
+                <Icon className="h-6 w-6 shrink-0 opacity-90" strokeWidth={1.5} />
                 <span className="flex-1 font-medium">{item.label}</span>
                 <ChevronRight
                   className={cn(
-                    "h-3.5 w-3.5 opacity-0 transition group-hover:opacity-60",
+                    "h-4 w-4 opacity-0 transition group-hover:opacity-60",
                     active && "opacity-70"
                   )}
                 />
@@ -163,25 +163,25 @@ export function StoreSidebar({ className }: { className?: string }) {
                 key={c.id}
                 href={`/category/${c.slug}`}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
+                  "flex items-center gap-3 rounded-xl px-3 py-3 text-base transition md:text-lg",
                   activeSlug === c.slug
                     ? "bg-[var(--cms-primary,#1E3A8A)] text-cream"
-                    : "text-ink-muted hover:bg-brand-100/80 dark:hover:bg-brand-900"
+                    : "text-ink-soft hover:bg-brand-100/80 dark:hover:bg-brand-900"
                 )}
               >
-                <span className="flex-1 truncate">{c.name}</span>
+                <span className="flex-1 truncate font-medium">{c.name}</span>
               </Link>
             ))}
         </nav>
       </div>
 
       <div>
-        <h2 className="mb-4 font-display text-xl font-light tracking-wide text-[var(--cms-primary,#1E3A8A)]">
+        <h2 className="mb-4 font-display text-2xl font-light tracking-wide text-[var(--cms-primary,#1E3A8A)]">
           Filters
         </h2>
-        <div className="space-y-5 text-sm">
+        <div className="space-y-5 text-base">
           <div>
-            <p className="mb-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
               Price
             </p>
             <div className="flex items-center gap-2">
@@ -191,31 +191,31 @@ export function StoreSidebar({ className }: { className?: string }) {
                 placeholder="Min"
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
-                className="w-full rounded-lg border border-brand-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
+                className="w-full rounded-lg border border-brand-200 bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
                 aria-label="Minimum price"
               />
-              <span className="text-ink-muted">–</span>
+              <span className="text-ink-soft">–</span>
               <input
                 type="number"
                 inputMode="numeric"
                 placeholder="Max"
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
-                className="w-full rounded-lg border border-brand-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
+                className="w-full rounded-lg border border-brand-200 bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
                 aria-label="Maximum price"
               />
             </div>
             <button
               type="button"
               onClick={applyPrice}
-              className="mt-2 text-[11px] font-medium tracking-[0.12em] uppercase text-[var(--cms-primary,#1E3A8A)]"
+              className="mt-3 w-full rounded-full bg-[var(--cms-primary,#1E3A8A)] px-4 py-2.5 text-sm font-medium tracking-[0.12em] uppercase text-cream shadow-sm transition hover:brightness-110"
             >
               Apply
             </button>
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
               Availability
             </p>
             <label className="flex cursor-pointer items-center gap-2 py-1">
@@ -243,7 +243,7 @@ export function StoreSidebar({ className }: { className?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
               Color
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -273,7 +273,7 @@ export function StoreSidebar({ className }: { className?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
               Size
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -299,7 +299,7 @@ export function StoreSidebar({ className }: { className?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
               Material
             </p>
             <ul className="space-y-1">
@@ -328,7 +328,7 @@ export function StoreSidebar({ className }: { className?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
               Sort
             </p>
             <ul className="space-y-1">

@@ -41,7 +41,13 @@ export async function fetchBanners(): Promise<HeroBanner[]> {
 }
 
 export async function fetchSettings(): Promise<SiteSettings> {
-  if (isMockDataMode()) return seedSettings;
+  if (isMockDataMode()) {
+    const { resolveBusinessEmail } = await import("@/lib/site-contact");
+    return {
+      ...seedSettings,
+      contact_email: resolveBusinessEmail(seedSettings.contact_email),
+    };
+  }
   const { getSiteSettings } = await import("@/lib/api/content");
   return getSiteSettings();
 }

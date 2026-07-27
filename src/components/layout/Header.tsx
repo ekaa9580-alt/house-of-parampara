@@ -31,7 +31,14 @@ const DRAWER_CATS = [
   { label: "Handicrafts", href: "/shop?search=Handicrafts", icon: Sparkles },
 ];
 
-export function BrandMark({ compact }: { compact?: boolean }) {
+export function BrandMark({
+  compact,
+  stacked,
+}: {
+  compact?: boolean;
+  /** Allow 2-line brand on narrow headers */
+  stacked?: boolean;
+}) {
   const { data: settings } = useSiteSettings();
   const logo = settings?.logo;
   const name = (settings?.site_name || "HOUSE OF PARAMPARA").toUpperCase();
@@ -40,13 +47,13 @@ export function BrandMark({ compact }: { compact?: boolean }) {
   return (
     <Link
       href="/"
-      className="group flex min-w-0 max-w-full items-center gap-2"
+      className="group flex min-w-0 items-center gap-2 sm:gap-2.5"
       aria-label={display}
     >
       <span
         className={cn(
           "relative shrink-0 overflow-hidden bg-transparent transition-[height,width] duration-300",
-          compact ? "h-11 w-11" : "h-12 w-12 sm:h-14 sm:w-14"
+          compact ? "h-10 w-10 sm:h-12 sm:w-12" : "h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14"
         )}
       >
         {safeImageSrc(logo) ? (
@@ -69,13 +76,22 @@ export function BrandMark({ compact }: { compact?: boolean }) {
       </span>
       <span
         className={cn(
-          "min-w-0 truncate font-display font-medium leading-none tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
-          compact
-            ? "text-lg sm:text-xl lg:text-2xl"
-            : "text-lg sm:text-2xl lg:text-[1.75rem] xl:text-[2rem]"
+          "font-display font-medium tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
+          stacked
+            ? "max-w-[10rem] text-[0.95rem] leading-[1.1] sm:max-w-none sm:whitespace-nowrap sm:text-xl sm:leading-none md:text-2xl lg:text-[1.85rem]"
+            : compact
+              ? "whitespace-nowrap text-lg leading-none sm:text-2xl"
+              : "whitespace-nowrap text-xl leading-none sm:text-2xl lg:text-[1.85rem]"
         )}
       >
-        {display}
+        {stacked ? (
+          <>
+            <span className="block sm:inline">HOUSE OF </span>
+            <span className="block sm:inline">PARAMPARA</span>
+          </>
+        ) : (
+          display
+        )}
       </span>
     </Link>
   );
@@ -109,7 +125,7 @@ export function Header() {
   }, [pathname, setMobileMenuOpen]);
 
   const iconBtn =
-    "relative rounded-full p-2 text-ink transition hover:bg-brand-100/80 hover:text-[var(--cms-primary,#1E3A8A)] dark:text-cream dark:hover:bg-brand-900";
+    "relative shrink-0 rounded-full p-2 text-ink transition hover:bg-brand-100/80 hover:text-[var(--cms-primary,#1E3A8A)] dark:text-cream dark:hover:bg-brand-900 sm:p-2.5";
 
   return (
     <>
@@ -122,66 +138,73 @@ export function Header() {
         <AnnouncementBar />
         <div
           className={cn(
-            "mx-auto grid w-full max-w-[90rem] grid-cols-[minmax(0,auto)_minmax(0,1fr)_auto] items-center gap-2 px-3 transition-all duration-300 sm:gap-3 sm:px-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,1.5fr)_minmax(0,1fr)] lg:gap-5 lg:px-5",
-            scrolled ? "py-2 lg:py-2.5" : "py-3 lg:py-3.5"
+            "mx-auto w-full max-w-[90rem] px-3 sm:px-4 lg:px-5",
+            scrolled ? "py-2 lg:py-2.5" : "py-2.5 sm:py-3 lg:py-3.5"
           )}
         >
-          {/* Left: menu + brand */}
-          <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              className="shrink-0 rounded-full p-2 lg:hidden"
-              aria-label="Open menu"
-              aria-expanded={isMobileMenuOpen}
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <BrandMark compact={scrolled} />
-          </div>
-
-          {/* Center: always-visible search */}
-          <div className="hidden min-w-0 justify-center md:flex">
-            <Suspense fallback={<div className="h-10 w-full max-w-2xl rounded-full bg-brand-100" />}>
-              <HeaderSearch instanceId="header-search-desktop" className="w-full" />
-            </Suspense>
-          </div>
-
-          {/* Right: Wishlist → Bag → Account */}
-          <div className="flex items-center justify-end gap-0.5 sm:gap-1">
-            <div className="mr-1 min-w-0 flex-1 max-w-[11rem] md:hidden">
-              <Suspense fallback={null}>
-                <HeaderSearch instanceId="header-search-mobile" />
-              </Suspense>
+          {/* Row 1: brand + actions (search sits beside icons from md up) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                className="shrink-0 rounded-full p-2 lg:hidden"
+                aria-label="Open menu"
+                aria-expanded={isMobileMenuOpen}
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <Menu className="h-6 w-6" strokeWidth={1.5} />
+              </button>
+              <BrandMark compact={scrolled} stacked />
             </div>
-            <Link href="/wishlist" aria-label="Wishlist" className={iconBtn}>
-              <Heart className="h-5 w-5" strokeWidth={1.5} />
-              {mounted && wishlistCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#1E3A8A)] px-1 text-[9px] font-medium text-cream">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-            <button
-              type="button"
-              aria-label="Bag"
-              onClick={() => setCartDrawerOpen(true)}
-              className={iconBtn}
-            >
-              <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
-              {(cart?.items_count ?? 0) > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#1E3A8A)] px-1 text-[9px] font-medium text-cream">
-                  {cart?.items_count}
-                </span>
-              )}
-            </button>
-            <Link
-              href={mounted && isAuth ? "/my-account" : "/login"}
-              aria-label="Account"
-              className={iconBtn}
-            >
-              <User className="h-5 w-5" strokeWidth={1.5} />
-            </Link>
+
+            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
+              <div className="hidden w-[min(42vw,20rem)] md:block lg:w-[22rem] xl:w-[26rem]">
+                <Suspense fallback={<div className="h-10 w-full rounded-full bg-brand-100" />}>
+                  <HeaderSearch
+                    instanceId="header-search-desktop"
+                    className="w-full max-w-none"
+                  />
+                </Suspense>
+              </div>
+              <Link href="/wishlist" aria-label="Wishlist" className={iconBtn}>
+                <Heart className="h-6 w-6" strokeWidth={1.5} />
+                {mounted && wishlistCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#1E3A8A)] px-1 text-[9px] font-medium text-cream">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+              <button
+                type="button"
+                aria-label="Bag"
+                onClick={() => setCartDrawerOpen(true)}
+                className={iconBtn}
+              >
+                <ShoppingBag className="h-6 w-6" strokeWidth={1.5} />
+                {(cart?.items_count ?? 0) > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#1E3A8A)] px-1 text-[9px] font-medium text-cream">
+                    {cart?.items_count}
+                  </span>
+                )}
+              </button>
+              <Link
+                href={mounted && isAuth ? "/my-account" : "/login"}
+                aria-label="Account"
+                className={iconBtn}
+              >
+                <User className="h-6 w-6" strokeWidth={1.5} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Row 2 (mobile only): full-width search — no overlap with brand/icons */}
+          <div className="mt-2 md:hidden">
+            <Suspense fallback={<div className="h-10 w-full rounded-full bg-brand-100" />}>
+              <HeaderSearch
+                instanceId="header-search-mobile"
+                className="w-full max-w-none"
+              />
+            </Suspense>
           </div>
         </div>
       </header>
@@ -209,14 +232,17 @@ export function Header() {
               aria-modal="true"
               aria-label="Navigation"
             >
-              <div className="flex items-center justify-between border-b border-brand-200 px-4 py-4 dark:border-brand-800">
-                <BrandMark compact />
+              <div className="flex items-center justify-between gap-2 border-b border-brand-200 px-4 py-4 dark:border-brand-800">
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <BrandMark compact stacked />
+                </div>
                 <button
                   type="button"
                   aria-label="Close"
+                  className="shrink-0 rounded-full p-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-6 w-6" />
                 </button>
               </div>
               <div className="border-b border-brand-200 px-4 py-3 dark:border-brand-800">
@@ -233,9 +259,9 @@ export function Header() {
                     key={c.label}
                     href={c.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-base transition hover:bg-brand-100 dark:hover:bg-brand-900"
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-lg transition hover:bg-brand-100 dark:hover:bg-brand-900"
                   >
-                    <c.icon className="h-4 w-4 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+                    <c.icon className="h-6 w-6 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
                     {c.label}
                   </Link>
                 ))}

@@ -235,7 +235,7 @@ function hop_render_settings_page() {
         hop_settings_field('maps_url', 'Google Maps URL', 'url', 'Full Google Maps link for the store location.', 'https://maps.google.com/...');
         hop_settings_field('contact_phone', 'Phone Number', 'text', '', '+91 99999 99999');
         hop_settings_field('whatsapp', 'WhatsApp Number', 'text', 'Digits with country code, no + or spaces (e.g. 919999999999).', '919999999999');
-        hop_settings_field('contact_email', 'Email', 'email', '', 'hello@houseofparampara.com');
+        hop_settings_field('contact_email', 'Email', 'email', '', 'support@houseofparampara.net');
         hop_settings_field('working_hours', 'Working Hours', 'text', '', 'Mon–Sat, 10am – 7pm IST');
         hop_settings_field('contact_page_info', 'Contact Page Information', 'textarea', 'Extra text shown on the Contact page (directions, notes, etc.).');
         ?>

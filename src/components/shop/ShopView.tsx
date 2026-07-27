@@ -191,7 +191,7 @@ function FiltersPanel({
             applyPrice();
             onClose?.();
           }}
-          className="btn-outline mt-2 w-full py-2 text-xs"
+          className="mt-3 w-full rounded-full bg-[var(--cms-primary,#1E3A8A)] px-4 py-2.5 text-sm font-medium tracking-[0.12em] uppercase text-cream shadow-sm transition hover:brightness-110"
         >
           Apply
         </button>

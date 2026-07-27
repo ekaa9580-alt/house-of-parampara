@@ -11,6 +11,7 @@ import type {
   SiteSettings,
   Testimonial,
 } from "@/types/woocommerce";
+import { resolveBusinessEmail } from "@/lib/site-contact";
 
 export async function getProductReviews(
   productId: number,
@@ -109,6 +110,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       (merged as unknown as Record<string, unknown>)[key] = value;
     }
     if (!merged.site_name) merged.site_name = "";
+    // Always resolve business email from env / allowlist (ignore stale CMS hello@…)
+    merged.contact_email = resolveBusinessEmail(merged.contact_email);
+    if (process.env.NEXT_PUBLIC_CONTACT_PHONE?.trim()) {
+      merged.contact_phone = process.env.NEXT_PUBLIC_CONTACT_PHONE.trim();
+    }
     return merged;
   };
 
