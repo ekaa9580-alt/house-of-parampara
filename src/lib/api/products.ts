@@ -18,12 +18,20 @@ function buildParams(params: ProductsQueryParams = {}) {
   if (params.category) q.category = params.category;
   if (params.tag) q.tag = params.tag;
   if (params.featured !== undefined) q.featured = params.featured;
-  if (params.on_sale !== undefined) q.on_sale = params.on_sale;
+  // Dynamic WooCommerce sale filter — never hardcode product IDs
+  if (params.on_sale !== undefined) q.on_sale = Boolean(params.on_sale);
   if (params.orderby) q.orderby = params.orderby;
   if (params.order) q.order = params.order;
   if (params.min_price !== undefined) q.min_price = params.min_price;
   if (params.max_price !== undefined) q.max_price = params.max_price;
-  if (params.stock_status) q.stock_status = params.stock_status;
+  // Dynamic WooCommerce stock_status filter
+  if (
+    params.stock_status === "instock" ||
+    params.stock_status === "outofstock" ||
+    params.stock_status === "onbackorder"
+  ) {
+    q.stock_status = params.stock_status;
+  }
   if (params.attribute) q.attribute = params.attribute;
   if (params.attribute_term) q.attribute_term = params.attribute_term;
   if (params.include?.length) q.include = params.include.join(",");

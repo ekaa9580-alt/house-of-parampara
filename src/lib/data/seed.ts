@@ -354,7 +354,7 @@ export const seedSettings: SiteSettings = {
   newsletter_heading: "Join the Parampara Circle",
   newsletter_text:
     "Be first to discover new collections, private sales, and stories from the atelier.",
-  contact_email: "hello@houseofparampara.com",
+  contact_email: "support@houseofparampara.net",
   contact_phone: "+91 99999 99999",
   whatsapp: "919999999999",
   instagram: "https://instagram.com/houseofparampara",

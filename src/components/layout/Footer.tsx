@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
 import { useNewsletter, useSiteSettings, useMenu } from "@/hooks/useWooCommerce";
+import { SafeImage } from "@/components/ui/SafeImage";
+import { safeImageSrc } from "@/lib/utils";
 import type { CmsMenuItem } from "@/types/woocommerce";
 
 export function Footer() {
@@ -14,6 +16,21 @@ export function Footer() {
   const [email, setEmail] = useState("");
 
   const brand = settings?.site_name || "HOUSE OF PARAMPARA";
+  const logo = settings?.logo;
+
+  // Social links — CMS settings take priority, env vars as reliable defaults
+  const instagramUrl =
+    settings?.instagram ||
+    process.env.NEXT_PUBLIC_INSTAGRAM_URL ||
+    "https://instagram.com/houseofparampara";
+  const whatsappUrl =
+    settings?.whatsapp
+      ? settings.whatsapp.startsWith("http")
+        ? settings.whatsapp // already a full URL (e.g. community invite)
+        : `https://wa.me/${settings.whatsapp}`
+      : process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+        ? `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`
+        : null;
   const cats = [
     { href: "/shop?search=Women", label: "Women" },
     { href: "/shop?search=Men", label: "Men" },
@@ -70,27 +87,119 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="container-luxury grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container-luxury grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))] lg:gap-10 lg:py-12">
         <div>
-          <h3 className="font-display text-lg font-medium tracking-[0.06em] text-[var(--cms-primary,#1E3A8A)]">
-            {brand.toUpperCase().includes("PARAMPARA")
-              ? brand.toUpperCase()
-              : "HOUSE OF PARAMPARA"}
-          </h3>
-          {settings?.tagline && (
-            <p className="mt-2 text-xs tracking-[0.16em] uppercase text-ink-muted">
-              {settings.tagline}
-            </p>
-          )}
-          {settings?.about_preview && (
-            <p className="mt-4 line-clamp-4 text-sm leading-relaxed text-ink-muted">
-              {settings.about_preview}
-            </p>
-          )}
-          <div className="mt-5 flex gap-3">
-            {settings?.instagram && (
+          <Link href="/" className="flex items-center gap-2.5">
+            {safeImageSrc(logo) && (
+              <SafeImage
+                src={logo}
+                alt=""
+                width={42}
+                height={42}
+                className="h-10 w-10 shrink-0 object-contain"
+              />
+            )}
+            <h3 className="font-display text-lg font-medium tracking-[0.06em] text-[var(--cms-primary,#1E3A8A)]">
+              {brand.toUpperCase().includes("PARAMPARA")
+                ? brand.toUpperCase()
+                : "HOUSE OF PARAMPARA"}
+            </h3>
+          </Link>
+        </div>
+
+        <div>
+          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+            Categories
+          </h4>
+          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+            {(quickLinks.length
+              ? quickLinks.map((i) => ({ href: i.url, label: i.title }))
+              : cats
+            ).map((c) => (
+              <li key={c.label}>
+                <Link
+                  href={c.href || "/shop"}
+                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                >
+                  {c.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+            Customer Service
+          </h4>
+          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+            {service.map((p) => (
+              <li key={p.id}>
+                <Link
+                  href={p.url || "/"}
+                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                >
+                  {p.title}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/faq"
+                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+              >
+                FAQ
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/contact"
+                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+              >
+                Contact
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+            Contact
+          </h4>
+          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+            {(settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL) && (
+              <li>
+                <a
+                  href={`mailto:${settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL}`}
+                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                >
+                  {settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL}
+                </a>
+              </li>
+            )}
+            {settings?.contact_phone && (
+              <li>
+                <a
+                  href={`tel:${settings.contact_phone}`}
+                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                >
+                  {settings.contact_phone}
+                </a>
+              </li>
+            )}
+            {settings?.working_hours && <li>{settings.working_hours}</li>}
+            {settings?.address && <li>{settings.address}</li>}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+            Follow Us
+          </h4>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {instagramUrl && (
               <a
-                href={settings.instagram}
+                href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -101,9 +210,9 @@ export function Footer() {
                 />
               </a>
             )}
-            {settings?.whatsapp && (
+            {whatsappUrl && (
               <a
-                href={`https://wa.me/${settings.whatsapp}`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -142,85 +251,6 @@ export function Footer() {
             )}
           </div>
         </div>
-
-        <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
-            Categories
-          </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-muted">
-            {(quickLinks.length
-              ? quickLinks.map((i) => ({ href: i.url, label: i.title }))
-              : cats
-            ).map((c) => (
-              <li key={c.label}>
-                <Link
-                  href={c.href || "/shop"}
-                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-                >
-                  {c.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
-            Customer Service
-          </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-muted">
-            {service.map((p) => (
-              <li key={p.id}>
-                <Link
-                  href={p.url || "/"}
-                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-                >
-                  {p.title}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href="/faq"
-                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
-            Contact
-          </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-ink-muted">
-            {settings?.contact_email && (
-              <li>
-                <a href={`mailto:${settings.contact_email}`}>
-                  {settings.contact_email}
-                </a>
-              </li>
-            )}
-            {settings?.contact_phone && (
-              <li>
-                <a href={`tel:${settings.contact_phone}`}>
-                  {settings.contact_phone}
-                </a>
-              </li>
-            )}
-            {settings?.working_hours && <li>{settings.working_hours}</li>}
-            {settings?.address && <li>{settings.address}</li>}
-          </ul>
-        </div>
       </div>
 
       <div className="border-t border-brand-200 py-5 dark:border-brand-800">
@@ -229,7 +259,17 @@ export function Footer() {
             {settings?.footer_copyright ||
               `© ${new Date().getFullYear()} HOUSE OF PARAMPARA`}
           </p>
-          {settings?.footer_tagline && <p>{settings.footer_tagline}</p>}
+          <p>
+            Developed by{" "}
+            <a
+              href="https://forgemuze.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium tracking-wide transition hover:text-[var(--cms-primary,#1E3A8A)]"
+            >
+              FORGE MUZE
+            </a>
+          </p>
         </div>
       </div>
     </footer>

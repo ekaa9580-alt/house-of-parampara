@@ -61,12 +61,10 @@ interface UIState {
   isSearchOpen: boolean;
   isCartDrawerOpen: boolean;
   isMobileMenuOpen: boolean;
-  isMegaMenuOpen: boolean;
   quickViewProductId: number | null;
   setSearchOpen: (v: boolean) => void;
   setCartDrawerOpen: (v: boolean) => void;
   setMobileMenuOpen: (v: boolean) => void;
-  setMegaMenuOpen: (v: boolean) => void;
   setQuickView: (id: number | null) => void;
 }
 
@@ -74,12 +72,10 @@ export const useUIStore = create<UIState>((set) => ({
   isSearchOpen: false,
   isCartDrawerOpen: false,
   isMobileMenuOpen: false,
-  isMegaMenuOpen: false,
   quickViewProductId: null,
   setSearchOpen: (v) => set({ isSearchOpen: v }),
   setCartDrawerOpen: (v) => set({ isCartDrawerOpen: v }),
   setMobileMenuOpen: (v) => set({ isMobileMenuOpen: v }),
-  setMegaMenuOpen: (v) => set({ isMegaMenuOpen: v }),
   setQuickView: (id) => set({ quickViewProductId: id }),
 }));
 

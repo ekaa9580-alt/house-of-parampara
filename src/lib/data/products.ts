@@ -43,7 +43,9 @@ function filterProducts(
     );
   }
   if (params.featured) list = list.filter((p) => p.featured);
-  if (params.on_sale) list = list.filter((p) => p.on_sale);
+  // Mirror WooCommerce: filter by live product.on_sale / stock_status fields
+  if (params.on_sale === true) list = list.filter((p) => p.on_sale === true);
+  if (params.on_sale === false) list = list.filter((p) => p.on_sale === false);
   if (params.stock_status)
     list = list.filter((p) => p.stock_status === params.stock_status);
   if (params.min_price !== undefined)

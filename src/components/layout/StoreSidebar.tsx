@@ -61,12 +61,23 @@ export function StoreSidebar({ className }: { className?: string }) {
     ? pathname.split("/")[2]
     : searchParams.get("category");
 
+  /** Keep filters on /shop or /category/*; otherwise route to /shop. Always reset page. */
+  const filterPath =
+    pathname.startsWith("/shop") || pathname.startsWith("/category/")
+      ? pathname
+      : "/shop";
+
+  const pushFilterParams = (params: URLSearchParams) => {
+    params.delete("page");
+    const q = params.toString();
+    router.push(q ? `${filterPath}?${q}` : filterPath);
+  };
+
   const setShopParam = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
     if (!value) params.delete(key);
     else params.set(key, value);
-    const q = params.toString();
-    router.push(q ? `/shop?${q}` : "/shop");
+    pushFilterParams(params);
   };
 
   const orderby = searchParams.get("orderby") || "date";
@@ -89,14 +100,13 @@ export function StoreSidebar({ className }: { className?: string }) {
     else p.delete("min_price");
     if (priceMax) p.set("max_price", priceMax);
     else p.delete("max_price");
-    p.delete("page");
-    router.push(`/shop?${p.toString()}`);
+    pushFilterParams(p);
   };
 
   return (
     <aside
       className={cn(
-        "flex h-fit flex-col gap-8 rounded-none border-r border-brand-200/70 bg-cream/40 py-6 pr-5 dark:border-brand-800 dark:bg-brand-950/40",
+        "flex h-fit flex-col gap-7 rounded-none border-r border-brand-200/70 bg-cream/40 py-5 pr-4 dark:border-brand-800 dark:bg-brand-950/40",
         className
       )}
     >
@@ -333,22 +343,18 @@ export function StoreSidebar({ className }: { className?: string }) {
                         : "text-ink-muted hover:bg-brand-50 dark:hover:bg-brand-900/60"
                     )}
                     onClick={() => {
+                      const p = new URLSearchParams(searchParams.toString());
                       if (s.value === "price-asc") {
-                        const p = new URLSearchParams(searchParams.toString());
                         p.set("orderby", "price");
                         p.set("order", "asc");
-                        router.push(`/shop?${p.toString()}`);
                       } else if (s.value === "price-desc") {
-                        const p = new URLSearchParams(searchParams.toString());
                         p.set("orderby", "price");
                         p.set("order", "desc");
-                        router.push(`/shop?${p.toString()}`);
                       } else {
-                        const p = new URLSearchParams(searchParams.toString());
                         p.set("orderby", s.value);
                         p.delete("order");
-                        router.push(`/shop?${p.toString()}`);
                       }
+                      pushFilterParams(p);
                     }}
                   >
                     {s.label}

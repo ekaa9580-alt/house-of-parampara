@@ -31,24 +31,24 @@ export function ProductCarousel({
 
   return (
     <section className="py-12 md:py-16">
-      <div className="mb-8 flex items-end justify-between gap-4">
-        <div>
-          <h2 className="font-display text-3xl font-light tracking-wide text-ink md:text-4xl dark:text-cream">
+      <div className="mb-8">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="min-w-0 font-display text-3xl font-light tracking-wide text-ink md:text-4xl dark:text-cream">
             {title}
           </h2>
-          {subtitle && (
-            <p className="mt-2 max-w-lg text-sm text-ink-muted md:text-base">
-              {subtitle}
-            </p>
+          {viewAllHref && (
+            <Link
+              href={viewAllHref}
+              className="shrink-0 text-sm font-medium tracking-wide text-[var(--cms-primary,#1E3A8A)] transition hover:opacity-70"
+            >
+              {viewAllLabel || "View All →"}
+            </Link>
           )}
         </div>
-        {viewAllHref && (
-          <Link
-            href={viewAllHref}
-            className="shrink-0 text-xs font-medium tracking-[0.18em] uppercase text-[var(--cms-primary,#1E3A8A)] transition hover:opacity-70"
-          >
-            {viewAllLabel || "View all"}
-          </Link>
+        {subtitle && (
+          <p className="mt-2 max-w-lg text-sm text-ink-muted md:text-base">
+            {subtitle}
+          </p>
         )}
       </div>
 

@@ -39,28 +39,30 @@ export function BrandMark({ compact }: { compact?: boolean }) {
   return (
     <Link
       href="/"
-      className="group flex min-w-0 items-center gap-2.5 sm:gap-3"
+      className="group flex min-w-0 items-center gap-1.5 sm:gap-2"
       aria-label={name}
     >
       {safeImageSrc(logo) && (
         <SafeImage
           src={logo}
           alt=""
-          width={48}
-          height={48}
+          width={56}
+          height={56}
           className={cn(
-            "shrink-0 object-contain transition",
-            compact ? "h-8 w-8" : "h-9 w-9 sm:h-10 sm:w-10"
+            "shrink-0 object-contain transition-[height,width] duration-300",
+            compact
+              ? "h-11 w-11"
+              : "h-11 w-11 sm:h-[50px] sm:w-[50px] lg:h-[52px] lg:w-[52px] xl:h-14 xl:w-14"
           )}
           priority
         />
       )}
       <span
         className={cn(
-          "font-display font-medium tracking-[0.06em] text-[var(--cms-primary,#1E3A8A)] transition group-hover:opacity-85",
+          "font-display font-medium leading-none tracking-[0.05em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
           compact
-            ? "text-sm sm:text-base"
-            : "text-sm sm:text-base md:text-lg lg:text-xl",
+            ? "text-xl sm:text-2xl lg:text-[28px]"
+            : "text-xl sm:text-2xl md:text-[28px] lg:text-[30px] xl:text-[34px]",
           "whitespace-nowrap"
         )}
       >

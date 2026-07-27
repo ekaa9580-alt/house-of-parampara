@@ -17,9 +17,9 @@ import "swiper/css/navigation";
 
 function HeroContent({ banner }: { banner: HeroBanner }) {
   return (
-    <div className="container-luxury relative z-10 flex h-full items-center pb-14 pt-20 md:pb-16 md:pt-24">
-      {/* Dedicated content lane — ~45% desktop, full readable width on mobile */}
-      <div className="hero-content w-full max-w-xl md:w-[48%] md:max-w-[45%] lg:max-w-[42%]">
+    <div className="relative z-10 flex h-full items-center px-4 pb-12 pt-16 sm:px-5 md:px-6 md:pb-14 md:pt-20 lg:px-8">
+      {/* Wider content lane with slightly tighter vertical spacing */}
+      <div className="hero-content w-full max-w-xl md:w-[52%] md:max-w-[50%] lg:max-w-[46%]">
         {banner.subtitle && (
           <p className="mb-3 text-[11px] tracking-[0.28em] uppercase text-gold sm:text-xs md:mb-4 md:text-sm">
             {banner.subtitle}
@@ -89,10 +89,10 @@ export function HeroSlider() {
       return null;
     }
     return (
-      <section className="relative flex h-[62vh] items-center bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 md:h-[78vh]">
+      <section className="relative flex h-[56vh] items-center bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 md:h-[66vh] lg:h-[70vh]">
         <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/45 to-transparent" />
-        <div className="container-luxury relative z-10 pb-14 pt-24 text-cream md:pb-16 md:pt-28">
-          <div className="hero-content w-full max-w-xl md:w-[48%] md:max-w-[45%] lg:max-w-[42%]">
+        <div className="relative z-10 px-4 pb-12 pt-18 text-cream sm:px-5 md:px-6 md:pb-14 md:pt-20 lg:px-8">
+          <div className="hero-content w-full max-w-xl md:w-[52%] md:max-w-[50%] lg:max-w-[46%]">
             {settings.home_hero_fallback_eyebrow && (
               <p className="mb-4 text-xs tracking-[0.3em] uppercase text-gold">
                 {settings.home_hero_fallback_eyebrow}
@@ -134,7 +134,7 @@ export function HeroSlider() {
         pagination={{ clickable: true }}
         navigation
         loop={slides.length > 1}
-        className="hero-swiper h-[62vh] md:h-[78vh]"
+        className="hero-swiper h-[56vh] md:h-[66vh] lg:h-[70vh]"
       >
         {slides.map((banner) => (
           <SwiperSlide key={banner.id}>

@@ -257,9 +257,13 @@ export function ShopView({
   const maxPrice = searchParams.get("max_price")
     ? Number(searchParams.get("max_price"))
     : undefined;
-  const stock = searchParams.get("stock_status") as
-    | ProductsQueryParams["stock_status"]
-    | undefined;
+  const stockParam = searchParams.get("stock_status");
+  const stock: ProductsQueryParams["stock_status"] | undefined =
+    stockParam === "instock" ||
+    stockParam === "outofstock" ||
+    stockParam === "onbackorder"
+      ? stockParam
+      : undefined;
   const onSale = searchParams.get("on_sale") === "true";
   const featured = searchParams.get("featured") === "true";
   const color = searchParams.get("color");

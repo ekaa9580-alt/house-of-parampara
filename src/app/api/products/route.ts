@@ -3,6 +3,8 @@ import { fetchProducts } from "@/lib/data/products";
 import { parseApiError } from "@/lib/api/client";
 import type { ProductsQueryParams } from "@/types/woocommerce";
 
+const STOCK_STATUSES = ["instock", "outofstock", "onbackorder"] as const;
+
 export async function GET(request: NextRequest) {
   try {
     const sp = request.nextUrl.searchParams;
@@ -14,16 +16,19 @@ export async function GET(request: NextRequest) {
     if (sp.get("category")) params.category = sp.get("category")!;
     if (sp.get("tag")) params.tag = sp.get("tag")!;
     if (sp.get("featured")) params.featured = sp.get("featured") === "true";
-    if (sp.get("on_sale")) params.on_sale = sp.get("on_sale") === "true";
+    // WooCommerce REST v3: on_sale=true|false
+    if (sp.has("on_sale")) params.on_sale = sp.get("on_sale") === "true";
     if (sp.get("orderby"))
       params.orderby = sp.get("orderby") as ProductsQueryParams["orderby"];
     if (sp.get("order"))
       params.order = sp.get("order") as ProductsQueryParams["order"];
     if (sp.get("min_price")) params.min_price = Number(sp.get("min_price"));
     if (sp.get("max_price")) params.max_price = Number(sp.get("max_price"));
-    if (sp.get("stock_status"))
-      params.stock_status =
-        sp.get("stock_status") as ProductsQueryParams["stock_status"];
+    // WooCommerce REST v3: stock_status=instock|outofstock|onbackorder
+    const stock = sp.get("stock_status");
+    if (stock && (STOCK_STATUSES as readonly string[]).includes(stock)) {
+      params.stock_status = stock as ProductsQueryParams["stock_status"];
+    }
     if (sp.get("include")) {
       params.include = sp
         .get("include")!
