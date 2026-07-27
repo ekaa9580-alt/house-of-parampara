@@ -7,10 +7,10 @@ import { useNewsletter, useSiteSettings, useMenu } from "@/hooks/useWooCommerce"
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
 import {
+  BUSINESS_EMAIL,
   BUSINESS_INSTAGRAM,
   BUSINESS_PHONE,
   BUSINESS_WHATSAPP,
-  resolveBusinessEmail,
 } from "@/lib/site-contact";
 import type { CmsMenuItem } from "@/types/woocommerce";
 
@@ -40,7 +40,7 @@ export function Footer() {
 
   const brand = settings?.site_name || "HOUSE OF PARAMPARA";
   const logo = settings?.logo;
-  const contactEmail = resolveBusinessEmail(settings?.contact_email);
+  const contactEmail = BUSINESS_EMAIL;
   const contactPhone = BUSINESS_PHONE || settings?.contact_phone;
   const instagramUrl =
     settings?.instagram || BUSINESS_INSTAGRAM;

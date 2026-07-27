@@ -93,7 +93,7 @@ export async function getHeroBanners(): Promise<HeroBanner[]> {
 export async function getSiteSettings(): Promise<SiteSettings> {
   const defaults: SiteSettings = {
     site_name: process.env.NEXT_PUBLIC_SITE_NAME || "",
-    contact_email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+    contact_email: resolveBusinessEmail(process.env.NEXT_PUBLIC_CONTACT_EMAIL),
     contact_phone: process.env.NEXT_PUBLIC_CONTACT_PHONE,
     whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL,
