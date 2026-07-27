@@ -58,22 +58,18 @@ export const useRecentlyViewedStore = create<RecentlyViewedState>()(
 );
 
 interface UIState {
-  isSearchOpen: boolean;
   isCartDrawerOpen: boolean;
   isMobileMenuOpen: boolean;
   quickViewProductId: number | null;
-  setSearchOpen: (v: boolean) => void;
   setCartDrawerOpen: (v: boolean) => void;
   setMobileMenuOpen: (v: boolean) => void;
   setQuickView: (id: number | null) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  isSearchOpen: false,
   isCartDrawerOpen: false,
   isMobileMenuOpen: false,
   quickViewProductId: null,
-  setSearchOpen: (v) => set({ isSearchOpen: v }),
   setCartDrawerOpen: (v) => set({ isCartDrawerOpen: v }),
   setMobileMenuOpen: (v) => set({ isMobileMenuOpen: v }),
   setQuickView: (id) => set({ quickViewProductId: id }),

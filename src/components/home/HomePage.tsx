@@ -22,7 +22,7 @@ export function HomePage() {
 
   return (
     <div className="min-w-0">
-      <div className="-mx-3 sm:-mx-5 lg:-mx-4 xl:-mx-5">
+      <div className="-mx-3 sm:-mx-4 lg:-mx-5">
         <HeroSlider />
       </div>
 

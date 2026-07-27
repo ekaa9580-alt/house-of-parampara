@@ -142,7 +142,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--cms-primary,#1E3A8A)] py-3 text-[11px] font-medium tracking-[0.15em] text-cream uppercase transition hover:brightness-110 disabled:opacity-50"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
-              {addToCart.isPending ? "…" : "Quick Add"}
+              {addToCart.isPending ? "…" : "Add to Cart"}
             </button>
           )}
         </div>

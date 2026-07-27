@@ -12,7 +12,7 @@ export default function ProductPage() {
 
   if (isLoading) {
     return (
-      <div className="container-luxury grid gap-10 pb-20 pt-28 lg:grid-cols-2">
+      <div className="grid gap-10 pb-12 pt-2 md:pb-16 lg:grid-cols-2">
         <Skeleton className="aspect-[3/4] w-full" />
         <div className="space-y-4">
           <Skeleton className="h-8 w-2/3" />
@@ -26,7 +26,7 @@ export default function ProductPage() {
 
   if (error || !product) {
     return (
-      <div className="container-luxury flex min-h-[50vh] items-center justify-center pt-28 text-center">
+      <div className="flex min-h-[50vh] items-center justify-center py-12 text-center">
         <h1 className="font-display text-3xl font-light">Product not found</h1>
       </div>
     );

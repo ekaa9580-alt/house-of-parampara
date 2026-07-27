@@ -8,6 +8,23 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
 import type { CmsMenuItem } from "@/types/woocommerce";
 
+const DEFAULT_CATEGORIES = [
+  { href: "/shop?search=Women", label: "Women" },
+  { href: "/shop?search=Men", label: "Men" },
+  { href: "/shop?search=Kids", label: "Kids" },
+  { href: "/shop?search=Handicrafts", label: "Handicrafts" },
+  { href: "/shop", label: "Shop All" },
+];
+
+const DEFAULT_SERVICE: CmsMenuItem[] = [
+  { id: 1, title: "Privacy Policy", url: "/privacy-policy" },
+  { id: 2, title: "Shipping Policy", url: "/shipping-policy" },
+  { id: 3, title: "Returns & Refunds", url: "/return-policy" },
+  { id: 4, title: "Terms of Service", url: "/terms" },
+  { id: 5, title: "FAQ", url: "/faq" },
+  { id: 6, title: "Contact", url: "/contact" },
+];
+
 export function Footer() {
   const { data: settings } = useSiteSettings();
   const { data: quickLinks = [] } = useMenu("footer");
@@ -17,49 +34,40 @@ export function Footer() {
 
   const brand = settings?.site_name || "HOUSE OF PARAMPARA";
   const logo = settings?.logo;
-
-  // Social links — CMS settings take priority, env vars as reliable defaults
+  const contactEmail =
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+    settings?.contact_email ||
+    "support@houseofparampara.net";
+  const contactPhone =
+    process.env.NEXT_PUBLIC_CONTACT_PHONE || settings?.contact_phone;
   const instagramUrl =
     settings?.instagram ||
     process.env.NEXT_PUBLIC_INSTAGRAM_URL ||
-    "https://instagram.com/houseofparampara";
-  const whatsappUrl =
-    settings?.whatsapp
-      ? settings.whatsapp.startsWith("http")
-        ? settings.whatsapp // already a full URL (e.g. community invite)
-        : `https://wa.me/${settings.whatsapp}`
-      : process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-        ? `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`
-        : null;
-  const cats = [
-    { href: "/shop?search=Women", label: "Women" },
-    { href: "/shop?search=Men", label: "Men" },
-    { href: "/shop?search=Kids", label: "Kids" },
-    { href: "/shop?search=Handicrafts", label: "Handicrafts" },
-  ];
-  const service: CmsMenuItem[] =
-    policyLinks.length > 0
-      ? policyLinks
-      : [
-          { id: 1, title: "Privacy", url: "/privacy-policy" },
-          { id: 2, title: "Shipping", url: "/shipping-policy" },
-          { id: 3, title: "Returns", url: "/return-policy" },
-          { id: 4, title: "Refund", url: "/refund-policy" },
-          { id: 5, title: "Terms", url: "/terms" },
-        ];
+    "https://www.instagram.com/houseof_parampara";
+  const whatsappRaw =
+    settings?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const whatsappUrl = whatsappRaw
+    ? whatsappRaw.startsWith("http")
+      ? whatsappRaw
+      : `https://wa.me/${whatsappRaw}`
+    : null;
+
+  const categories = quickLinks.length
+    ? quickLinks.map((i) => ({ href: i.url, label: i.title }))
+    : DEFAULT_CATEGORIES;
+  const service = policyLinks.length > 0 ? policyLinks : DEFAULT_SERVICE;
 
   return (
     <footer className="border-t border-brand-200 bg-[#f8f6f2] dark:border-brand-800 dark:bg-brand-950">
       <div className="border-b border-brand-200 dark:border-brand-800">
-        <div className="container-luxury flex flex-col items-center gap-6 py-14 text-center md:py-20">
-          <h2 className="font-display text-3xl font-light tracking-wide md:text-4xl">
+        <div className="mx-auto flex w-full max-w-[90rem] flex-col items-center gap-5 px-4 py-12 text-center sm:px-5 md:py-14">
+          <h2 className="font-display text-3xl font-light tracking-wide text-ink md:text-4xl dark:text-cream">
             {settings?.newsletter_heading || "Stay in the circle"}
           </h2>
-          {settings?.newsletter_text && (
-            <p className="max-w-md text-sm text-ink-muted">
-              {settings.newsletter_text}
-            </p>
-          )}
+          <p className="max-w-md text-base text-ink-soft">
+            {settings?.newsletter_text ||
+              "New arrivals, heritage edits, and exclusive offers — delivered thoughtfully."}
+          </p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -74,7 +82,7 @@ export function Footer() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="min-w-0 flex-1 rounded-full border border-brand-200 bg-white px-5 py-3.5 text-sm outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
+              className="min-w-0 flex-1 rounded-full border border-brand-200 bg-white px-5 py-3.5 text-base text-ink outline-none placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900 dark:text-cream"
             />
             <button
               type="submit"
@@ -87,35 +95,37 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="container-luxury grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))] lg:gap-10 lg:py-12">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-5 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] lg:gap-8 lg:py-12">
         <div>
           <Link href="/" className="flex items-center gap-2.5">
             {safeImageSrc(logo) && (
               <SafeImage
                 src={logo}
                 alt=""
-                width={42}
-                height={42}
-                className="h-10 w-10 shrink-0 object-contain"
+                width={44}
+                height={44}
+                className="h-11 w-11 shrink-0 object-contain"
               />
             )}
-            <h3 className="font-display text-lg font-medium tracking-[0.06em] text-[var(--cms-primary,#1E3A8A)]">
+            <h3 className="font-display text-xl font-medium tracking-[0.05em] text-[var(--cms-primary,#1E3A8A)]">
               {brand.toUpperCase().includes("PARAMPARA")
                 ? brand.toUpperCase()
                 : "HOUSE OF PARAMPARA"}
             </h3>
           </Link>
+          {settings?.tagline && (
+            <p className="mt-3 text-sm tracking-[0.12em] uppercase text-ink-soft">
+              {settings.tagline}
+            </p>
+          )}
         </div>
 
         <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
             Categories
           </h4>
-          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
-            {(quickLinks.length
-              ? quickLinks.map((i) => ({ href: i.url, label: i.title }))
-              : cats
-            ).map((c) => (
+          <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
+            {categories.map((c) => (
               <li key={c.label}>
                 <Link
                   href={c.href || "/shop"}
@@ -129,10 +139,10 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
             Customer Service
           </h4>
-          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+          <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
             {service.map((p) => (
               <li key={p.id}>
                 <Link
@@ -143,47 +153,29 @@ export function Footer() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                href="/faq"
-                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                Contact
-              </Link>
-            </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
             Contact
           </h4>
-          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
-            {(settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL) && (
+          <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
+            <li>
+              <a
+                href={`mailto:${contactEmail}`}
+                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+              >
+                {contactEmail}
+              </a>
+            </li>
+            {contactPhone && (
               <li>
                 <a
-                  href={`mailto:${settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL}`}
+                  href={`tel:${contactPhone}`}
                   className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
                 >
-                  {settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL}
-                </a>
-              </li>
-            )}
-            {settings?.contact_phone && (
-              <li>
-                <a
-                  href={`tel:${settings.contact_phone}`}
-                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
-                >
-                  {settings.contact_phone}
+                  {contactPhone}
                 </a>
               </li>
             )}
@@ -193,7 +185,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
             Follow Us
           </h4>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -205,7 +197,7 @@ export function Footer() {
                 aria-label="Instagram"
               >
                 <Instagram
-                  className="h-5 w-5 text-ink-muted transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -218,7 +210,7 @@ export function Footer() {
                 aria-label="WhatsApp"
               >
                 <MessageCircle
-                  className="h-5 w-5 text-ink-muted transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -231,7 +223,7 @@ export function Footer() {
                 aria-label="Facebook"
               >
                 <Facebook
-                  className="h-5 w-5 text-ink-muted transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -244,7 +236,7 @@ export function Footer() {
                 aria-label="YouTube"
               >
                 <Youtube
-                  className="h-5 w-5 text-ink-muted transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -254,10 +246,10 @@ export function Footer() {
       </div>
 
       <div className="border-t border-brand-200 py-5 dark:border-brand-800">
-        <div className="container-luxury flex flex-col items-center justify-between gap-2 text-xs text-ink-muted sm:flex-row">
+        <div className="mx-auto flex w-full max-w-[90rem] flex-col items-center justify-between gap-2 px-4 text-sm text-ink-soft sm:flex-row sm:px-5">
           <p>
             {settings?.footer_copyright ||
-              `© ${new Date().getFullYear()} HOUSE OF PARAMPARA`}
+              `© ${new Date().getFullYear()} HOUSE OF PARAMPARA. All rights reserved.`}
           </p>
           <p>
             Developed by{" "}

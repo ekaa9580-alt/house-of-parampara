@@ -355,8 +355,8 @@ export const seedSettings: SiteSettings = {
   newsletter_text:
     "Be first to discover new collections, private sales, and stories from the atelier.",
   contact_email: "support@houseofparampara.net",
-  contact_phone: "+91 99999 99999",
-  whatsapp: "919999999999",
+  contact_phone: "+91 80898 49361",
+  whatsapp: "918089849361",
   instagram: "https://instagram.com/houseofparampara",
   address: "India",
   testimonials: [],

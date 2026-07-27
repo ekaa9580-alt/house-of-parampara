@@ -35,38 +35,47 @@ export function BrandMark({ compact }: { compact?: boolean }) {
   const { data: settings } = useSiteSettings();
   const logo = settings?.logo;
   const name = (settings?.site_name || "HOUSE OF PARAMPARA").toUpperCase();
+  const display = name.includes("PARAMPARA") ? name : "HOUSE OF PARAMPARA";
 
   return (
     <Link
       href="/"
-      className="group flex min-w-0 items-center gap-1.5 sm:gap-2"
-      aria-label={name}
+      className="group flex min-w-0 max-w-full items-center gap-2"
+      aria-label={display}
     >
-      {safeImageSrc(logo) && (
-        <SafeImage
-          src={logo}
-          alt=""
-          width={56}
-          height={56}
-          className={cn(
-            "shrink-0 object-contain transition-[height,width] duration-300",
-            compact
-              ? "h-11 w-11"
-              : "h-11 w-11 sm:h-[50px] sm:w-[50px] lg:h-[52px] lg:w-[52px] xl:h-14 xl:w-14"
-          )}
-          priority
-        />
-      )}
       <span
         className={cn(
-          "font-display font-medium leading-none tracking-[0.05em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
-          compact
-            ? "text-xl sm:text-2xl lg:text-[28px]"
-            : "text-xl sm:text-2xl md:text-[28px] lg:text-[30px] xl:text-[34px]",
-          "whitespace-nowrap"
+          "relative shrink-0 overflow-hidden bg-transparent transition-[height,width] duration-300",
+          compact ? "h-11 w-11" : "h-12 w-12 sm:h-14 sm:w-14"
         )}
       >
-        {name.includes("PARAMPARA") ? name : "HOUSE OF PARAMPARA"}
+        {safeImageSrc(logo) ? (
+          <SafeImage
+            src={logo}
+            alt=""
+            width={56}
+            height={56}
+            className="h-full w-full object-contain"
+            priority
+          />
+        ) : (
+          <span
+            className="flex h-full w-full items-center justify-center font-display text-lg text-[#1E3A8A]"
+            aria-hidden
+          >
+            H
+          </span>
+        )}
+      </span>
+      <span
+        className={cn(
+          "min-w-0 truncate font-display font-medium leading-none tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
+          compact
+            ? "text-lg sm:text-xl lg:text-2xl"
+            : "text-lg sm:text-2xl lg:text-[1.75rem] xl:text-[2rem]"
+        )}
+      >
+        {display}
       </span>
     </Link>
   );
@@ -113,12 +122,12 @@ export function Header() {
         <AnnouncementBar />
         <div
           className={cn(
-            "container-luxury grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-all duration-300 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-6",
-            scrolled ? "py-2.5 lg:py-3" : "py-3.5 lg:py-4"
+            "mx-auto grid w-full max-w-[90rem] grid-cols-[minmax(0,auto)_minmax(0,1fr)_auto] items-center gap-2 px-3 transition-all duration-300 sm:gap-3 sm:px-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,1.5fr)_minmax(0,1fr)] lg:gap-5 lg:px-5",
+            scrolled ? "py-2 lg:py-2.5" : "py-3 lg:py-3.5"
           )}
         >
           {/* Left: menu + brand */}
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               className="shrink-0 rounded-full p-2 lg:hidden"
@@ -132,17 +141,17 @@ export function Header() {
           </div>
 
           {/* Center: always-visible search */}
-          <div className="hidden justify-center px-2 md:flex">
-            <Suspense fallback={<div className="h-10 w-full max-w-xl rounded-full bg-brand-100" />}>
-              <HeaderSearch />
+          <div className="hidden min-w-0 justify-center md:flex">
+            <Suspense fallback={<div className="h-10 w-full max-w-2xl rounded-full bg-brand-100" />}>
+              <HeaderSearch instanceId="header-search-desktop" className="w-full" />
             </Suspense>
           </div>
 
           {/* Right: Wishlist → Bag → Account */}
           <div className="flex items-center justify-end gap-0.5 sm:gap-1">
-            <div className="mr-1 w-[min(42vw,11rem)] md:hidden">
+            <div className="mr-1 min-w-0 flex-1 max-w-[11rem] md:hidden">
               <Suspense fallback={null}>
-                <HeaderSearch />
+                <HeaderSearch instanceId="header-search-mobile" />
               </Suspense>
             </div>
             <Link href="/wishlist" aria-label="Wishlist" className={iconBtn}>
@@ -212,7 +221,7 @@ export function Header() {
               </div>
               <div className="border-b border-brand-200 px-4 py-3 dark:border-brand-800">
                 <Suspense fallback={null}>
-                  <HeaderSearch />
+                  <HeaderSearch instanceId="header-search-drawer" />
                 </Suspense>
               </div>
               <nav className="flex-1 overflow-y-auto px-3 py-4">

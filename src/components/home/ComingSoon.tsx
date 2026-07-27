@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useSiteSettings } from "@/hooks/useWooCommerce";
+import { useNewsletter, useSiteSettings } from "@/hooks/useWooCommerce";
 
 /** Luxury coming-soon / notify block */
 export function ComingSoon() {
   const { data: s } = useSiteSettings();
+  const newsletter = useNewsletter();
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
@@ -15,7 +16,7 @@ export function ComingSoon() {
     "New weaves and festive edits are on the way. Be first to know.";
 
   return (
-    <section className="relative my-10 overflow-hidden bg-[#0f172a] py-16 text-cream md:my-14 md:py-24">
+    <section className="relative my-8 overflow-hidden bg-[#0f172a] py-14 text-cream md:my-12 md:py-20">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(30,58,138,0.35),_transparent_55%)]" />
       <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
         <p className="mb-3 text-[11px] tracking-[0.28em] uppercase text-blue-200/80">
@@ -24,7 +25,7 @@ export function ComingSoon() {
         <h2 className="font-display text-4xl font-light tracking-wide md:text-5xl">
           {title}
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-cream/65 md:text-base">
+        <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-cream/75 md:text-lg">
           {subtitle}
         </p>
         {done ? (
@@ -35,7 +36,12 @@ export function ComingSoon() {
             onSubmit={(e) => {
               e.preventDefault();
               if (!email) return;
-              setDone(true);
+              newsletter.mutate(email, {
+                onSuccess: () => {
+                  setEmail("");
+                  setDone(true);
+                },
+              });
             }}
           >
             <input
@@ -44,11 +50,12 @@ export function ComingSoon() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="min-w-0 flex-1 rounded-full border border-white/20 bg-white/5 px-5 py-3 text-sm text-cream outline-none placeholder:text-cream/40 focus:border-blue-300"
+              className="min-w-0 flex-1 rounded-full border border-white/20 bg-white/5 px-5 py-3 text-base text-cream outline-none placeholder:text-cream/40 focus:border-blue-300"
             />
             <button
               type="submit"
-              className="shrink-0 rounded-full bg-[var(--cms-primary,#1E3A8A)] px-8 py-3 text-xs font-medium tracking-[0.18em] uppercase text-cream transition hover:brightness-110"
+              disabled={newsletter.isPending}
+              className="shrink-0 rounded-full bg-[var(--cms-primary,#1E3A8A)] px-8 py-3 text-xs font-medium tracking-[0.18em] uppercase text-cream transition hover:brightness-110 disabled:opacity-50"
             >
               Notify Me
             </button>

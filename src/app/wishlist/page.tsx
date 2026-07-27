@@ -36,7 +36,7 @@ export default function WishlistPage() {
 
   if (!mounted || loading) {
     return (
-      <div className="container-luxury pb-20 pt-28">
+      <div className="pb-12 pt-2 md:pb-16">
         <h1 className="section-heading mb-10">Wishlist</h1>
         <ProductGrid products={[]} isLoading />
       </div>
@@ -45,7 +45,7 @@ export default function WishlistPage() {
 
   if (!products.length) {
     return (
-      <div className="container-luxury pb-20 pt-28">
+      <div className="pb-12 pt-2 md:pb-16">
         <h1 className="section-heading mb-10">Wishlist</h1>
         <div className="py-16 text-center">
           <p className="font-display text-2xl font-light">
@@ -60,7 +60,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="container-luxury pb-20 pt-28">
+    <div className="pb-12 pt-2 md:pb-16">
       <h1 className="section-heading mb-10">Wishlist</h1>
       <ProductGrid products={products} />
     </div>

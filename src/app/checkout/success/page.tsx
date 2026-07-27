@@ -9,7 +9,7 @@ function SuccessContent() {
   const orderId = searchParams.get("id");
 
   return (
-    <div className="container-luxury py-28 text-center">
+    <div className="py-12 md:py-16 text-center">
       <p className="mb-3 text-xs tracking-[0.3em] uppercase text-gold">
         Thank you
       </p>
@@ -35,7 +35,7 @@ export default function CheckoutSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="container-luxury py-28 text-center text-ink-muted">
+        <div className="py-12 md:py-16 text-center text-ink-muted">
           Loading…
         </div>
       }

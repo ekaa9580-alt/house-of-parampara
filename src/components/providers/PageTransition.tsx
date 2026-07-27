@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
+/** Soft fade only — avoids feeling like a full UI swap between routes. */
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
@@ -11,10 +12,10 @@ export function PageTransition({ children }: { children: ReactNode }) {
     <AnimatePresence mode="wait">
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
       >
         {children}
       </motion.div>

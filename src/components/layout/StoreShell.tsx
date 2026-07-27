@@ -1,18 +1,39 @@
 "use client";
 
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 import { StoreSidebar } from "./StoreSidebar";
+import { cn } from "@/lib/utils";
 
-/** Desktop: sticky left sidebar + main. Mobile: full-width main (drawer in Header). */
-export function StoreShell({ children }: { children: React.ReactNode }) {
+function shouldShowSidebar(pathname: string) {
   return (
-    <div className="mx-auto flex w-full max-w-7xl gap-0 px-3 sm:px-5 lg:gap-5 lg:px-4 xl:px-5">
-      <div className="sticky top-[4.5rem] hidden h-[calc(100vh-4.5rem)] w-[208px] shrink-0 overflow-y-auto py-5 lg:block xl:w-[220px]">
-        <Suspense fallback={null}>
-          <StoreSidebar />
-        </Suspense>
-      </div>
-      <div className="min-w-0 flex-1 pb-16 pt-2 lg:pt-4">{children}</div>
+    pathname === "/" ||
+    pathname.startsWith("/shop") ||
+    pathname.startsWith("/category") ||
+    pathname.startsWith("/product")
+  );
+}
+
+/** Desktop: sticky left sidebar on catalog routes. Content pages use full main width. */
+export function StoreShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const showSidebar = shouldShowSidebar(pathname);
+
+  return (
+    <div
+      className={cn(
+        "mx-auto flex w-full max-w-[90rem] gap-0 px-3 sm:px-4 lg:px-5",
+        showSidebar && "lg:gap-5"
+      )}
+    >
+      {showSidebar && (
+        <div className="sticky top-[4.5rem] hidden h-[calc(100vh-4.5rem)] w-[200px] shrink-0 overflow-y-auto py-4 lg:block xl:w-[216px]">
+          <Suspense fallback={null}>
+            <StoreSidebar />
+          </Suspense>
+        </div>
+      )}
+      <div className="min-w-0 flex-1 pb-12 pt-4 md:pb-16 md:pt-5">{children}</div>
     </div>
   );
 }

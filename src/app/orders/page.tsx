@@ -23,12 +23,12 @@ function OrdersContent() {
 
   if (!mounted || !isAuthenticated()) {
     return (
-      <div className="container-luxury py-28 text-ink-muted">Loading…</div>
+      <div className="py-12 md:py-16 text-ink-muted">Loading…</div>
     );
   }
 
   return (
-    <div className="container-luxury pb-20 pt-28">
+    <div className="pb-12 pt-2 md:pb-16">
       <h1 className="section-heading mb-4">Orders</h1>
       {ordered && (
         <p className="mb-8 border border-royal/30 bg-royal/5 px-4 py-3 text-sm text-royal">
@@ -86,7 +86,7 @@ export default function OrdersPage() {
   return (
     <Suspense
       fallback={
-        <div className="container-luxury py-28 text-ink-muted">Loading…</div>
+        <div className="py-12 md:py-16 text-ink-muted">Loading…</div>
       }
     >
       <OrdersContent />

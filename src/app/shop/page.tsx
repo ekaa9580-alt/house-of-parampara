@@ -18,10 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function ShopPage() {
   return (
-    <div className="pt-20">
+    <div className="pt-2">
       <Suspense
         fallback={
-          <div className="container-luxury py-14">
+          <div className="py-8 md:py-10">
             <ProductGridSkeleton />
           </div>
         }

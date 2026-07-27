@@ -12,7 +12,7 @@ export default function ReturnPolicyPage() {
   const isLoading = settingsLoading || (!fromSettings && pageLoading);
 
   return (
-    <div className="container-luxury pb-20 pt-32 md:pt-36">
+    <div className="pb-12 pt-2 md:pb-16">
       <h1 className="section-heading">
         {page?.title?.rendered || "Return & Exchange"}
       </h1>
@@ -22,7 +22,7 @@ export default function ReturnPolicyPage() {
         </div>
       ) : (
         <div
-          className="prose prose-neutral mt-8 max-w-3xl dark:prose-invert"
+          className="prose prose-neutral mt-8 max-w-3xl text-ink prose-headings:text-ink prose-p:text-ink-soft dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       )}

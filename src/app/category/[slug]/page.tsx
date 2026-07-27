@@ -13,7 +13,7 @@ function CategoryContent() {
 
   if (isLoading) {
     return (
-      <div className="container-luxury py-14 pt-28">
+      <div className="py-8 md:py-10">
         <ProductGridSkeleton />
       </div>
     );
@@ -21,7 +21,7 @@ function CategoryContent() {
 
   if (!category) {
     return (
-      <div className="container-luxury flex min-h-[50vh] items-center justify-center pt-28 text-center">
+      <div className="flex min-h-[50vh] items-center justify-center py-12 text-center">
         <div>
           <h1 className="font-display text-3xl font-light">
             Category not found
@@ -32,7 +32,7 @@ function CategoryContent() {
   }
 
   return (
-    <div className={category.image?.src ? "" : "pt-20"}>
+    <div className={category.image?.src ? "" : "pt-2"}>
       <ShopView
         categorySlug={category.slug}
         title={category.name}
@@ -47,7 +47,7 @@ export default function CategoryPage() {
   return (
     <Suspense
       fallback={
-        <div className="container-luxury py-14 pt-28">
+        <div className="py-8 md:py-10">
           <ProductGridSkeleton />
         </div>
       }

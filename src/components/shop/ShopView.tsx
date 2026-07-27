@@ -370,11 +370,11 @@ export function ShopView({
     <div>
       {bannerImage && (
         <div
-          className="relative flex h-44 items-end bg-cover bg-center md:h-56"
+          className="relative -mx-3 flex h-44 items-end bg-cover bg-center sm:-mx-4 md:h-56 lg:-mx-5"
           style={{ backgroundImage: `url(${bannerImage})` }}
         >
           <div className="absolute inset-0 bg-ink/40" />
-          <div className="container-luxury relative z-10 pb-8">
+          <div className="relative z-10 px-3 pb-8 sm:px-4 lg:px-5">
             <h1 className="font-display text-4xl font-light text-cream md:text-5xl">
               {title}
             </h1>

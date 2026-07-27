@@ -6,8 +6,8 @@
   :root {
     --background: 247 243 237;
     --foreground: 26 22 20;
-    --muted: 107 97 88;
-    --accent: 196 165 116;
+    --muted: 61 53 48;
+    --accent: 140 98 57;
     --border: 230 221 208;
     --card: 255 255 255;
     --cms-primary: #1E3A8A;
@@ -30,10 +30,17 @@
   html {
     scroll-behavior: smooth;
     overflow-x: clip;
+    font-size: 16px;
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17px;
+    }
   }
 
   body {
-    @apply bg-cream text-ink font-body antialiased;
+    @apply bg-cream text-ink font-body text-base antialiased leading-relaxed;
     background-color: rgb(var(--background));
     color: rgb(var(--foreground));
     overflow-x: clip;
@@ -50,7 +57,7 @@
 
 @layer components {
   .container-luxury {
-    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[90rem] px-3 sm:px-4 lg:px-5;
   }
 
   .btn-primary {
@@ -59,19 +66,19 @@
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 border border-ink/20 bg-transparent px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-ink transition-all duration-300 hover:border-ink hover:bg-ink hover:text-cream dark:border-cream/30 dark:text-cream dark:hover:bg-cream dark:hover:text-ink;
+    @apply inline-flex items-center justify-center gap-2 border border-ink/25 bg-transparent px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-ink transition-all duration-300 hover:border-ink hover:bg-ink hover:text-cream dark:border-cream/30 dark:text-cream dark:hover:bg-cream dark:hover:text-ink;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm tracking-wide text-ink/70 transition-colors hover:text-ink dark:text-cream/70 dark:hover:text-cream;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm tracking-wide text-ink-soft transition-colors hover:text-ink dark:text-cream/80 dark:hover:text-cream;
   }
 
   .section-heading {
-    @apply font-display text-4xl font-light tracking-wide text-ink md:text-5xl lg:text-[3.25rem] dark:text-cream;
+    @apply font-display text-[2.25rem] font-light tracking-wide text-ink md:text-5xl lg:text-[3.35rem] dark:text-cream;
   }
 
   .section-subheading {
-    @apply mt-3 max-w-xl font-body text-base leading-relaxed text-ink-muted md:text-[1.05rem] dark:text-brand-300;
+    @apply mt-3 max-w-xl font-body text-base leading-relaxed text-ink-soft md:text-lg dark:text-brand-200;
   }
 
   .glass {
@@ -79,7 +86,7 @@
   }
 
   .input-field {
-    @apply w-full border border-brand-200 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink-muted/50 focus:border-gold dark:border-brand-800 dark:bg-brand-900 dark:text-cream dark:focus:border-gold;
+    @apply w-full border border-brand-200 bg-white px-4 py-3.5 text-base text-ink outline-none transition-colors placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-800 dark:bg-brand-900 dark:text-cream dark:focus:border-gold;
   }
 
   .link-underline {

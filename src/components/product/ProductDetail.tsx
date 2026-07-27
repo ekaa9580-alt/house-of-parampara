@@ -117,7 +117,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       : product.images || [];
 
   return (
-    <div className="container-luxury pb-16 pt-24 md:pb-20 md:pt-28">
+    <div className="pb-12 pt-2 md:pb-16">
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },

@@ -24,7 +24,13 @@ function saveRecent(q: string) {
 }
 
 /** Inline header search — never navigates to a search page or fullscreen overlay */
-export function HeaderSearch({ className }: { className?: string }) {
+export function HeaderSearch({
+  className,
+  instanceId = "header-search",
+}: {
+  className?: string;
+  instanceId?: string;
+}) {
   const { data: settings } = useSiteSettings();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -34,6 +40,7 @@ export function HeaderSearch({ className }: { className?: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: products, isFetching } = useSearchProducts(query);
   const { data: categories } = useCategories(0);
+  const listboxId = `${instanceId}-listbox`;
 
   const placeholder =
     settings?.search_placeholder ||
@@ -88,23 +95,23 @@ export function HeaderSearch({ className }: { className?: string }) {
   };
 
   return (
-    <div ref={wrapRef} className={cn("relative w-full max-w-xl", className)}>
-      <label className="sr-only" htmlFor="header-search">
+    <div ref={wrapRef} className={cn("relative w-full max-w-2xl", className)}>
+      <label className="sr-only" htmlFor={instanceId}>
         Search
       </label>
       <div className="relative flex items-center">
         <Search
-          className="pointer-events-none absolute left-3.5 h-4 w-4 text-ink-muted"
+          className="pointer-events-none absolute left-3.5 h-4 w-4 text-ink-soft"
           strokeWidth={1.5}
           aria-hidden
         />
         <input
-          id="header-search"
+          id={instanceId}
           ref={inputRef}
           type="search"
           role="combobox"
           aria-expanded={open}
-          aria-controls="header-search-listbox"
+          aria-controls={listboxId}
           aria-autocomplete="list"
           value={query}
           onChange={(e) => {
@@ -115,7 +122,7 @@ export function HeaderSearch({ className }: { className?: string }) {
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
-          className="w-full rounded-full border border-brand-200/80 bg-white/90 py-2.5 pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-ink-muted/55 focus:border-[var(--cms-primary,#1E3A8A)] focus:ring-2 focus:ring-[var(--cms-primary,#1E3A8A)]/15 dark:border-brand-700 dark:bg-brand-900/80 dark:text-cream"
+          className="w-full rounded-full border border-brand-200/80 bg-white/90 py-2.5 pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)] focus:ring-2 focus:ring-[var(--cms-primary,#1E3A8A)]/15 dark:border-brand-700 dark:bg-brand-900/80 dark:text-cream md:text-[0.95rem]"
           autoComplete="off"
         />
         {query && (
@@ -135,7 +142,7 @@ export function HeaderSearch({ className }: { className?: string }) {
 
       {open && (query.trim().length >= 2 || recent.length > 0) && (
         <div
-          id="header-search-listbox"
+          id={listboxId}
           role="listbox"
           className="absolute left-0 right-0 top-[calc(100%+6px)] z-[60] max-h-[70vh] overflow-y-auto rounded-2xl border border-brand-200/80 bg-cream/98 py-2 shadow-lift backdrop-blur-xl dark:border-brand-700 dark:bg-brand-950/98"
         >

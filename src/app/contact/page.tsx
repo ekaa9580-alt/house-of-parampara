@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Mail, Phone, MessageCircle, MapPin, Clock } from "lucide-react";
 import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { clientApi, parseApiError } from "@/lib/api/client";
 import toast from "react-hot-toast";
@@ -15,101 +16,103 @@ export default function ContactPage() {
     message: "",
   });
 
+  const contactEmail =
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+    settings?.contact_email ||
+    "support@houseofparampara.net";
+  const contactPhone =
+    process.env.NEXT_PUBLIC_CONTACT_PHONE || settings?.contact_phone;
+  const whatsapp =
+    settings?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const whatsappHref = whatsapp
+    ? whatsapp.startsWith("http")
+      ? whatsapp
+      : `https://wa.me/${whatsapp}`
+    : null;
+
   const info =
     settings?.contact_page_info ||
-    (page?.content?.rendered
-      ? undefined
-      : "We are happy to assist you with product enquiries, orders, and collections.");
-
-  const contactEmail =
-    settings?.contact_email || process.env.NEXT_PUBLIC_CONTACT_EMAIL;
-  const contactPhone =
-    settings?.contact_phone || process.env.NEXT_PUBLIC_CONTACT_PHONE;
+    "We are happy to assist you with product enquiries, orders, and collections.";
 
   const fieldClass =
-    "input-field text-ink placeholder:text-ink-soft/55 focus:border-brand-600";
+    "input-field text-base text-ink placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)]";
 
   return (
-    <div className="container-luxury pb-20 pt-32 md:pt-36">
+    <div className="mx-auto max-w-5xl pb-12 pt-2 md:pb-16">
       <h1 className="section-heading text-ink">
         {page?.title?.rendered || "Contact"}
       </h1>
-      {page?.content?.rendered ? (
-        <div
-          className="prose prose-neutral mt-4 text-ink prose-headings:text-ink prose-p:text-ink-soft prose-a:text-ink dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: page.content.rendered }}
-        />
-      ) : info ? (
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft md:text-base">
-          {info}
-        </p>
-      ) : null}
+      <p className="section-subheading max-w-2xl text-ink-soft">{info}</p>
 
-      <div className="mt-12 grid gap-12 md:grid-cols-2">
-        <div className="space-y-4 text-sm text-ink">
-          {contactEmail && (
-            <p>
-              <span className="font-medium text-ink-soft">Email · </span>
-              <a
-                href={`mailto:${contactEmail}`}
-                className="link-underline text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                {contactEmail}
-              </a>
-            </p>
-          )}
+      <div className="mt-10 grid gap-10 md:mt-12 md:grid-cols-2 md:gap-14">
+        <div className="space-y-5">
+          <a
+            href={`mailto:${contactEmail}`}
+            className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
+          >
+            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+            <span>
+              <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
+                Email
+              </span>
+              <span className="mt-1 block text-base md:text-lg">{contactEmail}</span>
+            </span>
+          </a>
+
           {contactPhone && (
-            <p>
-              <span className="font-medium text-ink-soft">Phone · </span>
-              <a
-                href={`tel:${contactPhone}`}
-                className="text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                {contactPhone}
-              </a>
-            </p>
+            <a
+              href={`tel:${contactPhone}`}
+              className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
+            >
+              <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <span>
+                <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
+                  Phone
+                </span>
+                <span className="mt-1 block text-base md:text-lg">{contactPhone}</span>
+              </span>
+            </a>
           )}
-          {settings?.whatsapp && (
-            <p>
-              <span className="font-medium text-ink-soft">WhatsApp · </span>
-              <a
-                href={`https://wa.me/${settings.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link-underline text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                Chat with us
-              </a>
-            </p>
+
+          {whatsappHref && (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
+            >
+              <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <span>
+                <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
+                  WhatsApp
+                </span>
+                <span className="mt-1 block text-base md:text-lg">Chat with us</span>
+              </span>
+            </a>
           )}
+
           {settings?.working_hours && (
-            <p>
-              <span className="font-medium text-ink-soft">Hours · </span>
-              <span className="text-ink">{settings.working_hours}</span>
-            </p>
+            <div className="flex items-start gap-3 text-ink">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <span>
+                <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
+                  Hours
+                </span>
+                <span className="mt-1 block text-base md:text-lg">{settings.working_hours}</span>
+              </span>
+            </div>
           )}
+
           {settings?.address && (
-            <p>
-              <span className="font-medium text-ink-soft">Address · </span>
-              <span className="text-ink">{settings.address}</span>
-            </p>
-          )}
-          {settings?.maps_url && (
-            <p>
-              <a
-                href={settings.maps_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link-underline text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
-              >
-                Open in Google Maps
-              </a>
-            </p>
-          )}
-          {settings?.contact_page_info && page?.content?.rendered && (
-            <p className="pt-2 leading-relaxed text-ink-soft">
-              {settings.contact_page_info}
-            </p>
+            <div className="flex items-start gap-3 text-ink">
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <span>
+                <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
+                  Address
+                </span>
+                <span className="mt-1 block text-base md:text-lg">{settings.address}</span>
+              </span>
+            </div>
           )}
         </div>
 
@@ -150,7 +153,7 @@ export default function ContactPage() {
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
           />
           <textarea
-            className={`${fieldClass} min-h-[140px]`}
+            className={`${fieldClass} min-h-[160px]`}
             placeholder="Message"
             aria-label="Message"
             required
@@ -159,7 +162,7 @@ export default function ContactPage() {
               setForm((f) => ({ ...f, message: e.target.value }))
             }
           />
-          <button type="submit" disabled={pending} className="btn-primary">
+          <button type="submit" disabled={pending} className="btn-primary rounded-full">
             {pending ? "Sending…" : "Send message"}
           </button>
         </form>

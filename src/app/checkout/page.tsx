@@ -177,13 +177,13 @@ export default function CheckoutPage() {
 
   if (isLoading) {
     return (
-      <div className="container-luxury py-28 text-ink-muted">Loading…</div>
+      <div className="py-12 md:py-16 text-ink-muted">Loading…</div>
     );
   }
 
   if (!cart?.items?.length) {
     return (
-      <div className="container-luxury py-28 text-center">
+      <div className="py-12 md:py-16 text-center">
         <h1 className="font-display text-3xl font-light">Nothing to checkout</h1>
         <Link href="/shop" className="btn-primary mt-6 inline-flex">
           Shop Collection
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
   );
 
   return (
-    <div className="container-luxury pb-20 pt-28">
+    <div className="pb-12 pt-2 md:pb-16">
       <h1 className="section-heading mb-10">Checkout</h1>
 
       <form
