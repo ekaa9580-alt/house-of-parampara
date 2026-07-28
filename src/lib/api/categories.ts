@@ -14,7 +14,7 @@ export async function getCategories(
   const response = await wcApi.get<WooCategory[]>("/products/categories", {
     params: {
       per_page: params.per_page ?? 100,
-      hide_empty: params.hide_empty ?? true,
+      hide_empty: params.hide_empty ?? false,
       // WC category orderby enum: id, include, name, slug, term_group, description, count
       orderby: params.orderby ?? "name",
       order: params.order ?? "asc",

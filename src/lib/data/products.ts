@@ -31,7 +31,12 @@ function filterProducts(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q) ||
-        p.short_description.toLowerCase().includes(q)
+        p.short_description.toLowerCase().includes(q) ||
+        (p.sku || "").toLowerCase().includes(q) ||
+        p.categories.some(
+          (c) =>
+            c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
+        )
     );
   }
   if (params.category) {
@@ -99,13 +104,50 @@ function filterProducts(
 export async function fetchProducts(
   params: ProductsQueryParams = {}
 ): Promise<PaginatedResponse<WooProduct>> {
-  if (isMockDataMode()) return filterProducts(seedProducts, params);
+  if (isMockDataMode()) {
+    if (params.category) {
+      const catKey = String(params.category);
+      const root =
+        seedCategories.find(
+          (c) => String(c.id) === catKey || c.slug === catKey
+        ) || null;
+      if (root) {
+        const { getDescendantCategoryIds } = await import(
+          "@/lib/category-tree"
+        );
+        const ids = getDescendantCategoryIds(seedCategories, root.id);
+        const inTree = seedProducts.filter(
+          (p) =>
+            isCatalogProduct(p) &&
+            p.categories.some((c) => ids.includes(c.id))
+        );
+        const rest = { ...params };
+        delete rest.category;
+        return filterProducts(inTree, rest);
+      }
+    }
+    return filterProducts(seedProducts, params);
+  }
+
   const api = await live();
-  // Resolve category slug → id for WC
-  if (params.category && Number.isNaN(Number(params.category))) {
-    const { getCategoryBySlug } = await import("@/lib/api/categories");
-    const cat = await getCategoryBySlug(String(params.category));
-    if (cat) params = { ...params, category: cat.id };
+  // Resolve category slug → id, and include all descendant category IDs
+  if (params.category) {
+    const { getCategories, getCategoryBySlug } = await import(
+      "@/lib/api/categories"
+    );
+    const { getDescendantCategoryIds } = await import("@/lib/category-tree");
+    let rootId: number | null = null;
+    if (Number.isNaN(Number(params.category))) {
+      const cat = await getCategoryBySlug(String(params.category));
+      rootId = cat?.id ?? null;
+    } else {
+      rootId = Number(params.category);
+    }
+    if (rootId != null) {
+      const all = await getCategories({ hide_empty: false, per_page: 100 });
+      const ids = getDescendantCategoryIds(all, rootId);
+      params = { ...params, category: ids.join(",") };
+    }
   }
   return api.getProducts(params);
 }
@@ -193,9 +235,10 @@ export async function fetchCategories(parent?: number) {
     );
   }
   const { getCategories } = await import("@/lib/api/categories");
+  // hide_empty:false so parents with only child products still appear in nav
   return getCategories({
     ...(parent !== undefined ? { parent } : {}),
-    hide_empty: true,
+    hide_empty: false,
   });
 }
 

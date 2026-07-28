@@ -27,7 +27,7 @@ export function StoreShell({ children }: { children: React.ReactNode }) {
       )}
     >
       {showSidebar && (
-        <div className="sticky top-[4.5rem] hidden h-[calc(100vh-4.5rem)] w-[200px] shrink-0 overflow-y-auto py-4 lg:block xl:w-[216px]">
+        <div className="sticky top-[5.5rem] hidden h-[calc(100vh-5.5rem)] w-[200px] shrink-0 overflow-y-auto py-4 lg:block xl:w-[216px]">
           <Suspense fallback={null}>
             <StoreSidebar />
           </Suspense>

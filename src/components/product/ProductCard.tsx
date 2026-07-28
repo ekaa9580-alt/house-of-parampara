@@ -83,7 +83,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {outOfStock && (
           <span className="absolute inset-0 z-[1] flex items-center justify-center bg-cream/60 text-xs tracking-[0.2em] uppercase backdrop-blur-[2px] dark:bg-brand-950/60">
-            Sold Out
+            Out of Stock
           </span>
         )}
 

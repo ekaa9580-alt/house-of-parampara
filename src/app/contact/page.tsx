@@ -5,7 +5,7 @@ import { Mail, Phone, MessageCircle, MapPin, Clock } from "lucide-react";
 import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { clientApi, parseApiError } from "@/lib/api/client";
 import {
-  BUSINESS_EMAIL,
+  resolveBusinessEmail,
   BUSINESS_PHONE,
   BUSINESS_WHATSAPP,
 } from "@/lib/site-contact";
@@ -21,9 +21,8 @@ export default function ContactPage() {
     message: "",
   });
 
-  // Always from central config — never raw CMS hello@…
-  const contactEmail = BUSINESS_EMAIL;
-  const contactPhone = BUSINESS_PHONE || settings?.contact_phone;
+  const contactEmail = resolveBusinessEmail(settings?.contact_email);
+  const contactPhone = settings?.contact_phone || BUSINESS_PHONE;
   const whatsapp =
     settings?.whatsapp || BUSINESS_WHATSAPP;
   const whatsappHref = whatsapp

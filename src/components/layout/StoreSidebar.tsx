@@ -2,36 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useCategories } from "@/hooks/useWooCommerce";
 import { cn } from "@/lib/utils";
-import { STORE_CATEGORIES } from "@/lib/store-categories";
-import type { WooCategory } from "@/types/woocommerce";
-
-function resolveCat(
-  categories: WooCategory[] | undefined,
-  match: string[]
-): WooCategory | undefined {
-  if (!categories?.length) return undefined;
-  return categories.find((c) => {
-    const slug = c.slug.toLowerCase();
-    const name = c.name.toLowerCase();
-    return match.some(
-      (m) => slug === m || slug.includes(m) || name.includes(m)
-    );
-  });
-}
-
-function subHref(
-  categories: WooCategory[] | undefined,
-  match: string[] | undefined,
-  search: string
-): string {
-  const cat = match ? resolveCat(categories, match) : undefined;
-  if (cat) return `/category/${cat.slug}`;
-  return `/shop?search=${encodeURIComponent(search)}`;
-}
+import { buildCategoryTree } from "@/lib/category-tree";
 
 const SORTS = [
   { label: "Newest", value: "date" },
@@ -45,16 +20,16 @@ export function StoreSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { data: categories } = useCategories(0);
-  const [open, setOpen] = useState<Record<string, boolean>>({
-    Women: true,
-    Men: true,
-  });
+  const { data: categories, isLoading } = useCategories();
+  const tree = useMemo(
+    () => buildCategoryTree(categories || []),
+    [categories]
+  );
+  const [open, setOpen] = useState<Record<number, boolean>>({});
 
   const activeSlug = pathname.startsWith("/category/")
     ? pathname.split("/")[2]
     : searchParams.get("category");
-  const activeSearch = (searchParams.get("search") || "").toLowerCase();
 
   const filterPath =
     pathname.startsWith("/shop") || pathname.startsWith("/category/")
@@ -97,6 +72,9 @@ export function StoreSidebar({ className }: { className?: string }) {
     pushFilterParams(p);
   };
 
+  const isOpen = (id: number, hasChildren: boolean) =>
+    open[id] ?? (hasChildren && (activeSlug ? true : true));
+
   return (
     <aside
       className={cn(
@@ -109,86 +87,74 @@ export function StoreSidebar({ className }: { className?: string }) {
           Categories
         </h2>
         <nav className="space-y-1" aria-label="Product categories">
-          {STORE_CATEGORIES.map((item) => {
-            const cat = resolveCat(categories, item.match);
-            const href = cat ? `/category/${cat.slug}` : item.href;
-            const active =
-              (cat && activeSlug === cat.slug) ||
-              activeSearch === item.label.toLowerCase();
-            const Icon = item.icon;
+          {isLoading && (
+            <p className="px-2.5 text-sm text-ink-soft">Loading…</p>
+          )}
+          {!isLoading && tree.length === 0 && (
+            <p className="px-2.5 text-sm text-ink-soft">No categories yet</p>
+          )}
+          {tree.map((item) => {
+            const href = `/category/${item.slug}`;
+            const active = activeSlug === item.slug;
             const hasChildren = item.children.length > 0;
-            const isOpen = open[item.label] ?? false;
+            const expanded = isOpen(item.id, hasChildren);
+            const childActive = item.children.some(
+              (c) => activeSlug === c.slug
+            );
 
             return (
-              <div key={item.label}>
+              <div key={item.id}>
                 <div className="flex items-center gap-0.5">
                   <Link
                     href={href}
                     className={cn(
                       "group flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm tracking-wide transition-all duration-300 md:text-base",
-                      active
+                      active || childActive
                         ? "bg-[var(--cms-primary,#7A3E1D)] text-cream shadow-sm"
                         : "text-ink hover:bg-brand-100/80 dark:text-brand-200 dark:hover:bg-brand-900"
                     )}
                   >
-                    <Icon
-                      className="h-5 w-5 shrink-0 opacity-90"
-                      strokeWidth={1.5}
-                    />
-                    <span className="flex-1 font-medium">{item.label}</span>
+                    <span className="flex-1 truncate font-medium">
+                      {item.name}
+                    </span>
                   </Link>
-                  {hasChildren ? (
+                  {hasChildren && (
                     <button
                       type="button"
-                      aria-label={`${isOpen ? "Collapse" : "Expand"} ${item.label}`}
-                      aria-expanded={isOpen}
+                      aria-label={`${expanded ? "Collapse" : "Expand"} ${item.name}`}
+                      aria-expanded={expanded}
                       onClick={() =>
-                        setOpen((s) => ({ ...s, [item.label]: !isOpen }))
+                        setOpen((s) => ({ ...s, [item.id]: !expanded }))
                       }
                       className="rounded-lg p-2 text-ink-soft transition hover:bg-brand-100 hover:text-ink"
                     >
                       <ChevronDown
                         className={cn(
                           "h-4 w-4 transition-transform",
-                          isOpen && "rotate-180"
+                          expanded && "rotate-180"
                         )}
                       />
                     </button>
-                  ) : null}
+                  )}
                 </div>
 
-                {hasChildren && isOpen && (
+                {hasChildren && expanded && (
                   <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-brand-200/80 pl-3 dark:border-brand-700">
-                    {item.children.map((sub) => {
-                      const subLink = subHref(
-                        categories,
-                        sub.match,
-                        sub.search
-                      );
-                      const subActive =
-                        activeSearch === sub.search.toLowerCase() ||
-                        (activeSlug &&
-                          sub.match?.some(
-                            (m) =>
-                              activeSlug.includes(m.replace(/\s+/g, "-")) ||
-                              activeSlug === m
-                          ));
-                      return (
-                        <li key={sub.label}>
-                          <Link
-                            href={subLink}
-                            className={cn(
-                              "block rounded-lg px-2.5 py-1.5 text-[13px] transition md:text-sm",
-                              subActive
-                                ? "font-semibold text-[var(--cms-primary,#7A3E1D)]"
-                                : "text-ink-soft hover:text-ink dark:hover:text-cream"
-                            )}
-                          >
-                            {sub.label}
-                          </Link>
-                        </li>
-                      );
-                    })}
+                    {item.children.map((sub) => (
+                      <li key={sub.id}>
+                        <Link
+                          href={`/category/${sub.slug}`}
+                          className={cn(
+                            "block rounded-lg px-2.5 py-1.5 text-[13px] transition md:text-sm",
+                            activeSlug === sub.slug
+                              ? "font-semibold text-[var(--cms-primary,#7A3E1D)]"
+                              : "text-ink-soft hover:text-ink dark:hover:text-cream"
+                          )}
+                        >
+                          {sub.name}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 )}
               </div>
@@ -265,96 +231,6 @@ export function StoreSidebar({ className }: { className?: string }) {
               />
               On sale / Discount
             </label>
-          </div>
-
-          <div>
-            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
-              Color
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                "Red",
-                "Blue",
-                "Green",
-                "Gold",
-                "Ivory",
-                "Black",
-                "Pink",
-                "Maroon",
-              ].map((c) => {
-                const active = searchParams.get("color") === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setShopParam("color", active ? null : c)}
-                    className={cn(
-                      "rounded-full px-2.5 py-1 text-[11px] transition",
-                      active
-                        ? "bg-[var(--cms-primary,#7A3E1D)] text-cream"
-                        : "bg-brand-100 text-ink-muted hover:bg-brand-200 dark:bg-brand-900"
-                    )}
-                  >
-                    {c}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
-              Size
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {["XS", "S", "M", "L", "XL", "Free"].map((sz) => {
-                const active = searchParams.get("size") === sz;
-                return (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => setShopParam("size", active ? null : sz)}
-                    className={cn(
-                      "min-w-8 rounded-lg px-2 py-1 text-[11px] transition",
-                      active
-                        ? "bg-[var(--cms-primary,#7A3E1D)] text-cream"
-                        : "bg-brand-100 text-ink-muted hover:bg-brand-200 dark:bg-brand-900"
-                    )}
-                  >
-                    {sz}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
-              Material
-            </p>
-            <ul className="space-y-1">
-              {["Silk", "Cotton", "Linen", "Wool", "Handloom"].map((m) => {
-                const active = searchParams.get("material") === m;
-                return (
-                  <li key={m}>
-                    <button
-                      type="button"
-                      className={cn(
-                        "w-full rounded-lg px-2 py-1.5 text-left transition",
-                        active
-                          ? "bg-brand-100 font-medium text-[var(--cms-primary,#7A3E1D)] dark:bg-brand-900"
-                          : "text-ink-muted hover:bg-brand-50 dark:hover:bg-brand-900/60"
-                      )}
-                      onClick={() =>
-                        setShopParam("material", active ? null : m)
-                      }
-                    >
-                      {m}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
           </div>
 
           <div>

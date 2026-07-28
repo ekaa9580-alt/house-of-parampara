@@ -7,7 +7,7 @@ import type { WooProduct, WooProductVariation } from "@/types/woocommerce";
 import {
   formatPrice,
   getDiscountPercent,
-  isInStock,
+  formatStockDisplay,
   stripHtml,
 } from "@/lib/utils";
 import { Rating } from "@/components/ui/Rating";
@@ -108,9 +108,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const discount = onSale
     ? getDiscountPercent(displayRegular, displaySale)
     : null;
-  const inStock = isInStock(stockStatus);
+  const qtyForDisplay = isVariable
+    ? matchedVariation?.stock_quantity ?? null
+    : product.stock_quantity;
+  const stockInfo = formatStockDisplay(stockStatus, qtyForDisplay);
   const canAdd =
-    inStock &&
+    stockInfo.available &&
     (!isVariable || !!matchedVariation) &&
     !addToCart.isPending &&
     !buying;
@@ -182,24 +185,24 @@ export function ProductDetail({ product }: ProductDetailProps) {
               count={product.rating_count}
               size="md"
             />
-            <span
-              className={`text-xs tracking-wider uppercase ${
-                inStock
+            <div
+              className={`text-sm tracking-wide ${
+                stockInfo.available
                   ? "text-[var(--cms-primary,#7A3E1D)]"
                   : "text-red-600"
               }`}
             >
-              {stockStatus === "instock"
-                ? "In Stock"
-                : stockStatus === "onbackorder"
-                  ? "Available on Backorder"
-                  : "Out of Stock"}
-              {matchedVariation?.stock_quantity != null && inStock
-                ? ` · ${matchedVariation.stock_quantity} left`
-                : product.stock_quantity != null && inStock && !isVariable
-                  ? ` · ${product.stock_quantity} left`
-                  : ""}
-            </span>
+              <p className="font-semibold uppercase tracking-wider">
+                {stockInfo.available && stockInfo.quantity != null && stockInfo.quantity > 10
+                  ? "✓ In Stock"
+                  : stockInfo.label}
+              </p>
+              {stockInfo.detail && (
+                <p className="mt-0.5 text-xs font-medium normal-case tracking-normal text-ink-soft">
+                  {stockInfo.detail}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-3">

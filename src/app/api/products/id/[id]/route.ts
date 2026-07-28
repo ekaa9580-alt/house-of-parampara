@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProductById } from "@/lib/api/products";
 import { isMockDataMode } from "@/lib/data/mode";
-import { seedProducts } from "@/lib/data/seed";
+import { fetchProducts } from "@/lib/data/products";
 import { parseApiError } from "@/lib/api/client";
 
 /** GET /api/products/id/:id */
@@ -20,7 +20,8 @@ export async function GET(
     }
 
     if (isMockDataMode()) {
-      const product = seedProducts.find((p) => p.id === numericId);
+      const page = await fetchProducts({ include: [numericId], per_page: 1 });
+      const product = page.data[0];
       if (!product) {
         return NextResponse.json(
           { code: "not_found", message: "Product not found" },

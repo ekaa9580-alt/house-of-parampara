@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { useSearchProducts, useCategories, useSiteSettings } from "@/hooks/useWooCommerce";
 import { formatPrice, safeImageSrc, cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ function saveRecent(q: string) {
   localStorage.setItem(RECENT_KEY, JSON.stringify(next));
 }
 
-/** Inline header search — never navigates to a search page or fullscreen overlay */
+/** Inline header search against WooCommerce products + categories */
 export function HeaderSearch({
   className,
   instanceId = "header-search",
@@ -31,6 +32,7 @@ export function HeaderSearch({
   className?: string;
   instanceId?: string;
 }) {
+  const router = useRouter();
   const { data: settings } = useSiteSettings();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -39,7 +41,7 @@ export function HeaderSearch({
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: products, isFetching } = useSearchProducts(query);
-  const { data: categories } = useCategories(0);
+  const { data: categories } = useCategories();
   const listboxId = `${instanceId}-listbox`;
 
   const placeholder =
@@ -79,18 +81,45 @@ export function HeaderSearch({
     };
   }, []);
 
+  const goToShopSearch = (q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    saveRecent(trimmed);
+    setRecent(loadRecent());
+    setOpen(false);
+    setQuery("");
+    router.push(`/shop?search=${encodeURIComponent(trimmed)}`);
+  };
+
   const totalItems = catMatches.length + suggestions.length;
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (!open) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      setOpen(true);
       setActive((i) => Math.min(i + 1, totalItems - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((i) => Math.max(i - 1, -1));
     } else if (e.key === "Enter" && query.trim()) {
-      saveRecent(query.trim());
-      setRecent(loadRecent());
+      e.preventDefault();
+      if (active >= 0 && active < catMatches.length) {
+        const c = catMatches[active];
+        saveRecent(query.trim());
+        setOpen(false);
+        setQuery("");
+        router.push(`/category/${c.slug}`);
+        return;
+      }
+      const productIdx = active - catMatches.length;
+      if (productIdx >= 0 && productIdx < suggestions.length) {
+        const p = suggestions[productIdx];
+        saveRecent(query.trim());
+        setOpen(false);
+        setQuery("");
+        router.push(`/product/${p.slug}`);
+        return;
+      }
+      goToShopSearch(query);
     }
   };
 

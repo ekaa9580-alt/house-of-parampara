@@ -152,6 +152,28 @@ export async function searchProducts(
   perPage = 10
 ): Promise<WooProduct[]> {
   if (!query.trim()) return [];
-  const res = await getProducts({ search: query, per_page: perPage });
-  return res.data;
+  const q = query.trim();
+  const bySearch = await getProducts({ search: q, per_page: perPage });
+
+  // Also try exact SKU match (WC search does not always include SKU)
+  let bySku: WooProduct[] = [];
+  try {
+    ensureConfigured();
+    const response = await wcApi.get<WooProduct[]>("/products", {
+      params: { sku: q, status: "publish", per_page: perPage },
+    });
+    bySku = sanitizeList(response.data || []);
+  } catch {
+    bySku = [];
+  }
+
+  const seen = new Set<number>();
+  const merged: WooProduct[] = [];
+  for (const p of [...bySku, ...bySearch.data]) {
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    merged.push(p);
+    if (merged.length >= perPage) break;
+  }
+  return merged;
 }

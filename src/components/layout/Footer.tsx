@@ -1,26 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Facebook, Instagram, MessageCircle, Youtube } from "lucide-react";
-import { useNewsletter, useSiteSettings, useMenu } from "@/hooks/useWooCommerce";
+import { useNewsletter, useSiteSettings, useMenu, useCategories } from "@/hooks/useWooCommerce";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
 import {
-  BUSINESS_EMAIL,
+  resolveBusinessEmail,
   BUSINESS_INSTAGRAM,
   BUSINESS_PHONE,
   BUSINESS_WHATSAPP,
 } from "@/lib/site-contact";
+import { buildCategoryTree } from "@/lib/category-tree";
 import type { CmsMenuItem } from "@/types/woocommerce";
-
-const DEFAULT_CATEGORIES = [
-  { href: "/shop?search=Women", label: "Women" },
-  { href: "/shop?search=Men", label: "Men" },
-  { href: "/shop?search=Kids", label: "Kids" },
-  { href: "/shop?search=Handicrafts", label: "Handicrafts" },
-  { href: "/shop", label: "Shop All" },
-];
 
 const DEFAULT_SERVICE: CmsMenuItem[] = [
   { id: 1, title: "Privacy Policy", url: "/privacy-policy" },
@@ -35,12 +28,13 @@ export function Footer() {
   const { data: settings } = useSiteSettings();
   const { data: quickLinks = [] } = useMenu("footer");
   const { data: policyLinks = [] } = useMenu("footer_policies");
+  const { data: categories } = useCategories();
   const newsletter = useNewsletter();
   const [email, setEmail] = useState("");
 
   const logo = settings?.logo;
-  const contactEmail = BUSINESS_EMAIL;
-  const contactPhone = BUSINESS_PHONE || settings?.contact_phone;
+  const contactEmail = resolveBusinessEmail(settings?.contact_email);
+  const contactPhone = settings?.contact_phone || BUSINESS_PHONE;
   const instagramUrl =
     settings?.instagram || BUSINESS_INSTAGRAM;
   const whatsappRaw = settings?.whatsapp || BUSINESS_WHATSAPP;
@@ -50,9 +44,20 @@ export function Footer() {
       : `https://wa.me/${whatsappRaw}`
     : null;
 
-  const categories = quickLinks.length
+  const wcParents = useMemo(
+    () => buildCategoryTree(categories || []),
+    [categories]
+  );
+
+  const categoriesNav = quickLinks.length
     ? quickLinks.map((i) => ({ href: i.url, label: i.title }))
-    : DEFAULT_CATEGORIES;
+    : [
+        ...wcParents.map((c) => ({
+          href: `/category/${c.slug}`,
+          label: c.name,
+        })),
+        { href: "/shop", label: "Shop All" },
+      ];
   const service = policyLinks.length > 0 ? policyLinks : DEFAULT_SERVICE;
 
   return (
@@ -121,7 +126,7 @@ export function Footer() {
             Categories
           </h4>
           <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
-            {categories.map((c) => (
+            {categoriesNav.map((c) => (
               <li key={c.label}>
                 <Link
                   href={c.href || "/shop"}

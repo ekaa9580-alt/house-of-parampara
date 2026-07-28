@@ -67,6 +67,70 @@ export function isInStock(status: string): boolean {
   return status === "instock" || status === "onbackorder";
 }
 
+export type StockDisplay = {
+  label: string;
+  detail?: string;
+  available: boolean;
+  quantity: number | null;
+};
+
+/**
+ * Stock copy from WooCommerce stock_status + stock_quantity.
+ * >10  → In Stock / N available
+ * 1–10 → Only N left in stock
+ * 0 / outofstock → Out of Stock
+ */
+export function formatStockDisplay(
+  stockStatus?: string | null,
+  stockQuantity?: number | null
+): StockDisplay {
+  const status = stockStatus || "outofstock";
+  const qty =
+    typeof stockQuantity === "number" && !Number.isNaN(stockQuantity)
+      ? stockQuantity
+      : null;
+
+  if (status === "outofstock" || qty === 0) {
+    return {
+      label: "Out of Stock",
+      available: false,
+      quantity: qty === 0 ? 0 : qty,
+    };
+  }
+
+  if (status === "onbackorder") {
+    return {
+      label: "Available on Backorder",
+      available: true,
+      quantity: qty,
+    };
+  }
+
+  if (qty != null && qty > 0 && qty <= 10) {
+    return {
+      label: `Only ${qty} left in stock`,
+      available: true,
+      quantity: qty,
+    };
+  }
+
+  if (qty != null && qty > 10) {
+    return {
+      label: "In Stock",
+      detail: `${qty} available`,
+      available: true,
+      quantity: qty,
+    };
+  }
+
+  // manage_stock off — status only
+  return {
+    label: status === "instock" ? "In Stock" : "Out of Stock",
+    available: status === "instock",
+    quantity: qty,
+  };
+}
+
 /** Normalize WC Store API absolute product URLs to Next app paths */
 export function cartItemHref(permalink?: string | null): string {
   if (!permalink) return "/shop";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,19 +13,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore, useWishlistStore, useAuthStore } from "@/store";
-import { useCart, useSiteSettings } from "@/hooks/useWooCommerce";
+import { useCart, useSiteSettings, useCategories } from "@/hooks/useWooCommerce";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { HeaderSearch } from "./HeaderSearch";
 import { AnnouncementBar } from "@/components/cms/BrandTheme";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
-import { STORE_CATEGORIES } from "@/lib/store-categories";
-
-const DRAWER_CATS = STORE_CATEGORIES.map((c) => ({
-  label: c.label,
-  href: c.href,
-  icon: c.icon,
-}));
+import { buildCategoryTree } from "@/lib/category-tree";
 
 export function BrandMark({
   compact,
@@ -37,29 +31,28 @@ export function BrandMark({
 }) {
   const { data: settings } = useSiteSettings();
   const logo = settings?.logo;
-  // Always show clean brand text (CMS may prepend emoji)
   const display = "HOUSE OF PARAMPARA";
 
   return (
     <Link
       href="/"
-      className="group flex min-w-0 items-center gap-3 sm:gap-3.5"
+      className="group flex min-w-0 items-center gap-3 sm:gap-4"
       aria-label={display}
     >
       <span
         className={cn(
           "relative shrink-0 overflow-hidden bg-transparent transition-[height,width] duration-300",
           compact
-            ? "h-14 w-14 sm:h-16 sm:w-16"
-            : "h-16 w-16 sm:h-[4.75rem] sm:w-[4.75rem] md:h-20 md:w-20"
+            ? "h-14 w-14 sm:h-[4.25rem] sm:w-[4.25rem]"
+            : "h-[4.25rem] w-[4.25rem] sm:h-20 sm:w-20 md:h-[5.25rem] md:w-[5.25rem]"
         )}
       >
         {safeImageSrc(logo) ? (
           <SafeImage
             src={logo}
             alt=""
-            width={80}
-            height={80}
+            width={84}
+            height={84}
             className="h-full w-full object-contain"
             priority
           />
@@ -74,12 +67,12 @@ export function BrandMark({
       </span>
       <span
         className={cn(
-          "ml-0.5 font-display font-bold tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85 sm:ml-1",
+          "min-w-0 font-display font-bold tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
           stacked
-            ? "max-w-[11rem] text-lg leading-[1.1] sm:max-w-none sm:whitespace-nowrap sm:text-2xl sm:leading-none md:text-[1.85rem] lg:text-[2.15rem]"
+            ? "text-lg leading-[1.15] sm:whitespace-nowrap sm:text-2xl sm:leading-none md:text-[1.9rem] lg:text-[2.15rem]"
             : compact
               ? "whitespace-nowrap text-xl leading-none sm:text-2xl"
-              : "whitespace-nowrap text-2xl leading-none md:text-[1.95rem] lg:text-[2.2rem]"
+              : "whitespace-nowrap text-2xl leading-none md:text-[2rem] lg:text-[2.25rem]"
         )}
       >
         {stacked ? (
@@ -107,6 +100,11 @@ export function Header() {
   const wishlistCount = useWishlistStore((s) => s.items.length);
   const isAuth = useAuthStore((s) => s.isAuthenticated());
   const { data: cart } = useCart();
+  const { data: categories } = useCategories();
+  const categoryTree = useMemo(
+    () => buildCategoryTree(categories || []),
+    [categories]
+  );
 
   useEffect(() => setMounted(true), []);
   useBodyScrollLock(isMobileMenuOpen);
@@ -140,7 +138,7 @@ export function Header() {
             scrolled ? "py-2 lg:py-2.5" : "py-2.5 sm:py-3 lg:py-3.5"
           )}
         >
-          {/* Row 1: brand + actions (search sits beside icons from md up) */}
+          {/* Row 1: brand + icons; search only from lg to avoid overlap */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
               <button
@@ -156,7 +154,7 @@ export function Header() {
             </div>
 
             <div className="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
-              <div className="hidden w-[min(42vw,20rem)] md:block lg:w-[22rem] xl:w-[26rem]">
+              <div className="ml-2 hidden w-[min(36vw,22rem)] lg:block xl:ml-4 xl:w-[26rem]">
                 <Suspense fallback={<div className="h-10 w-full rounded-full bg-brand-100" />}>
                   <HeaderSearch
                     instanceId="header-search-desktop"
@@ -195,8 +193,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Row 2 (mobile only): full-width search — no overlap with brand/icons */}
-          <div className="mt-2 md:hidden">
+          {/* Search below brand until lg — no overlap */}
+          <div className="mt-2 lg:hidden">
             <Suspense fallback={<div className="h-10 w-full rounded-full bg-brand-100" />}>
               <HeaderSearch
                 instanceId="header-search-mobile"
@@ -249,24 +247,37 @@ export function Header() {
                 </Suspense>
               </div>
               <nav className="flex-1 overflow-y-auto px-3 py-4">
-                <p className="mb-2 px-2 text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted">
+                <p className="mb-2 px-2 text-[10px] font-bold tracking-[0.2em] uppercase text-ink-muted">
                   Categories
                 </p>
-                {DRAWER_CATS.map((c) => (
-                  <Link
-                    key={c.label}
-                    href={c.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-lg transition hover:bg-brand-100 dark:hover:bg-brand-900"
-                  >
-                    <c.icon className="h-6 w-6 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
-                    {c.label}
-                  </Link>
+                {categoryTree.map((c) => (
+                  <div key={c.id} className="mb-1">
+                    <Link
+                      href={`/category/${c.slug}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block rounded-xl px-3 py-2.5 text-lg font-medium transition hover:bg-brand-100 dark:hover:bg-brand-900"
+                    >
+                      {c.name}
+                    </Link>
+                    {c.children.map((sub) => (
+                      <Link
+                        key={sub.id}
+                        href={`/category/${sub.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="ml-3 block rounded-lg px-3 py-1.5 text-base text-ink-soft transition hover:bg-brand-100 hover:text-ink dark:hover:bg-brand-900"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
                 ))}
                 <div className="my-4 border-t border-brand-200 dark:border-brand-800" />
                 {[
+                  { href: "/", label: "Home" },
+                  { href: "/shop", label: "Shop" },
                   { href: "/about", label: "About" },
                   { href: "/contact", label: "Contact" },
+                  { href: "/faq", label: "FAQ" },
                   { href: "/wishlist", label: "Wishlist" },
                   { href: "/cart", label: "Bag" },
                   {

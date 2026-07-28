@@ -1,24 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { STORE_CATEGORIES } from "@/lib/store-categories";
+import { useCategories } from "@/hooks/useWooCommerce";
+import { buildCategoryTree } from "@/lib/category-tree";
 
 const PAGE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  ...STORE_CATEGORIES.map((c) => ({ href: c.href, label: c.label })),
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/faq", label: "FAQ" },
 ];
 
-/** Centered display-font nav under header — on every page */
+/** Centered display-font nav — page links + live WC parent categories */
 export function SiteNav() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const search = (searchParams.get("search") || "").toLowerCase();
+  const { data: categories } = useCategories();
+  const parents = useMemo(
+    () => buildCategoryTree(categories || []),
+    [categories]
+  );
+
+  const links = useMemo(() => {
+    const catLinks = parents.map((c) => ({
+      href: `/category/${c.slug}`,
+      label: c.name,
+      slug: c.slug,
+      childSlugs: c.children.map((ch) => ch.slug),
+    }));
+    return [
+      { ...PAGE_LINKS[0], slug: null as string | null, childSlugs: [] as string[] },
+      { ...PAGE_LINKS[1], slug: null, childSlugs: [] },
+      ...catLinks,
+      ...PAGE_LINKS.slice(2).map((l) => ({
+        ...l,
+        slug: null as string | null,
+        childSlugs: [] as string[],
+      })),
+    ];
+  }, [parents]);
 
   return (
     <nav
@@ -27,19 +50,15 @@ export function SiteNav() {
     >
       <div className="mx-auto flex w-full max-w-[90rem] justify-center overflow-x-auto px-3 py-3 sm:px-4 lg:px-5">
         <ul className="flex min-w-min items-center justify-center gap-5 sm:gap-7 md:gap-9">
-          {PAGE_LINKS.map((item) => {
-            const labelLower = item.label.toLowerCase();
-            const isCategory = STORE_CATEGORIES.some(
-              (c) => c.label === item.label
-            );
+          {links.map((item) => {
+            const isCategory = Boolean(item.slug);
             const active = isCategory
-              ? search === labelLower ||
-                (pathname.startsWith("/category/") &&
-                  pathname.toLowerCase().includes(labelLower))
+              ? pathname === item.href ||
+                item.childSlugs.some((s) => pathname === `/category/${s}`)
               : item.href === "/"
                 ? pathname === "/"
                 : item.href === "/shop"
-                  ? pathname.startsWith("/shop") && !search
+                  ? pathname.startsWith("/shop")
                   : pathname === item.href ||
                     pathname.startsWith(`${item.href}/`);
 

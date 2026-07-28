@@ -417,22 +417,22 @@ export const seedReviews: WooReview[] = [
 
 export const seedPaymentMethods: WooPaymentMethod[] = [
   {
-    id: "cod",
-    title: "Cash on Delivery",
-    description: "Pay with cash upon delivery.",
-    order: 1,
-    enabled: true,
-    method_title: "Cash on Delivery",
-    method_description: "COD",
-  },
-  {
     id: "razorpay",
     title: "Razorpay",
-    description: "Pay securely via Razorpay (UPI, cards, wallets).",
-    order: 2,
+    description: "Pay with UPI, Cards, Net Banking, or Wallets.",
+    order: 1,
     enabled: true,
     method_title: "Razorpay",
     method_description: "Online payments",
+  },
+  {
+    id: "cod",
+    title: "Cash on Delivery",
+    description: "Pay with cash upon delivery.",
+    order: 2,
+    enabled: true,
+    method_title: "Cash on Delivery",
+    method_description: "COD",
   },
 ];
 

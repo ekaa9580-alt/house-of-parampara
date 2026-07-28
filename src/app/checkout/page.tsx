@@ -62,7 +62,7 @@ export default function CheckoutPage() {
   const [billing, setBilling] = useState<WooAddress>(emptyAddress);
   const [shipping, setShipping] = useState<WooAddress>(emptyAddress);
   const [sameAsBilling, setSameAsBilling] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [note, setNote] = useState("");
   const [packages, setPackages] = useState<WooShippingPackage[]>([]);
   const [selectedRateId, setSelectedRateId] = useState<string>("");
@@ -78,8 +78,14 @@ export default function CheckoutPage() {
     setShipping((s) => ({ ...s, [key]: value }));
 
   useEffect(() => {
-    if (methods?.length && !methods.find((m) => m.id === paymentMethod)) {
-      setPaymentMethod(methods[0].id);
+    if (!methods?.length) return;
+    // Prefer Razorpay when enabled; never default to COD
+    const preferred =
+      methods.find((m) => /razorpay/i.test(m.id) || /razorpay/i.test(m.title)) ||
+      methods.find((m) => m.id !== "cod") ||
+      methods[0];
+    if (!paymentMethod || !methods.find((m) => m.id === paymentMethod)) {
+      setPaymentMethod(preferred.id);
     }
   }, [methods, paymentMethod]);
 
@@ -460,7 +466,17 @@ export default function CheckoutPage() {
               Payment Method
             </h2>
             <div className="space-y-3">
-              {(methods || []).map((m) => (
+              {[...(methods || [])]
+                .sort((a, b) => {
+                  const score = (m: { id: string; title: string }) =>
+                    /razorpay/i.test(m.id) || /razorpay/i.test(m.title)
+                      ? 0
+                      : m.id === "cod"
+                        ? 2
+                        : 1;
+                  return score(a) - score(b);
+                })
+                .map((m) => (
                 <label
                   key={m.id}
                   className="flex cursor-pointer items-start gap-3 border border-brand-200 p-4 dark:border-brand-800"
@@ -478,6 +494,11 @@ export default function CheckoutPage() {
                     {m.description && (
                       <span className="text-xs text-ink-muted">
                         {m.description}
+                      </span>
+                    )}
+                    {/razorpay/i.test(m.id) && (
+                      <span className="mt-1 block text-xs text-ink-soft">
+                        Pay with UPI, Cards, Net Banking, or Wallets
                       </span>
                     )}
                   </span>
