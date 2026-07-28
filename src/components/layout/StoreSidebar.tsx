@@ -3,31 +3,11 @@
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  Flower2,
-  Shirt,
-  Baby,
-  Sparkles,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useCategories } from "@/hooks/useWooCommerce";
 import { cn } from "@/lib/utils";
+import { STORE_CATEGORIES } from "@/lib/store-categories";
 import type { WooCategory } from "@/types/woocommerce";
-
-const CAT_META: {
-  label: string;
-  match: string[];
-  icon: typeof Shirt;
-}[] = [
-  { label: "Women", match: ["women", "womens", "woman", "saree"], icon: Flower2 },
-  { label: "Men", match: ["men", "mens", "man", "kurta"], icon: Shirt },
-  { label: "Kids", match: ["kids", "kid", "children", "child"], icon: Baby },
-  {
-    label: "Handicrafts",
-    match: ["handicrafts", "handicraft", "craft"],
-    icon: Sparkles,
-  },
-];
 
 function resolveCat(
   categories: WooCategory[] | undefined,
@@ -43,6 +23,16 @@ function resolveCat(
   });
 }
 
+function subHref(
+  categories: WooCategory[] | undefined,
+  match: string[] | undefined,
+  search: string
+): string {
+  const cat = match ? resolveCat(categories, match) : undefined;
+  if (cat) return `/category/${cat.slug}`;
+  return `/shop?search=${encodeURIComponent(search)}`;
+}
+
 const SORTS = [
   { label: "Newest", value: "date" },
   { label: "Popularity", value: "popularity" },
@@ -56,12 +46,16 @@ export function StoreSidebar({ className }: { className?: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: categories } = useCategories(0);
+  const [open, setOpen] = useState<Record<string, boolean>>({
+    Women: true,
+    Men: true,
+  });
 
   const activeSlug = pathname.startsWith("/category/")
     ? pathname.split("/")[2]
     : searchParams.get("category");
+  const activeSearch = (searchParams.get("search") || "").toLowerCase();
 
-  /** Keep filters on /shop or /category/*; otherwise route to /shop. Always reset page. */
   const filterPath =
     pathname.startsWith("/shop") || pathname.startsWith("/category/")
       ? pathname
@@ -111,77 +105,105 @@ export function StoreSidebar({ className }: { className?: string }) {
       )}
     >
       <div>
-        <h2 className="mb-4 font-display text-2xl font-light tracking-wide text-[var(--cms-primary,#1E3A8A)]">
+        <h2 className="panel-heading mb-3.5 text-xl md:text-[1.35rem]">
           Categories
         </h2>
-        <nav className="space-y-1.5" aria-label="Product categories">
-          {CAT_META.map((item) => {
+        <nav className="space-y-1" aria-label="Product categories">
+          {STORE_CATEGORIES.map((item) => {
             const cat = resolveCat(categories, item.match);
-            const href = cat
-              ? `/category/${cat.slug}`
-              : `/shop?search=${encodeURIComponent(item.label)}`;
+            const href = cat ? `/category/${cat.slug}` : item.href;
             const active =
               (cat && activeSlug === cat.slug) ||
-              searchParams.get("search")?.toLowerCase() ===
-                item.label.toLowerCase();
+              activeSearch === item.label.toLowerCase();
             const Icon = item.icon;
+            const hasChildren = item.children.length > 0;
+            const isOpen = open[item.label] ?? false;
+
             return (
-              <Link
-                key={item.label}
-                href={href}
-                className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-3 text-base tracking-wide transition-all duration-300 md:text-lg",
-                  active
-                    ? "bg-[var(--cms-primary,#1E3A8A)] text-cream shadow-sm"
-                    : "text-ink hover:bg-brand-100/80 dark:text-brand-200 dark:hover:bg-brand-900"
+              <div key={item.label}>
+                <div className="flex items-center gap-0.5">
+                  <Link
+                    href={href}
+                    className={cn(
+                      "group flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm tracking-wide transition-all duration-300 md:text-base",
+                      active
+                        ? "bg-[var(--cms-primary,#7A3E1D)] text-cream shadow-sm"
+                        : "text-ink hover:bg-brand-100/80 dark:text-brand-200 dark:hover:bg-brand-900"
+                    )}
+                  >
+                    <Icon
+                      className="h-5 w-5 shrink-0 opacity-90"
+                      strokeWidth={1.5}
+                    />
+                    <span className="flex-1 font-medium">{item.label}</span>
+                  </Link>
+                  {hasChildren ? (
+                    <button
+                      type="button"
+                      aria-label={`${isOpen ? "Collapse" : "Expand"} ${item.label}`}
+                      aria-expanded={isOpen}
+                      onClick={() =>
+                        setOpen((s) => ({ ...s, [item.label]: !isOpen }))
+                      }
+                      className="rounded-lg p-2 text-ink-soft transition hover:bg-brand-100 hover:text-ink"
+                    >
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 transition-transform",
+                          isOpen && "rotate-180"
+                        )}
+                      />
+                    </button>
+                  ) : null}
+                </div>
+
+                {hasChildren && isOpen && (
+                  <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-brand-200/80 pl-3 dark:border-brand-700">
+                    {item.children.map((sub) => {
+                      const subLink = subHref(
+                        categories,
+                        sub.match,
+                        sub.search
+                      );
+                      const subActive =
+                        activeSearch === sub.search.toLowerCase() ||
+                        (activeSlug &&
+                          sub.match?.some(
+                            (m) =>
+                              activeSlug.includes(m.replace(/\s+/g, "-")) ||
+                              activeSlug === m
+                          ));
+                      return (
+                        <li key={sub.label}>
+                          <Link
+                            href={subLink}
+                            className={cn(
+                              "block rounded-lg px-2.5 py-1.5 text-[13px] transition md:text-sm",
+                              subActive
+                                ? "font-semibold text-[var(--cms-primary,#7A3E1D)]"
+                                : "text-ink-soft hover:text-ink dark:hover:text-cream"
+                            )}
+                          >
+                            {sub.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 )}
-              >
-                <Icon className="h-6 w-6 shrink-0 opacity-90" strokeWidth={1.5} />
-                <span className="flex-1 font-medium">{item.label}</span>
-                <ChevronRight
-                  className={cn(
-                    "h-4 w-4 opacity-0 transition group-hover:opacity-60",
-                    active && "opacity-70"
-                  )}
-                />
-              </Link>
+              </div>
             );
           })}
-          {(categories || [])
-            .filter(
-              (c) =>
-                !CAT_META.some((m) =>
-                  m.match.some(
-                    (x) =>
-                      c.slug.includes(x) || c.name.toLowerCase().includes(x)
-                  )
-                )
-            )
-            .slice(0, 6)
-            .map((c) => (
-              <Link
-                key={c.id}
-                href={`/category/${c.slug}`}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-3 text-base transition md:text-lg",
-                  activeSlug === c.slug
-                    ? "bg-[var(--cms-primary,#1E3A8A)] text-cream"
-                    : "text-ink-soft hover:bg-brand-100/80 dark:hover:bg-brand-900"
-                )}
-              >
-                <span className="flex-1 truncate font-medium">{c.name}</span>
-              </Link>
-            ))}
         </nav>
       </div>
 
       <div>
-        <h2 className="mb-4 font-display text-2xl font-light tracking-wide text-[var(--cms-primary,#1E3A8A)]">
+        <h2 className="panel-heading mb-3.5 text-xl md:text-[1.35rem]">
           Filters
         </h2>
-        <div className="space-y-5 text-base">
+        <div className="space-y-5 text-sm md:text-base">
           <div>
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
               Price
             </p>
             <div className="flex items-center gap-2">
@@ -191,7 +213,7 @@ export function StoreSidebar({ className }: { className?: string }) {
                 placeholder="Min"
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
-                className="w-full rounded-lg border border-brand-200 bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
+                className="w-full rounded-lg border border-brand-200 bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-[var(--cms-primary,#7A3E1D)] dark:border-brand-700 dark:bg-brand-900"
                 aria-label="Minimum price"
               />
               <span className="text-ink-soft">–</span>
@@ -201,21 +223,21 @@ export function StoreSidebar({ className }: { className?: string }) {
                 placeholder="Max"
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
-                className="w-full rounded-lg border border-brand-200 bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900"
+                className="w-full rounded-lg border border-brand-200 bg-white px-2.5 py-2 text-sm text-ink outline-none focus:border-[var(--cms-primary,#7A3E1D)] dark:border-brand-700 dark:bg-brand-900"
                 aria-label="Maximum price"
               />
             </div>
             <button
               type="button"
               onClick={applyPrice}
-              className="mt-3 w-full rounded-full bg-[var(--cms-primary,#1E3A8A)] px-4 py-2.5 text-sm font-medium tracking-[0.12em] uppercase text-cream shadow-sm transition hover:brightness-110"
+              className="mt-3 w-full rounded-full bg-[var(--cms-primary,#7A3E1D)] px-4 py-2.5 text-sm font-medium tracking-[0.12em] uppercase text-cream shadow-sm transition hover:brightness-110"
             >
               Apply
             </button>
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
               Availability
             </p>
             <label className="flex cursor-pointer items-center gap-2 py-1">
@@ -223,9 +245,12 @@ export function StoreSidebar({ className }: { className?: string }) {
                 type="checkbox"
                 checked={stock === "instock"}
                 onChange={(e) =>
-                  setShopParam("stock_status", e.target.checked ? "instock" : null)
+                  setShopParam(
+                    "stock_status",
+                    e.target.checked ? "instock" : null
+                  )
                 }
-                className="accent-[var(--cms-primary,#1E3A8A)]"
+                className="accent-[var(--cms-primary,#7A3E1D)]"
               />
               In stock
             </label>
@@ -236,44 +261,49 @@ export function StoreSidebar({ className }: { className?: string }) {
                 onChange={(e) =>
                   setShopParam("on_sale", e.target.checked ? "true" : null)
                 }
-                className="accent-[var(--cms-primary,#1E3A8A)]"
+                className="accent-[var(--cms-primary,#7A3E1D)]"
               />
               On sale / Discount
             </label>
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
               Color
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {["Red", "Blue", "Green", "Gold", "Ivory", "Black", "Pink", "Maroon"].map(
-                (c) => {
-                  const active = searchParams.get("color") === c;
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() =>
-                        setShopParam("color", active ? null : c)
-                      }
-                      className={cn(
-                        "rounded-full px-2.5 py-1 text-[11px] transition",
-                        active
-                          ? "bg-[var(--cms-primary,#1E3A8A)] text-cream"
-                          : "bg-brand-100 text-ink-muted hover:bg-brand-200 dark:bg-brand-900"
-                      )}
-                    >
-                      {c}
-                    </button>
-                  );
-                }
-              )}
+              {[
+                "Red",
+                "Blue",
+                "Green",
+                "Gold",
+                "Ivory",
+                "Black",
+                "Pink",
+                "Maroon",
+              ].map((c) => {
+                const active = searchParams.get("color") === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setShopParam("color", active ? null : c)}
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] transition",
+                      active
+                        ? "bg-[var(--cms-primary,#7A3E1D)] text-cream"
+                        : "bg-brand-100 text-ink-muted hover:bg-brand-200 dark:bg-brand-900"
+                    )}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
               Size
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -287,7 +317,7 @@ export function StoreSidebar({ className }: { className?: string }) {
                     className={cn(
                       "min-w-8 rounded-lg px-2 py-1 text-[11px] transition",
                       active
-                        ? "bg-[var(--cms-primary,#1E3A8A)] text-cream"
+                        ? "bg-[var(--cms-primary,#7A3E1D)] text-cream"
                         : "bg-brand-100 text-ink-muted hover:bg-brand-200 dark:bg-brand-900"
                     )}
                   >
@@ -299,7 +329,7 @@ export function StoreSidebar({ className }: { className?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
               Material
             </p>
             <ul className="space-y-1">
@@ -312,7 +342,7 @@ export function StoreSidebar({ className }: { className?: string }) {
                       className={cn(
                         "w-full rounded-lg px-2 py-1.5 text-left transition",
                         active
-                          ? "bg-brand-100 font-medium text-[var(--cms-primary,#1E3A8A)] dark:bg-brand-900"
+                          ? "bg-brand-100 font-medium text-[var(--cms-primary,#7A3E1D)] dark:bg-brand-900"
                           : "text-ink-muted hover:bg-brand-50 dark:hover:bg-brand-900/60"
                       )}
                       onClick={() =>
@@ -328,7 +358,7 @@ export function StoreSidebar({ className }: { className?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium tracking-[0.2em] uppercase text-ink-soft">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.2em] uppercase text-ink-soft">
               Sort
             </p>
             <ul className="space-y-1">
@@ -339,7 +369,7 @@ export function StoreSidebar({ className }: { className?: string }) {
                     className={cn(
                       "w-full rounded-lg px-2 py-1.5 text-left transition",
                       currentSort === s.value
-                        ? "bg-brand-100 font-medium text-[var(--cms-primary,#1E3A8A)] dark:bg-brand-900"
+                        ? "bg-brand-100 font-medium text-[var(--cms-primary,#7A3E1D)] dark:bg-brand-900"
                         : "text-ink-muted hover:bg-brand-50 dark:hover:bg-brand-900/60"
                     )}
                     onClick={() => {
@@ -366,7 +396,7 @@ export function StoreSidebar({ className }: { className?: string }) {
 
           <Link
             href="/shop"
-            className="inline-block text-xs tracking-[0.15em] uppercase text-[var(--cms-primary,#1E3A8A)] transition hover:opacity-70"
+            className="inline-block text-xs tracking-[0.15em] uppercase text-[var(--cms-primary,#7A3E1D)] transition hover:opacity-70"
           >
             View all products
           </Link>

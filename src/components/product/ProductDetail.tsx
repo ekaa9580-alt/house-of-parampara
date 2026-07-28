@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Heart, Minus, Plus, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Heart, Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 import type { WooProduct, WooProductVariation } from "@/types/woocommerce";
 import {
   formatPrice,
@@ -28,9 +29,11 @@ interface ProductDetailProps {
 }
 
 export function ProductDetail({ product }: ProductDetailProps) {
+  const router = useRouter();
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState<"description" | "reviews">("description");
   const [mounted, setMounted] = useState(false);
+  const [buying, setBuying] = useState(false);
   const [variations, setVariations] = useState<WooProductVariation[]>([]);
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>(
     {}
@@ -109,7 +112,34 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const canAdd =
     inStock &&
     (!isVariable || !!matchedVariation) &&
-    !addToCart.isPending;
+    !addToCart.isPending &&
+    !buying;
+
+  const cartPayload = () => {
+    if (isVariable && matchedVariation) {
+      return {
+        productId: product.id,
+        quantity: qty,
+        variationId: matchedVariation.id,
+        variation: variationAttrs.map((a) => ({
+          attribute: a.name,
+          value: selectedAttrs[a.name],
+        })),
+      };
+    }
+    return { productId: product.id, quantity: qty };
+  };
+
+  const handleBuyNow = () => {
+    if (!canAdd) return;
+    setBuying(true);
+    addToCart.mutate(cartPayload(), {
+      onSuccess: () => {
+        router.push("/checkout");
+      },
+      onSettled: () => setBuying(false),
+    });
+  };
 
   const galleryImages =
     matchedVariation?.image
@@ -142,7 +172,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <p className="mb-2 text-xs tracking-[0.25em] uppercase text-gold">
             {product.categories?.[0]?.name}
           </p>
-          <h1 className="font-display text-[1.85rem] font-light leading-tight tracking-wide md:text-4xl">
+          <h1 className="font-display text-[1.85rem] font-bold leading-tight tracking-wide md:text-4xl">
             {product.name}
           </h1>
 
@@ -154,7 +184,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
             />
             <span
               className={`text-xs tracking-wider uppercase ${
-                inStock ? "text-royal" : "text-red-600"
+                inStock
+                  ? "text-[var(--cms-primary,#7A3E1D)]"
+                  : "text-red-600"
               }`}
             >
               {stockStatus === "instock"
@@ -180,7 +212,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   {formatPrice(displayRegular)}
                 </span>
                 {discount && (
-                  <span className="bg-royal px-2 py-0.5 text-[10px] tracking-wider text-cream uppercase">
+                  <span className="bg-[var(--cms-primary,#7A3E1D)] px-2 py-0.5 text-[10px] tracking-wider text-cream uppercase">
                     −{discount}%
                   </span>
                 )}
@@ -260,28 +292,26 @@ export function ProductDetail({ product }: ProductDetailProps) {
               type="button"
               disabled={!canAdd}
               onClick={() => {
-                if (isVariable && matchedVariation) {
-                  addToCart.mutate({
-                    productId: product.id,
-                    quantity: qty,
-                    variationId: matchedVariation.id,
-                    variation: variationAttrs.map((a) => ({
-                      attribute: a.name,
-                      value: selectedAttrs[a.name],
-                    })),
-                  });
-                } else {
-                  addToCart.mutate({ productId: product.id, quantity: qty });
-                }
+                addToCart.mutate(cartPayload());
               }}
               className="btn-primary flex-1 sm:flex-none"
             >
               <ShoppingBag className="h-4 w-4" />
-              {addToCart.isPending
+              {addToCart.isPending && !buying
                 ? "…"
                 : isVariable && !matchedVariation
                   ? "Select Options"
                   : atcLabel}
+            </button>
+
+            <button
+              type="button"
+              disabled={!canAdd}
+              onClick={handleBuyNow}
+              className="btn-outline flex-1 border-[var(--cms-primary,#7A3E1D)] text-[var(--cms-primary,#7A3E1D)] hover:bg-[var(--cms-primary,#7A3E1D)] hover:text-cream sm:flex-none"
+            >
+              <Zap className="h-4 w-4" />
+              {buying ? "…" : "Buy Now"}
             </button>
 
             <button

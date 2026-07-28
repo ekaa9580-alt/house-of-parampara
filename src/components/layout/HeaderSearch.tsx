@@ -122,7 +122,7 @@ export function HeaderSearch({
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
-          className="w-full rounded-full border border-brand-200/80 bg-white/90 py-2.5 pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)] focus:ring-2 focus:ring-[var(--cms-primary,#1E3A8A)]/15 dark:border-brand-700 dark:bg-brand-900/80 dark:text-cream md:text-[0.95rem]"
+          className="w-full rounded-full border border-brand-200/80 bg-white/90 py-2.5 pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#7A3E1D)] focus:ring-2 focus:ring-[var(--cms-primary,#7A3E1D)]/15 dark:border-brand-700 dark:bg-brand-900/80 dark:text-cream md:text-[0.95rem]"
           autoComplete="off"
         />
         {query && (

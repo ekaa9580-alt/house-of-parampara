@@ -37,7 +37,7 @@ export default function ContactPage() {
     "We are happy to assist you with product enquiries, orders, and collections.";
 
   const fieldClass =
-    "input-field text-base text-ink placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)]";
+    "input-field text-base text-ink placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#7A3E1D)]";
 
   return (
     <div className="mx-auto max-w-5xl pb-12 pt-2 md:pb-16">
@@ -50,9 +50,9 @@ export default function ContactPage() {
         <div className="space-y-5">
           <a
             href={`mailto:${contactEmail}`}
-            className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
+            className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#7A3E1D)]"
           >
-            <Mail className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+            <Mail className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
             <span>
               <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                 Email
@@ -64,9 +64,9 @@ export default function ContactPage() {
           {contactPhone && (
             <a
               href={`tel:${contactPhone}`}
-              className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
+              className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#7A3E1D)]"
             >
-              <Phone className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <Phone className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   Phone
@@ -81,9 +81,9 @@ export default function ContactPage() {
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#1E3A8A)]"
+              className="flex items-start gap-3 text-ink transition hover:text-[var(--cms-primary,#7A3E1D)]"
             >
-              <MessageCircle className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <MessageCircle className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   WhatsApp
@@ -95,7 +95,7 @@ export default function ContactPage() {
 
           {settings?.working_hours && (
             <div className="flex items-start gap-3 text-ink">
-              <Clock className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <Clock className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   Hours
@@ -107,7 +107,7 @@ export default function ContactPage() {
 
           {settings?.address && (
             <div className="flex items-start gap-3 text-ink">
-              <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+              <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
               <span>
                 <span className="block text-xs font-medium tracking-[0.16em] uppercase text-ink-soft">
                   Address

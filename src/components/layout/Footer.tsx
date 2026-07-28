@@ -38,7 +38,6 @@ export function Footer() {
   const newsletter = useNewsletter();
   const [email, setEmail] = useState("");
 
-  const brand = settings?.site_name || "HOUSE OF PARAMPARA";
   const logo = settings?.logo;
   const contactEmail = BUSINESS_EMAIL;
   const contactPhone = BUSINESS_PHONE || settings?.contact_phone;
@@ -60,7 +59,7 @@ export function Footer() {
     <footer className="border-t border-brand-200 bg-[#f8f6f2] dark:border-brand-800 dark:bg-brand-950">
       <div className="border-b border-brand-200 dark:border-brand-800">
         <div className="mx-auto flex w-full max-w-[90rem] flex-col items-center gap-5 px-4 py-12 text-center sm:px-5 md:py-14">
-          <h2 className="font-display text-3xl font-light tracking-wide text-ink md:text-4xl dark:text-cream">
+          <h2 className="font-display text-3xl font-bold tracking-wide text-ink md:text-4xl dark:text-cream">
             {settings?.newsletter_heading || "Stay in the circle"}
           </h2>
           <p className="max-w-md text-base text-ink-soft">
@@ -81,12 +80,12 @@ export function Footer() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="min-w-0 flex-1 rounded-full border border-brand-200 bg-white px-5 py-3.5 text-base text-ink outline-none placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-700 dark:bg-brand-900 dark:text-cream"
+              className="min-w-0 flex-1 rounded-full border border-brand-200 bg-white px-5 py-3.5 text-base text-ink outline-none placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#7A3E1D)] dark:border-brand-700 dark:bg-brand-900 dark:text-cream"
             />
             <button
               type="submit"
               disabled={newsletter.isPending}
-              className="shrink-0 rounded-full bg-[var(--cms-primary,#1E3A8A)] px-8 py-3.5 text-xs font-medium tracking-[0.18em] uppercase text-cream transition hover:brightness-110 disabled:opacity-50"
+              className="shrink-0 rounded-full bg-[var(--cms-primary,#7A3E1D)] px-8 py-3.5 text-xs font-medium tracking-[0.18em] uppercase text-cream transition hover:brightness-110 disabled:opacity-50"
             >
               Subscribe
             </button>
@@ -96,20 +95,18 @@ export function Footer() {
 
       <div className="mx-auto grid w-full max-w-[90rem] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-5 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] lg:gap-8 lg:py-12">
         <div>
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-3">
             {safeImageSrc(logo) && (
               <SafeImage
                 src={logo}
                 alt=""
-                width={44}
-                height={44}
-                className="h-11 w-11 shrink-0 object-contain"
+                width={56}
+                height={56}
+                className="h-14 w-14 shrink-0 object-contain"
               />
             )}
-            <h3 className="font-display text-xl font-medium tracking-[0.05em] text-[var(--cms-primary,#1E3A8A)]">
-              {brand.toUpperCase().includes("PARAMPARA")
-                ? brand.toUpperCase()
-                : "HOUSE OF PARAMPARA"}
+            <h3 className="font-display text-xl font-bold tracking-[0.05em] text-[var(--cms-primary,#7A3E1D)] md:text-2xl">
+              HOUSE OF PARAMPARA
             </h3>
           </Link>
           {settings?.tagline && (
@@ -120,7 +117,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Categories
           </h4>
           <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
@@ -128,7 +125,7 @@ export function Footer() {
               <li key={c.label}>
                 <Link
                   href={c.href || "/shop"}
-                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="transition hover:text-[var(--cms-primary,#7A3E1D)]"
                 >
                   {c.label}
                 </Link>
@@ -138,7 +135,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Customer Service
           </h4>
           <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
@@ -146,7 +143,7 @@ export function Footer() {
               <li key={p.id}>
                 <Link
                   href={p.url || "/"}
-                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="transition hover:text-[var(--cms-primary,#7A3E1D)]"
                 >
                   {p.title}
                 </Link>
@@ -156,14 +153,14 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Contact
           </h4>
           <ul className="mt-4 space-y-2.5 text-base text-ink-soft">
             <li>
               <a
                 href={`mailto:${contactEmail}`}
-                className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                className="transition hover:text-[var(--cms-primary,#7A3E1D)]"
               >
                 {contactEmail}
               </a>
@@ -172,7 +169,7 @@ export function Footer() {
               <li>
                 <a
                   href={`tel:${contactPhone}`}
-                  className="transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="transition hover:text-[var(--cms-primary,#7A3E1D)]"
                 >
                   {contactPhone}
                 </a>
@@ -184,7 +181,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs font-medium tracking-[0.2em] uppercase text-ink">
+          <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Follow Us
           </h4>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -196,7 +193,7 @@ export function Footer() {
                 aria-label="Instagram"
               >
                 <Instagram
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -209,7 +206,7 @@ export function Footer() {
                 aria-label="WhatsApp"
               >
                 <MessageCircle
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -222,7 +219,7 @@ export function Footer() {
                 aria-label="Facebook"
               >
                 <Facebook
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -235,7 +232,7 @@ export function Footer() {
                 aria-label="YouTube"
               >
                 <Youtube
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#1E3A8A)]"
+                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -250,17 +247,28 @@ export function Footer() {
             {settings?.footer_copyright ||
               `© ${new Date().getFullYear()} HOUSE OF PARAMPARA. All rights reserved.`}
           </p>
-          <p>
-            Developed by{" "}
-            <a
-              href="https://forgemuze.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium tracking-wide transition hover:text-[var(--cms-primary,#1E3A8A)]"
-            >
-              FORGE MUZE
-            </a>
-          </p>
+          <div className="flex flex-col items-center gap-1.5 sm:items-end">
+            <p className="flex items-center gap-2">
+              Developed by{" "}
+              <a
+                href="https://www.instagram.com/theforgemuse?igsh=dTJsbXcwY2M4ZHU1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold tracking-wide text-[var(--cms-primary,#7A3E1D)] transition hover:opacity-80"
+              >
+                FORGE MUSE
+              </a>
+              <a
+                href="https://www.instagram.com/theforgemuse?igsh=dTJsbXcwY2M4ZHU1"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="FORGE MUSE on Instagram"
+                className="inline-flex text-[var(--cms-primary,#7A3E1D)] transition hover:opacity-80"
+              >
+                <Instagram className="h-4 w-4" strokeWidth={1.75} />
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

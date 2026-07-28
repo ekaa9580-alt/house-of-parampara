@@ -10,10 +10,6 @@ import {
   User,
   Menu,
   X,
-  Flower2,
-  Shirt,
-  Baby,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore, useWishlistStore, useAuthStore } from "@/store";
@@ -23,13 +19,13 @@ import { HeaderSearch } from "./HeaderSearch";
 import { AnnouncementBar } from "@/components/cms/BrandTheme";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
+import { STORE_CATEGORIES } from "@/lib/store-categories";
 
-const DRAWER_CATS = [
-  { label: "Women", href: "/shop?search=Women", icon: Flower2 },
-  { label: "Men", href: "/shop?search=Men", icon: Shirt },
-  { label: "Kids", href: "/shop?search=Kids", icon: Baby },
-  { label: "Handicrafts", href: "/shop?search=Handicrafts", icon: Sparkles },
-];
+const DRAWER_CATS = STORE_CATEGORIES.map((c) => ({
+  label: c.label,
+  href: c.href,
+  icon: c.icon,
+}));
 
 export function BrandMark({
   compact,
@@ -41,33 +37,35 @@ export function BrandMark({
 }) {
   const { data: settings } = useSiteSettings();
   const logo = settings?.logo;
-  const name = (settings?.site_name || "HOUSE OF PARAMPARA").toUpperCase();
-  const display = name.includes("PARAMPARA") ? name : "HOUSE OF PARAMPARA";
+  // Always show clean brand text (CMS may prepend emoji)
+  const display = "HOUSE OF PARAMPARA";
 
   return (
     <Link
       href="/"
-      className="group flex min-w-0 items-center gap-2 sm:gap-2.5"
+      className="group flex min-w-0 items-center gap-3 sm:gap-3.5"
       aria-label={display}
     >
       <span
         className={cn(
           "relative shrink-0 overflow-hidden bg-transparent transition-[height,width] duration-300",
-          compact ? "h-10 w-10 sm:h-12 sm:w-12" : "h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14"
+          compact
+            ? "h-14 w-14 sm:h-16 sm:w-16"
+            : "h-16 w-16 sm:h-[4.75rem] sm:w-[4.75rem] md:h-20 md:w-20"
         )}
       >
         {safeImageSrc(logo) ? (
           <SafeImage
             src={logo}
             alt=""
-            width={56}
-            height={56}
+            width={80}
+            height={80}
             className="h-full w-full object-contain"
             priority
           />
         ) : (
           <span
-            className="flex h-full w-full items-center justify-center font-display text-lg text-[#1E3A8A]"
+            className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-[#1E3A8A]"
             aria-hidden
           >
             H
@@ -76,12 +74,12 @@ export function BrandMark({
       </span>
       <span
         className={cn(
-          "font-display font-medium tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
+          "ml-0.5 font-display font-bold tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85 sm:ml-1",
           stacked
-            ? "max-w-[10rem] text-[0.95rem] leading-[1.1] sm:max-w-none sm:whitespace-nowrap sm:text-xl sm:leading-none md:text-2xl lg:text-[1.85rem]"
+            ? "max-w-[11rem] text-lg leading-[1.1] sm:max-w-none sm:whitespace-nowrap sm:text-2xl sm:leading-none md:text-[1.85rem] lg:text-[2.15rem]"
             : compact
-              ? "whitespace-nowrap text-lg leading-none sm:text-2xl"
-              : "whitespace-nowrap text-xl leading-none sm:text-2xl lg:text-[1.85rem]"
+              ? "whitespace-nowrap text-xl leading-none sm:text-2xl"
+              : "whitespace-nowrap text-2xl leading-none md:text-[1.95rem] lg:text-[2.2rem]"
         )}
       >
         {stacked ? (
@@ -125,7 +123,7 @@ export function Header() {
   }, [pathname, setMobileMenuOpen]);
 
   const iconBtn =
-    "relative shrink-0 rounded-full p-2 text-ink transition hover:bg-brand-100/80 hover:text-[var(--cms-primary,#1E3A8A)] dark:text-cream dark:hover:bg-brand-900 sm:p-2.5";
+    "relative shrink-0 rounded-full p-2 text-ink transition hover:bg-brand-100/80 hover:text-[var(--cms-primary,#7A3E1D)] dark:text-cream dark:hover:bg-brand-900 sm:p-2.5";
 
   return (
     <>
@@ -169,7 +167,7 @@ export function Header() {
               <Link href="/wishlist" aria-label="Wishlist" className={iconBtn}>
                 <Heart className="h-6 w-6" strokeWidth={1.5} />
                 {mounted && wishlistCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#1E3A8A)] px-1 text-[9px] font-medium text-cream">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#7A3E1D)] px-1 text-[9px] font-medium text-cream">
                     {wishlistCount}
                   </span>
                 )}
@@ -182,7 +180,7 @@ export function Header() {
               >
                 <ShoppingBag className="h-6 w-6" strokeWidth={1.5} />
                 {(cart?.items_count ?? 0) > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#1E3A8A)] px-1 text-[9px] font-medium text-cream">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--cms-primary,#7A3E1D)] px-1 text-[9px] font-medium text-cream">
                     {cart?.items_count}
                   </span>
                 )}
@@ -261,7 +259,7 @@ export function Header() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-3 rounded-xl px-3 py-3 text-lg transition hover:bg-brand-100 dark:hover:bg-brand-900"
                   >
-                    <c.icon className="h-6 w-6 text-[var(--cms-primary,#1E3A8A)]" strokeWidth={1.5} />
+                    <c.icon className="h-6 w-6 text-[var(--cms-primary,#7A3E1D)]" strokeWidth={1.5} />
                     {c.label}
                   </Link>
                 ))}

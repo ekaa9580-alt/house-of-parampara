@@ -56,7 +56,7 @@ export function CartDrawer() {
             className="fixed inset-y-0 right-0 z-[56] flex w-full max-w-md flex-col bg-cream shadow-lift dark:bg-brand-950"
           >
             <div className="flex items-center justify-between border-b border-brand-200 px-6 py-5 dark:border-brand-800">
-              <h2 className="font-display text-xl font-light tracking-wide">
+              <h2 className="font-display text-xl font-bold tracking-wide">
                 Your Bag
                 {cart?.items_count ? ` (${cart.items_count})` : ""}
               </h2>

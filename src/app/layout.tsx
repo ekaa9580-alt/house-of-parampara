@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { Providers } from "@/components/providers/Providers";
 import { PageTransition } from "@/components/providers/PageTransition";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { Header } from "@/components/layout/Header";
+import { SiteNav } from "@/components/layout/SiteNav";
 import { Footer } from "@/components/layout/Footer";
 import { StoreShell } from "@/components/layout/StoreShell";
 import { CartDrawer } from "@/components/layout/CartDrawer";
@@ -15,14 +17,14 @@ import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-cormorant",
   display: "swap",
 });
 
 const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-outfit",
   display: "swap",
 });
@@ -74,6 +76,9 @@ export default function RootLayout({
           <BrandTheme />
           <ErrorBoundary>
             <Header />
+            <Suspense fallback={null}>
+              <SiteNav />
+            </Suspense>
             <main className="min-h-screen">
               <StoreShell>
                 <PageTransition>{children}</PageTransition>

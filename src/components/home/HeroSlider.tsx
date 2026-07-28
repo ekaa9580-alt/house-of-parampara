@@ -16,44 +16,52 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 function HeroContent({ banner }: { banner: HeroBanner }) {
+  const hasCta =
+    Boolean(banner.cta_text && banner.cta_url) ||
+    Boolean(banner.secondary_cta_text && banner.secondary_cta_url);
+
   return (
-    <div className="relative z-10 flex h-full items-center px-4 pb-12 pt-16 sm:px-5 md:px-6 md:pb-14 md:pt-20 lg:px-8">
-      {/* Wider content lane with slightly tighter vertical spacing */}
-      <div className="hero-content w-full max-w-xl md:w-[52%] md:max-w-[50%] lg:max-w-[46%]">
-        {banner.subtitle && (
-          <p className="mb-3 text-[11px] tracking-[0.28em] uppercase text-gold sm:text-xs md:mb-4 md:text-sm">
-            {banner.subtitle}
-          </p>
-        )}
-        <h1 className="font-display text-[2rem] font-light leading-[1.15] tracking-wide text-balance sm:text-4xl md:text-5xl lg:text-[3.25rem]">
-          {banner.title}
-        </h1>
-        {banner.description && (
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/90 sm:text-base md:mt-5 md:text-lg">
-            {banner.description}
-          </p>
-        )}
-        {(banner.cta_text || banner.secondary_cta_text) && (
-          <div className="mt-6 flex flex-wrap gap-3 md:mt-8 md:gap-4">
-            {banner.cta_text && banner.cta_url && (
-              <Link
-                href={banner.cta_url}
-                className="btn-primary rounded-full px-7 py-3 text-xs sm:text-sm"
-              >
-                {banner.cta_text}
-              </Link>
-            )}
-            {banner.secondary_cta_text && banner.secondary_cta_url && (
-              <Link
-                href={banner.secondary_cta_url}
-                className="btn-outline border-cream/50 px-6 py-3 text-xs text-cream hover:bg-cream hover:text-ink sm:text-sm"
-              >
-                {banner.secondary_cta_text}
-              </Link>
-            )}
-          </div>
-        )}
-      </div>
+    <div className="pointer-events-none absolute inset-0 z-10">
+      {/* Optional CMS copy — light shadow only, no dark overlay on the photo */}
+      {(banner.subtitle || banner.title || banner.description) && (
+        <div className="absolute left-4 top-[18%] max-w-xl sm:left-5 md:left-8 lg:left-10 hero-copy">
+          {banner.subtitle && (
+            <p className="mb-2 text-[11px] font-semibold tracking-[0.28em] uppercase text-cream drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)] sm:text-xs md:mb-3">
+              {banner.subtitle}
+            </p>
+          )}
+          {banner.title && (
+            <h1 className="font-display text-[2rem] font-bold leading-[1.15] tracking-wide text-balance text-cream drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+              {banner.title}
+            </h1>
+          )}
+          {banner.description && (
+            <p className="mt-3 max-w-md text-sm font-medium leading-relaxed text-cream drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)] sm:text-base md:mt-4 md:text-lg">
+              {banner.description}
+            </p>
+          )}
+        </div>
+      )}
+      {hasCta && (
+        <div className="pointer-events-auto absolute bottom-8 left-4 flex flex-wrap gap-3 hero-cta sm:bottom-10 sm:left-5 md:bottom-12 md:left-8 lg:left-10">
+          {banner.cta_text && banner.cta_url && (
+            <Link
+              href={banner.cta_url}
+              className="btn-primary rounded-full px-7 py-3 text-xs font-bold sm:text-sm"
+            >
+              {banner.cta_text}
+            </Link>
+          )}
+          {banner.secondary_cta_text && banner.secondary_cta_url && (
+            <Link
+              href={banner.secondary_cta_url}
+              className="btn-outline rounded-full border-cream/70 px-6 py-3 text-xs font-semibold text-cream hover:bg-cream hover:text-ink sm:text-sm"
+            >
+              {banner.secondary_cta_text}
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -67,13 +75,13 @@ export function HeroSlider() {
   useEffect(() => {
     if (!containerRef.current || !slides.length) return;
     const ctx = gsap.context(() => {
-      gsap.from(".hero-content > *", {
-        y: 40,
+      gsap.from(".hero-cta, .hero-copy > *", {
+        y: 28,
         opacity: 0,
-        duration: 1,
-        stagger: 0.15,
+        duration: 0.9,
+        stagger: 0.12,
         ease: "power3.out",
-        delay: 0.3,
+        delay: 0.2,
       });
     }, containerRef);
     return () => ctx.revert();
@@ -149,12 +157,7 @@ export function HeroSlider() {
                   className="object-cover"
                 />
               )}
-              {/* Consistent L→R dark gradient for text readability on all slides */}
-              <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-ink/10"
-                aria-hidden
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-ink/25 md:to-ink/15" aria-hidden />
+              {/* Soft text shadow only — no dark mask over the photo */}
               <HeroContent banner={banner} />
             </div>
           </SwiperSlide>

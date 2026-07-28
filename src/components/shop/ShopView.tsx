@@ -89,7 +89,7 @@ function FiltersPanel({
     <div className="space-y-8">
       {onClose && (
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl font-light">Filters</h2>
+          <h2 className="panel-heading">Filters</h2>
           <button type="button" aria-label="Close filters" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
@@ -97,7 +97,7 @@ function FiltersPanel({
       )}
 
       <div>
-        <h3 className="mb-3 text-xs font-medium tracking-[0.2em] uppercase">
+        <h3 className="mb-3 text-xs font-bold tracking-[0.2em] uppercase">
           Category
         </h3>
         <ul className="space-y-2.5 text-sm">
@@ -137,7 +137,7 @@ function FiltersPanel({
       </div>
 
       <div>
-        <h3 className="mb-3 text-xs font-medium tracking-[0.2em] uppercase">
+        <h3 className="mb-3 text-xs font-bold tracking-[0.2em] uppercase">
           Color
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -166,7 +166,7 @@ function FiltersPanel({
       </div>
 
       <div>
-        <h3 className="mb-3 text-xs font-medium tracking-[0.2em] uppercase">
+        <h3 className="mb-3 text-xs font-bold tracking-[0.2em] uppercase">
           Price
         </h3>
         <div className="flex gap-2">
@@ -191,14 +191,14 @@ function FiltersPanel({
             applyPrice();
             onClose?.();
           }}
-          className="mt-3 w-full rounded-full bg-[var(--cms-primary,#1E3A8A)] px-4 py-2.5 text-sm font-medium tracking-[0.12em] uppercase text-cream shadow-sm transition hover:brightness-110"
+          className="mt-3 w-full rounded-full bg-[var(--cms-primary,#7A3E1D)] px-4 py-2.5 text-sm font-medium tracking-[0.12em] uppercase text-cream shadow-sm transition hover:brightness-110"
         >
           Apply
         </button>
       </div>
 
       <div>
-        <h3 className="mb-3 text-xs font-medium tracking-[0.2em] uppercase">
+        <h3 className="mb-3 text-xs font-bold tracking-[0.2em] uppercase">
           Availability
         </h3>
         <label className="flex items-center gap-2 text-sm text-ink-muted">
@@ -375,7 +375,7 @@ export function ShopView({
         >
           <div className="absolute inset-0 bg-ink/40" />
           <div className="relative z-10 px-3 pb-8 sm:px-4 lg:px-5">
-            <h1 className="font-display text-4xl font-light text-cream md:text-5xl">
+            <h1 className="font-display text-4xl font-bold text-cream md:text-5xl">
               {title}
             </h1>
           </div>

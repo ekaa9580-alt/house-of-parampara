@@ -33,13 +33,13 @@ export function ProductCarousel({
     <section className="py-12 md:py-16">
       <div className="mb-8">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="min-w-0 font-display text-3xl font-light tracking-wide text-ink md:text-4xl dark:text-cream">
+          <h2 className="min-w-0 font-display text-3xl font-bold tracking-wide text-ink md:text-4xl dark:text-cream">
             {title}
           </h2>
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="shrink-0 text-sm font-medium tracking-wide text-[var(--cms-primary,#1E3A8A)] transition hover:opacity-70"
+              className="shrink-0 text-sm font-medium tracking-wide text-[var(--cms-primary,#7A3E1D)] transition hover:opacity-70"
             >
               {viewAllLabel || "View All →"}
             </Link>
@@ -84,7 +84,7 @@ export function ProductCarousel({
       <style jsx global>{`
         .product-carousel .swiper-button-next,
         .product-carousel .swiper-button-prev {
-          color: var(--cms-primary, #1e3a8a);
+          color: var(--cms-primary, #7A3E1D);
           width: 40px;
           height: 40px;
           background: rgba(253, 251, 247, 0.92);

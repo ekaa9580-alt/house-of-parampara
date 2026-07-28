@@ -33,7 +33,7 @@ export function SafeImage({
     return (
       <div
         className={cn(
-          "flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-brand-50 via-brand-100 to-brand-200 text-[var(--cms-primary,#1E3A8A)] dark:from-brand-900 dark:via-brand-950 dark:to-brand-900",
+          "flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-brand-50 via-brand-100 to-brand-200 text-[var(--cms-primary,#7A3E1D)] dark:from-brand-900 dark:via-brand-950 dark:to-brand-900",
           fill && "absolute inset-0",
           fallbackClassName,
           className

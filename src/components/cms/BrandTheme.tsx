@@ -66,7 +66,7 @@ export function AnnouncementBar() {
   if (!s?.announcement_enabled || !s.announcement_text) return null;
 
   return (
-    <div className="bg-[var(--cms-primary,#1E3A8A)] px-4 py-2 text-center text-xs tracking-wide text-cream">
+    <div className="bg-[var(--cms-primary,#7A3E1D)] px-4 py-2 text-center text-xs tracking-wide text-cream">
       {s.announcement_link ? (
         <a
           href={s.announcement_link}

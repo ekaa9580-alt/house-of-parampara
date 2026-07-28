@@ -10,7 +10,7 @@
     --accent: 140 98 57;
     --border: 230 221 208;
     --card: 255 255 255;
-    --cms-primary: #1E3A8A;
+    --cms-primary: #7A3E1D;
     --cms-accent: #8C6239;
     --cms-gold: #8C6239;
     --cms-ink: #1a1614;
@@ -62,7 +62,7 @@
 
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-medium tracking-[0.15em] uppercase text-cream transition-all duration-300 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50;
-    background-color: var(--cms-primary, #1E3A8A);
+    background-color: var(--cms-primary, #7A3E1D);
   }
 
   .btn-outline {
@@ -74,7 +74,11 @@
   }
 
   .section-heading {
-    @apply font-display text-[2.25rem] font-light tracking-wide text-ink md:text-5xl lg:text-[3.35rem] dark:text-cream;
+    @apply font-display text-[2.25rem] font-bold tracking-wide text-ink md:text-5xl lg:text-[3.35rem] dark:text-cream;
+  }
+
+  .panel-heading {
+    @apply font-display text-xl font-bold tracking-wide text-[var(--cms-primary,#7A3E1D)] md:text-2xl;
   }
 
   .section-subheading {
@@ -86,7 +90,7 @@
   }
 
   .input-field {
-    @apply w-full border border-brand-200 bg-white px-4 py-3.5 text-base text-ink outline-none transition-colors placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#1E3A8A)] dark:border-brand-800 dark:bg-brand-900 dark:text-cream dark:focus:border-gold;
+    @apply w-full border border-brand-200 bg-white px-4 py-3.5 text-base text-ink outline-none transition-colors placeholder:text-ink-soft/50 focus:border-[var(--cms-primary,#7A3E1D)] dark:border-brand-800 dark:bg-brand-900 dark:text-cream dark:focus:border-gold;
   }
 
   .link-underline {

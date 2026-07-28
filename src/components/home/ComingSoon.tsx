@@ -22,7 +22,7 @@ export function ComingSoon() {
         <p className="mb-3 text-[11px] tracking-[0.28em] uppercase text-blue-200/80">
           Preview
         </p>
-        <h2 className="font-display text-4xl font-light tracking-wide md:text-5xl">
+        <h2 className="font-display text-4xl font-bold tracking-wide md:text-5xl">
           {title}
         </h2>
         <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-cream/75 md:text-lg">
@@ -55,7 +55,7 @@ export function ComingSoon() {
             <button
               type="submit"
               disabled={newsletter.isPending}
-              className="shrink-0 rounded-full bg-[var(--cms-primary,#1E3A8A)] px-8 py-3 text-xs font-medium tracking-[0.18em] uppercase text-cream transition hover:brightness-110 disabled:opacity-50"
+              className="shrink-0 rounded-full bg-[var(--cms-primary,#7A3E1D)] px-8 py-3 text-xs font-medium tracking-[0.18em] uppercase text-cream transition hover:brightness-110 disabled:opacity-50"
             >
               Notify Me
             </button>
