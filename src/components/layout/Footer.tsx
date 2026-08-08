@@ -185,11 +185,11 @@ export function Footer() {
           </ul>
         </div>
 
-        <div className="pl-3 sm:pl-5 lg:pl-8 xl:pl-10">
+        <div className="pl-4 sm:pl-6 lg:border-l lg:border-brand-200/80 lg:pl-8 xl:pl-12 dark:lg:border-brand-800">
           <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Follow Us
           </h4>
-          <div className="mt-4 flex flex-wrap justify-start gap-4 pl-2 sm:pl-4 lg:pl-2">
+          <div className="mt-4 flex flex-wrap gap-4 pl-3 sm:pl-5 lg:pl-1">
             {instagramUrl && (
               <a
                 href={instagramUrl}
