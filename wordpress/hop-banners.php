@@ -2,7 +2,7 @@
 /**
  * Plugin Name: House of Parampara – Hero Banners
  * Description: Adds Appearance → Customize → Hero Slider (desktop + mobile images) and exposes GET /wp-json/hop/v1/banners for the Next.js storefront.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: House of Parampara
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -11,9 +11,9 @@
  *   1. Copy this file to: wp-content/plugins/hop-banners/hop-banners.php
  *      (or wp-content/mu-plugins/hop-banners.php)
  *   2. Activate under Plugins (not needed for mu-plugins)
- *   3. Go to Appearance → Customize → Hero Slider
- *   4. Upload Desktop Image + Mobile Image per slide, then Publish
- *   5. Confirm: https://yoursite.com/wp-json/hop/v1/banners
+ *   3. WP Admin → Hero Banners (left sidebar) — upload Desktop + Mobile images
+ *      OR Appearance → Customize → Hero Slider
+ *   4. Confirm: https://yoursite.com/wp-json/hop/v1/banners
  */
 
 if (!defined('ABSPATH')) {
