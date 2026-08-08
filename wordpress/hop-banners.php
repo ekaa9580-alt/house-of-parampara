@@ -292,6 +292,242 @@ function hop_banners_customize_register($wp_customize) {
 }
 add_action('customize_register', 'hop_banners_customize_register');
 
+/**
+ * Admin sidebar page — easier than Customizer for uploading mobile covers.
+ */
+add_action('admin_menu', function () {
+  add_menu_page(
+    __('Hero Banners', 'hop-banners'),
+    __('Hero Banners', 'hop-banners'),
+    'edit_theme_options',
+    'hop-hero-banners',
+    'hop_banners_admin_page',
+    'dashicons-images-alt2',
+    58
+  );
+});
+
+add_action('admin_enqueue_scripts', function ($hook) {
+  if ($hook !== 'toplevel_page_hop-hero-banners') {
+    return;
+  }
+  wp_enqueue_media();
+  wp_enqueue_script(
+    'hop-banners-admin',
+    false,
+    array('jquery'),
+    '1.2.0',
+    true
+  );
+  wp_add_inline_script(
+    'hop-banners-admin',
+    <<<'JS'
+(function ($) {
+  function bindPicker(btnSel, inputSel, previewSel) {
+    $(document).on('click', btnSel, function (e) {
+      e.preventDefault();
+      var $btn = $(this);
+      var target = $btn.data('target');
+      var preview = $btn.data('preview');
+      var frame = wp.media({
+        title: $btn.data('title') || 'Select image',
+        button: { text: 'Use this image' },
+        multiple: false
+      });
+      frame.on('select', function () {
+        var attachment = frame.state().get('selection').first().toJSON();
+        $('#' + target).val(attachment.id);
+        var url = (attachment.sizes && attachment.sizes.medium)
+          ? attachment.sizes.medium.url
+          : attachment.url;
+        $('#' + preview).html(
+          '<img src="' + url + '" style="max-width:220px;height:auto;display:block;border:1px solid #ccd0d4;" />'
+        );
+      });
+      frame.open();
+    });
+  }
+  bindPicker('.hop-pick-image');
+  $(document).on('click', '.hop-clear-image', function (e) {
+    e.preventDefault();
+    var target = $(this).data('target');
+    var preview = $(this).data('preview');
+    $('#' + target).val('0');
+    $('#' + preview).empty();
+  });
+})(jQuery);
+JS
+  );
+});
+
+/**
+ * Save Hero Banner fields from the admin page into theme_mods.
+ */
+function hop_banners_handle_admin_save() {
+  if (!isset($_POST['hop_banners_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['hop_banners_nonce'])), 'hop_banners_save')) {
+    return;
+  }
+  if (!current_user_can('edit_theme_options')) {
+    return;
+  }
+
+  $slide_count = (int) HOP_HERO_SLIDE_COUNT;
+  for ($i = 1; $i <= $slide_count; $i++) {
+    $image = isset($_POST["hop_hero_{$i}_image"]) ? absint($_POST["hop_hero_{$i}_image"]) : 0;
+    $mobile = isset($_POST["hop_hero_{$i}_mobile_image"]) ? absint($_POST["hop_hero_{$i}_mobile_image"]) : 0;
+    $eyebrow = isset($_POST["hop_hero_{$i}_eyebrow"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_eyebrow"])) : '';
+    $title = isset($_POST["hop_hero_{$i}_title"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_title"])) : '';
+    $subtitle = isset($_POST["hop_hero_{$i}_subtitle"]) ? sanitize_textarea_field(wp_unslash($_POST["hop_hero_{$i}_subtitle"])) : '';
+    $button_text = isset($_POST["hop_hero_{$i}_button_text"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_button_text"])) : 'Shop Now';
+    $button_url = isset($_POST["hop_hero_{$i}_button_url"]) ? esc_url_raw(wp_unslash($_POST["hop_hero_{$i}_button_url"])) : '/shop';
+    $position = isset($_POST["hop_hero_{$i}_position"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_position"])) : 'left';
+    if (!in_array($position, array('left', 'center', 'right'), true)) {
+      $position = 'left';
+    }
+
+    set_theme_mod("hop_hero_{$i}_image", $image);
+    set_theme_mod("hop_hero_{$i}_mobile_image", $mobile);
+    set_theme_mod("hop_hero_{$i}_eyebrow", $eyebrow);
+    set_theme_mod("hop_hero_{$i}_title", $title);
+    set_theme_mod("hop_hero_{$i}_subtitle", $subtitle);
+    set_theme_mod("hop_hero_{$i}_button_text", $button_text);
+    set_theme_mod("hop_hero_{$i}_button_url", $button_url);
+    set_theme_mod("hop_hero_{$i}_position", $position);
+  }
+
+  add_settings_error('hop_banners', 'hop_banners_saved', __('Hero banners saved. Mobile images will show on phones.', 'hop-banners'), 'updated');
+}
+
+/**
+ * Render WP Admin → Hero Banners page.
+ */
+function hop_banners_admin_page() {
+  if (!current_user_can('edit_theme_options')) {
+    wp_die(esc_html__('You do not have permission to edit theme options.', 'hop-banners'));
+  }
+
+  if (isset($_POST['hop_banners_save'])) {
+    hop_banners_handle_admin_save();
+  }
+
+  $slide_count = (int) HOP_HERO_SLIDE_COUNT;
+  settings_errors('hop_banners');
+  ?>
+  <div class="wrap">
+    <h1><?php echo esc_html__('Hero Banners', 'hop-banners'); ?></h1>
+    <p><?php echo esc_html__('Upload a wide Desktop image and a portrait Mobile image for each homepage slide. Mobile image is what phones use so covers do not crop badly.', 'hop-banners'); ?></p>
+    <p>
+      <a href="<?php echo esc_url(rest_url('hop/v1/banners')); ?>" target="_blank" rel="noopener noreferrer">
+        <?php echo esc_html__('Preview API JSON', 'hop-banners'); ?>
+      </a>
+    </p>
+
+    <form method="post">
+      <?php wp_nonce_field('hop_banners_save', 'hop_banners_nonce'); ?>
+
+      <?php for ($i = 1; $i <= $slide_count; $i++) :
+        $image_id = absint(hop_banners_mod("hop_hero_{$i}_image", 0));
+        $mobile_id = absint(hop_banners_mod("hop_hero_{$i}_mobile_image", 0));
+        $image_url = hop_banners_image_url($image_id);
+        $mobile_url = hop_banners_image_url($mobile_id);
+        ?>
+        <div style="background:#fff;border:1px solid #ccd0d4;padding:16px 20px;margin:20px 0;max-width:900px;">
+          <h2 style="margin-top:0;"><?php echo esc_html(sprintf(__('Slide %d', 'hop-banners'), $i)); ?></h2>
+
+          <table class="form-table" role="presentation">
+            <tr>
+              <th scope="row"><?php echo esc_html__('Desktop Image (wide)', 'hop-banners'); ?></th>
+              <td>
+                <input type="hidden" id="hop_hero_<?php echo (int) $i; ?>_image" name="hop_hero_<?php echo (int) $i; ?>_image" value="<?php echo (int) $image_id; ?>" />
+                <div id="hop_hero_<?php echo (int) $i; ?>_image_preview" style="margin-bottom:8px;">
+                  <?php if ($image_url) : ?>
+                    <img src="<?php echo esc_url($image_url); ?>" style="max-width:220px;height:auto;display:block;border:1px solid #ccd0d4;" alt="" />
+                  <?php endif; ?>
+                </div>
+                <button type="button" class="button hop-pick-image"
+                  data-target="hop_hero_<?php echo (int) $i; ?>_image"
+                  data-preview="hop_hero_<?php echo (int) $i; ?>_image_preview"
+                  data-title="<?php echo esc_attr__('Select desktop image', 'hop-banners'); ?>">
+                  <?php echo esc_html__('Select Desktop Image', 'hop-banners'); ?>
+                </button>
+                <button type="button" class="button hop-clear-image"
+                  data-target="hop_hero_<?php echo (int) $i; ?>_image"
+                  data-preview="hop_hero_<?php echo (int) $i; ?>_image_preview">
+                  <?php echo esc_html__('Remove', 'hop-banners'); ?>
+                </button>
+                <p class="description"><?php echo esc_html__('Recommended ~1920×800 landscape.', 'hop-banners'); ?></p>
+              </td>
+            </tr>
+
+            <tr>
+              <th scope="row"><strong><?php echo esc_html__('Mobile Image (portrait)', 'hop-banners'); ?></strong></th>
+              <td>
+                <input type="hidden" id="hop_hero_<?php echo (int) $i; ?>_mobile_image" name="hop_hero_<?php echo (int) $i; ?>_mobile_image" value="<?php echo (int) $mobile_id; ?>" />
+                <div id="hop_hero_<?php echo (int) $i; ?>_mobile_image_preview" style="margin-bottom:8px;">
+                  <?php if ($mobile_url) : ?>
+                    <img src="<?php echo esc_url($mobile_url); ?>" style="max-width:180px;height:auto;display:block;border:1px solid #ccd0d4;" alt="" />
+                  <?php endif; ?>
+                </div>
+                <button type="button" class="button button-primary hop-pick-image"
+                  data-target="hop_hero_<?php echo (int) $i; ?>_mobile_image"
+                  data-preview="hop_hero_<?php echo (int) $i; ?>_mobile_image_preview"
+                  data-title="<?php echo esc_attr__('Select mobile image', 'hop-banners'); ?>">
+                  <?php echo esc_html__('Select Mobile Image', 'hop-banners'); ?>
+                </button>
+                <button type="button" class="button hop-clear-image"
+                  data-target="hop_hero_<?php echo (int) $i; ?>_mobile_image"
+                  data-preview="hop_hero_<?php echo (int) $i; ?>_mobile_image_preview">
+                  <?php echo esc_html__('Remove', 'hop-banners'); ?>
+                </button>
+                <p class="description"><?php echo esc_html__('Required for good phone display. Recommended ~1080×1350 or 9:16 portrait.', 'hop-banners'); ?></p>
+              </td>
+            </tr>
+
+            <tr>
+              <th scope="row"><?php echo esc_html__('Eyebrow', 'hop-banners'); ?></th>
+              <td><input type="text" class="regular-text" name="hop_hero_<?php echo (int) $i; ?>_eyebrow" value="<?php echo esc_attr((string) hop_banners_mod("hop_hero_{$i}_eyebrow", '')); ?>" /></td>
+            </tr>
+            <tr>
+              <th scope="row"><?php echo esc_html__('Title', 'hop-banners'); ?></th>
+              <td><input type="text" class="regular-text" name="hop_hero_<?php echo (int) $i; ?>_title" value="<?php echo esc_attr((string) hop_banners_mod("hop_hero_{$i}_title", '')); ?>" /></td>
+            </tr>
+            <tr>
+              <th scope="row"><?php echo esc_html__('Description', 'hop-banners'); ?></th>
+              <td><textarea class="large-text" rows="3" name="hop_hero_<?php echo (int) $i; ?>_subtitle"><?php echo esc_textarea((string) hop_banners_mod("hop_hero_{$i}_subtitle", '')); ?></textarea></td>
+            </tr>
+            <tr>
+              <th scope="row"><?php echo esc_html__('Button text', 'hop-banners'); ?></th>
+              <td><input type="text" class="regular-text" name="hop_hero_<?php echo (int) $i; ?>_button_text" value="<?php echo esc_attr((string) (hop_banners_mod("hop_hero_{$i}_button_text", '') ?: 'Shop Now')); ?>" /></td>
+            </tr>
+            <tr>
+              <th scope="row"><?php echo esc_html__('Button URL', 'hop-banners'); ?></th>
+              <td><input type="url" class="regular-text" name="hop_hero_<?php echo (int) $i; ?>_button_url" value="<?php echo esc_attr((string) (hop_banners_mod("hop_hero_{$i}_button_url", '') ?: '/shop')); ?>" /></td>
+            </tr>
+            <tr>
+              <th scope="row"><?php echo esc_html__('Text position', 'hop-banners'); ?></th>
+              <td>
+                <?php $pos = (string) hop_banners_mod("hop_hero_{$i}_position", 'left'); ?>
+                <select name="hop_hero_<?php echo (int) $i; ?>_position">
+                  <option value="left" <?php selected($pos, 'left'); ?>><?php echo esc_html__('Left', 'hop-banners'); ?></option>
+                  <option value="center" <?php selected($pos, 'center'); ?>><?php echo esc_html__('Center', 'hop-banners'); ?></option>
+                  <option value="right" <?php selected($pos, 'right'); ?>><?php echo esc_html__('Right', 'hop-banners'); ?></option>
+                </select>
+              </td>
+            </tr>
+          </table>
+        </div>
+      <?php endfor; ?>
+
+      <p class="submit">
+        <button type="submit" name="hop_banners_save" class="button button-primary button-large">
+          <?php echo esc_html__('Save Hero Banners', 'hop-banners'); ?>
+        </button>
+      </p>
+    </form>
+  </div>
+  <?php
+}
+
 add_action('rest_api_init', function () {
   register_rest_route('hop/v1', '/banners', array(
     'methods'             => 'GET',
