@@ -16,7 +16,13 @@ export default function AboutPage() {
           {settings.tagline}
         </p>
       )}
-      <h1 className="section-heading">
+      <h1
+        className={
+          /parampara/i.test(page?.title?.rendered || settings?.site_name || "")
+            ? "section-heading brand-wordmark"
+            : "section-heading"
+        }
+      >
         {page?.title?.rendered || settings?.site_name}
       </h1>
 

@@ -81,6 +81,11 @@
     @apply font-display text-xl font-bold tracking-wide text-[var(--cms-primary,#7A3E1D)] md:text-2xl;
   }
 
+  /* Store brand wordmark — always royal blue (matches header title) */
+  .brand-wordmark {
+    color: #1e3a8a !important;
+  }
+
   .section-subheading {
     @apply mt-3 max-w-xl font-body text-base leading-relaxed text-ink-soft md:text-lg dark:text-brand-200;
   }

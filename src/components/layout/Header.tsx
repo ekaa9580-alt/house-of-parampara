@@ -58,7 +58,7 @@ export function BrandMark({
           />
         ) : (
           <span
-            className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-[#1E3A8A]"
+            className="flex h-full w-full items-center justify-center font-display text-2xl font-bold brand-wordmark"
             aria-hidden
           >
             H
@@ -67,7 +67,7 @@ export function BrandMark({
       </span>
       <span
         className={cn(
-          "min-w-0 font-display font-bold tracking-[0.04em] text-[#1E3A8A] transition-opacity duration-300 group-hover:opacity-85",
+          "brand-wordmark min-w-0 font-display font-bold tracking-[0.04em] transition-opacity duration-300 group-hover:opacity-85",
           stacked
             ? "text-lg leading-[1.15] sm:whitespace-nowrap sm:text-2xl sm:leading-none md:text-[1.9rem] lg:text-[2.15rem]"
             : compact

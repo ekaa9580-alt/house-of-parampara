@@ -133,7 +133,11 @@ Also install **`wordpress/hop-banners.php`** for Customizer hero slides.
    - Storefront Primary (Header)
    - Storefront Footer Quick Links
    - Storefront Footer Policies
-3. **Appearance → Customize → Hero Slider** (theme) + hop-banners plugin
+3. **Appearance → Customize → Hero Slider** (from `hop-banners` plugin)
+   - Open each **Slide 1…5**
+   - Upload **Desktop Image (wide)** and **Mobile Image (portrait)**
+   - Fill title / button, then **Publish**
+   - Mobile image is optional; without it phones reuse the desktop crop
 4. WooCommerce products/categories as usual (featured, etc.)
 
 ### REST used by Next.js

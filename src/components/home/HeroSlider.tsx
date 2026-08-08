@@ -148,14 +148,28 @@ export function HeroSlider() {
           <SwiperSlide key={banner.id}>
             <div className="relative h-full w-full overflow-hidden">
               {safeImageSrc(banner.image) && (
-                <SafeImage
-                  src={banner.image}
-                  alt={banner.title}
-                  fill
-                  priority
-                  sizes="100vw"
-                  className="object-cover"
-                />
+                <>
+                  {/* Desktop / tablet landscape cover */}
+                  <SafeImage
+                    src={banner.image}
+                    alt={banner.title}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="hidden object-cover object-center md:block"
+                  />
+                  {/* Mobile: prefer dedicated mobile_image from WP; else same image with safer crop */}
+                  <SafeImage
+                    src={
+                      safeImageSrc(banner.mobile_image) || banner.image
+                    }
+                    alt={banner.title}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover object-[center_30%] md:hidden"
+                  />
+                </>
               )}
               {/* Soft text shadow only — no dark mask over the photo */}
               <HeroContent banner={banner} />

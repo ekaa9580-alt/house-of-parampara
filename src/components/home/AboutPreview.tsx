@@ -45,7 +45,15 @@ export function AboutPreview() {
             </p>
           )}
           {settings?.home_about_title && (
-            <h2 className="section-heading">{settings.home_about_title}</h2>
+            <h2
+              className={
+                /parampara/i.test(settings.home_about_title)
+                  ? "section-heading brand-wordmark"
+                  : "section-heading"
+              }
+            >
+              {settings.home_about_title}
+            </h2>
           )}
           {settings?.about_preview && (
             <p className="mt-6 text-base leading-relaxed text-ink-muted md:text-lg">

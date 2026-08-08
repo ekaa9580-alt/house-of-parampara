@@ -58,12 +58,12 @@ export function BrandLogo({
       className={
         className ||
         cn(
-          "font-display block whitespace-nowrap text-base font-light tracking-[0.08em] sm:text-lg md:text-xl lg:text-2xl",
+          "brand-wordmark font-display block whitespace-nowrap text-base font-bold tracking-[0.08em] sm:text-lg md:text-xl lg:text-2xl",
           light ? "text-cream" : ""
         )
       }
     >
-      {name}
+      {name || "HOUSE OF PARAMPARA"}
     </span>
   );
 }

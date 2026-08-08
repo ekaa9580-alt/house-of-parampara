@@ -110,7 +110,7 @@ export function Footer() {
                 className="h-14 w-14 shrink-0 object-contain"
               />
             )}
-            <h3 className="font-display text-xl font-bold tracking-[0.05em] text-[var(--cms-primary,#7A3E1D)] md:text-2xl">
+            <h3 className="brand-wordmark font-display text-xl font-bold tracking-[0.05em] md:text-2xl">
               HOUSE OF PARAMPARA
             </h3>
           </Link>
@@ -185,20 +185,21 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="lg:pl-2">
           <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Follow Us
           </h4>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-4 pl-1 sm:pl-2">
             {instagramUrl && (
               <a
                 href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-200 bg-white transition hover:border-[var(--cms-primary,#7A3E1D)]"
               >
                 <Instagram
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -209,9 +210,10 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-200 bg-white transition hover:border-[var(--cms-primary,#7A3E1D)]"
               >
                 <MessageCircle
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -222,9 +224,10 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-200 bg-white transition hover:border-[var(--cms-primary,#7A3E1D)]"
               >
                 <Facebook
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -235,9 +238,10 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-200 bg-white transition hover:border-[var(--cms-primary,#7A3E1D)]"
               >
                 <Youtube
-                  className="h-6 w-6 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
+                  className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
                   strokeWidth={1.5}
                 />
               </a>
@@ -249,8 +253,17 @@ export function Footer() {
       <div className="border-t border-brand-200 py-5 dark:border-brand-800">
         <div className="mx-auto flex w-full max-w-[90rem] flex-col items-center justify-between gap-2 px-4 text-sm text-ink-soft sm:flex-row sm:px-5">
           <p>
-            {settings?.footer_copyright ||
-              `© ${new Date().getFullYear()} HOUSE OF PARAMPARA. All rights reserved.`}
+            {settings?.footer_copyright ? (
+              settings.footer_copyright
+            ) : (
+              <>
+                © {new Date().getFullYear()}{" "}
+                <span className="brand-wordmark font-semibold">
+                  HOUSE OF PARAMPARA
+                </span>
+                . All rights reserved.
+              </>
+            )}
           </p>
           <div className="flex flex-col items-center gap-1.5 sm:items-end">
             <p className="flex items-center gap-2">
