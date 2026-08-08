@@ -98,7 +98,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto grid w-full max-w-[90rem] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-5 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] lg:gap-8 lg:py-12">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-5 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))_minmax(0,0.95fr)] lg:gap-10 lg:py-12 xl:gap-12">
         <div>
           <Link href="/" className="flex items-center gap-3">
             {safeImageSrc(logo) && (
@@ -185,18 +185,18 @@ export function Footer() {
           </ul>
         </div>
 
-        <div className="lg:pl-2">
+        <div className="pl-3 sm:pl-5 lg:pl-8 xl:pl-10">
           <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-ink">
             Follow Us
           </h4>
-          <div className="mt-4 flex flex-wrap gap-4 pl-1 sm:pl-2">
+          <div className="mt-4 flex flex-wrap justify-start gap-4 pl-2 sm:pl-4 lg:pl-2">
             {instagramUrl && (
               <a
                 href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-200 bg-white transition hover:border-[var(--cms-primary,#7A3E1D)]"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brand-200 bg-white transition hover:border-[var(--cms-primary,#7A3E1D)]"
               >
                 <Instagram
                   className="h-5 w-5 text-ink-soft transition hover:text-[var(--cms-primary,#7A3E1D)]"
