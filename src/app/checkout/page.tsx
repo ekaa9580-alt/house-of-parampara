@@ -10,6 +10,7 @@ import {
 } from "@/hooks/useWooCommerce";
 import { formatPrice } from "@/lib/utils";
 import { clientApi } from "@/lib/api/client";
+import { resolvePostCheckoutAction } from "@/lib/checkout-payment";
 import type {
   WooAddress,
   WooShippingPackage,
@@ -170,6 +171,10 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!paymentMethod) {
+      toast.error("Please select a payment method");
+      return;
+    }
     const ship = sameAsBilling ? billing : shipping;
     checkout.mutate(
       {
@@ -177,6 +182,13 @@ export default function CheckoutPage() {
         shipping_address: ship,
         payment_method: paymentMethod,
         customer_note: note,
+        // Help Store API / Razorpay blocks identify the gateway request.
+        payment_data: /razorpay/i.test(paymentMethod)
+          ? [
+              { key: "payment_method", value: paymentMethod },
+              { key: "wc-razorpay-new-payment-method", value: "true" },
+            ]
+          : [],
         ...(selectedRateId
           ? {
               shipping_rate: {
@@ -188,15 +200,37 @@ export default function CheckoutPage() {
       },
       {
         onSuccess: (data) => {
-          const redirect = data.payment_result?.redirect_url;
-          if (
-            redirect &&
-            redirect.startsWith("http") &&
-            !redirect.includes("order-received")
-          ) {
-            window.location.href = redirect;
+          const action = resolvePostCheckoutAction(data, paymentMethod);
+
+          // Online payment: leave this app and open WooCommerce order-pay
+          // (Razorpay Checkout lives there). Never show success yet.
+          if (action.type === "redirect" && action.url) {
+            toast.loading("Redirecting to secure payment…", { duration: 2500 });
+            window.location.assign(action.url);
             return;
           }
+
+          if (action.type === "pending") {
+            toast.error(
+              "Order created but payment is still required. Opening payment…"
+            );
+            if (action.url) {
+              window.location.assign(action.url);
+              return;
+            }
+            if (data.order_id && data.order_key) {
+              router.push(
+                `/checkout/pay?id=${data.order_id}&key=${encodeURIComponent(
+                  data.order_key
+                )}`
+              );
+              return;
+            }
+            toast.error("Could not open payment. Please try again.");
+            return;
+          }
+
+          // COD / already-paid WooCommerce statuses only.
           toast.success(`Order #${data.order_id} placed`);
           router.push(`/checkout/success?id=${data.order_id}`);
         },
@@ -549,11 +583,23 @@ export default function CheckoutPage() {
           </div>
           <button
             type="submit"
-            disabled={checkout.isPending}
+            disabled={checkout.isPending || !paymentMethod}
             className="btn-primary mt-6 w-full"
           >
-            {checkout.isPending ? "Placing Order…" : "Place Order"}
+            {checkout.isPending
+              ? /razorpay/i.test(paymentMethod)
+                ? "Preparing Payment…"
+                : "Placing Order…"
+              : /razorpay/i.test(paymentMethod)
+                ? "Place Order & Pay"
+                : "Place Order"}
           </button>
+          {/razorpay/i.test(paymentMethod) && (
+            <p className="mt-3 text-center text-xs text-ink-muted">
+              You will complete payment on the secure Razorpay screen. Your
+              order stays unpaid until payment succeeds.
+            </p>
+          )}
         </aside>
       </form>
     </div>

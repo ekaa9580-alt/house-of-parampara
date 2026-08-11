@@ -7,6 +7,7 @@ import { Suspense } from "react";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("id");
+  const paid = searchParams.get("paid") === "1";
 
   return (
     <div className="py-12 md:py-16 text-center">
@@ -14,7 +15,7 @@ function SuccessContent() {
         Thank you
       </p>
       <h1 className="font-display text-4xl font-light tracking-wide md:text-5xl">
-        Order placed
+        {paid ? "Payment received" : "Order received"}
       </h1>
       {orderId && (
         <p className="mt-4 text-ink-muted">
@@ -22,7 +23,9 @@ function SuccessContent() {
         </p>
       )}
       <p className="mx-auto mt-4 max-w-md text-sm text-ink-muted">
-        A confirmation will be sent to your email shortly.
+        {paid
+          ? "Your payment was confirmed. A confirmation email will arrive shortly."
+          : "If you chose an online payment method, your order is confirmed only after Razorpay payment succeeds. Pending Payment orders are not yet paid."}
       </p>
       <Link href="/shop" className="btn-primary mt-10 inline-flex">
         Continue Shopping
