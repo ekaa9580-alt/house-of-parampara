@@ -12,7 +12,29 @@ import {
 import { formatPrice, cartItemHref } from "@/lib/utils";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+
+function useDebouncedQuantity(
+  updateItem: ReturnType<typeof useUpdateCartItem>
+) {
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pending = useRef<Record<string, number>>({});
+
+  const schedule = useCallback(
+    (key: string, quantity: number) => {
+      pending.current[key] = quantity;
+      if (timers.current[key]) clearTimeout(timers.current[key]);
+      timers.current[key] = setTimeout(() => {
+        updateItem.mutate({ key, quantity: pending.current[key] });
+        delete timers.current[key];
+        delete pending.current[key];
+      }, 400);
+    },
+    [updateItem]
+  );
+
+  return { schedule, pending };
+}
 
 export default function CartPage() {
   const { data: cart, isLoading } = useCart();
@@ -21,6 +43,8 @@ export default function CartPage() {
   const applyCoupon = useApplyCoupon();
   const removeCoupon = useRemoveCoupon();
   const [code, setCode] = useState("");
+  const { schedule: scheduleUpdate } = useDebouncedQuantity(updateItem);
+  const [localQty, setLocalQty] = useState<Record<string, number>>({});
 
   const minor = cart?.totals?.currency_minor_unit ?? 0;
   const symbol = cart?.totals?.currency_symbol;
@@ -86,27 +110,27 @@ export default function CartPage() {
                       <button
                         type="button"
                         className="px-3 py-1.5"
-                        onClick={() =>
-                          updateItem.mutate({
-                            key: item.key,
-                            quantity: Math.max(1, item.quantity - 1),
-                          })
-                        }
+                        onClick={() => {
+                          const cur = localQty[item.key] ?? item.quantity;
+                          const next = Math.max(1, cur - 1);
+                          setLocalQty((q) => ({ ...q, [item.key]: next }));
+                          scheduleUpdate(item.key, next);
+                        }}
                       >
                         <Minus className="h-3 w-3" />
                       </button>
                       <span className="min-w-[2ch] text-center text-sm">
-                        {item.quantity}
+                        {localQty[item.key] ?? item.quantity}
                       </span>
                       <button
                         type="button"
                         className="px-3 py-1.5"
-                        onClick={() =>
-                          updateItem.mutate({
-                            key: item.key,
-                            quantity: item.quantity + 1,
-                          })
-                        }
+                        onClick={() => {
+                          const cur = localQty[item.key] ?? item.quantity;
+                          const next = cur + 1;
+                          setLocalQty((q) => ({ ...q, [item.key]: next }));
+                          scheduleUpdate(item.key, next);
+                        }}
                       >
                         <Plus className="h-3 w-3" />
                       </button>

@@ -312,19 +312,17 @@ add_action('admin_enqueue_scripts', function ($hook) {
     return;
   }
   wp_enqueue_media();
-  wp_enqueue_script(
-    'hop-banners-admin',
-    false,
-    array('jquery'),
-    '1.2.0',
-    true
-  );
-  wp_add_inline_script(
-    'hop-banners-admin',
-    <<<'JS'
-(function ($) {
-  function bindPicker(btnSel, inputSel, previewSel) {
-    $(document).on('click', btnSel, function (e) {
+});
+
+add_action('admin_print_footer_scripts', function () {
+  $screen = get_current_screen();
+  if (!$screen || $screen->id !== 'toplevel_page_hop-hero-banners') {
+    return;
+  }
+  ?>
+  <script>
+  (function ($) {
+    $(document).on('click', '.hop-pick-image', function (e) {
       e.preventDefault();
       var $btn = $(this);
       var target = $btn.data('target');
@@ -346,18 +344,16 @@ add_action('admin_enqueue_scripts', function ($hook) {
       });
       frame.open();
     });
-  }
-  bindPicker('.hop-pick-image');
-  $(document).on('click', '.hop-clear-image', function (e) {
-    e.preventDefault();
-    var target = $(this).data('target');
-    var preview = $(this).data('preview');
-    $('#' + target).val('0');
-    $('#' + preview).empty();
-  });
-})(jQuery);
-JS
-  );
+    $(document).on('click', '.hop-clear-image', function (e) {
+      e.preventDefault();
+      var target = $(this).data('target');
+      var preview = $(this).data('preview');
+      $('#' + target).val('0');
+      $('#' + preview).empty();
+    });
+  })(jQuery);
+  </script>
+  <?php
 });
 
 /**

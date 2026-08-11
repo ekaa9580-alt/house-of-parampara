@@ -188,16 +188,16 @@ export default function CheckoutPage() {
       },
       {
         onSuccess: (data) => {
-          toast.success(`Order #${data.order_id} placed`);
           const redirect = data.payment_result?.redirect_url;
           if (
             redirect &&
             redirect.startsWith("http") &&
-            !redirect.includes("/orders")
+            !redirect.includes("order-received")
           ) {
             window.location.href = redirect;
             return;
           }
+          toast.success(`Order #${data.order_id} placed`);
           router.push(`/checkout/success?id=${data.order_id}`);
         },
       }

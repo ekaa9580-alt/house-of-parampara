@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
@@ -14,10 +14,27 @@ import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatPrice, cartItemHref } from "@/lib/utils";
 import { SafeImage } from "@/components/ui/SafeImage";
 
+function useDebouncedQty(updateItem: ReturnType<typeof useUpdateCartItem>) {
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const schedule = useCallback(
+    (key: string, quantity: number) => {
+      if (timers.current[key]) clearTimeout(timers.current[key]);
+      timers.current[key] = setTimeout(() => {
+        updateItem.mutate({ key, quantity });
+        delete timers.current[key];
+      }, 400);
+    },
+    [updateItem]
+  );
+  return schedule;
+}
+
 export function CartDrawer() {
   const { isCartDrawerOpen, setCartDrawerOpen } = useUIStore();
   const { data: cart, isLoading } = useCart();
   const updateItem = useUpdateCartItem();
+  const scheduleQty = useDebouncedQty(updateItem);
+  const [localQty, setLocalQty] = useState<Record<string, number>>({});
   const removeItem = useRemoveCartItem();
 
   useBodyScrollLock(isCartDrawerOpen);
@@ -131,28 +148,28 @@ export function CartDrawer() {
                             type="button"
                             aria-label="Decrease"
                             className="px-2 py-1"
-                            onClick={() =>
-                              updateItem.mutate({
-                                key: item.key,
-                                quantity: Math.max(1, item.quantity - 1),
-                              })
-                            }
+                            onClick={() => {
+                              const cur = localQty[item.key] ?? item.quantity;
+                              const next = Math.max(1, cur - 1);
+                              setLocalQty((q) => ({ ...q, [item.key]: next }));
+                              scheduleQty(item.key, next);
+                            }}
                           >
                             <Minus className="h-3 w-3" />
                           </button>
                           <span className="min-w-[2ch] text-center text-sm">
-                            {item.quantity}
+                            {localQty[item.key] ?? item.quantity}
                           </span>
                           <button
                             type="button"
                             aria-label="Increase"
                             className="px-2 py-1"
-                            onClick={() =>
-                              updateItem.mutate({
-                                key: item.key,
-                                quantity: item.quantity + 1,
-                              })
-                            }
+                            onClick={() => {
+                              const cur = localQty[item.key] ?? item.quantity;
+                              const next = cur + 1;
+                              setLocalQty((q) => ({ ...q, [item.key]: next }));
+                              scheduleQty(item.key, next);
+                            }}
                           >
                             <Plus className="h-3 w-3" />
                           </button>
