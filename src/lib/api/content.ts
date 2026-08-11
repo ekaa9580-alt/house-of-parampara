@@ -118,11 +118,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       (merged as unknown as Record<string, unknown>)[key] = value;
     }
     if (!merged.site_name) merged.site_name = "";
-    // Always resolve business email from env / allowlist (ignore stale CMS hello@…)
+    // Prefer CMS email; only fall back via resolveBusinessEmail (blocks stale hello@).
+    // Do NOT override CMS phone with env — Storefront CMS is source of truth.
     merged.contact_email = resolveBusinessEmail(merged.contact_email);
-    if (process.env.NEXT_PUBLIC_CONTACT_PHONE?.trim()) {
-      merged.contact_phone = process.env.NEXT_PUBLIC_CONTACT_PHONE.trim();
-    }
     return merged;
   };
 
