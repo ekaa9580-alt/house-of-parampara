@@ -308,15 +308,16 @@ add_action('admin_menu', function () {
 });
 
 add_action('admin_enqueue_scripts', function ($hook) {
-  if ($hook !== 'toplevel_page_hop-hero-banners') {
+  // WordPress hook names can vary by setup, so rely on the page slug query var.
+  if (!isset($_GET['page']) || $_GET['page'] !== 'hop-hero-banners') {
     return;
   }
   wp_enqueue_media();
 });
 
 add_action('admin_print_footer_scripts', function () {
-  $screen = get_current_screen();
-  if (!$screen || $screen->id !== 'toplevel_page_hop-hero-banners') {
+  // Output only on our admin page (avoid relying on $screen->id, which can vary).
+  if (!isset($_GET['page']) || $_GET['page'] !== 'hop-hero-banners') {
     return;
   }
   ?>
