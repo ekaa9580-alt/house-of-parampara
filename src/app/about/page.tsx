@@ -1,13 +1,45 @@
 "use client";
 
+import { useMemo } from "react";
 import { usePage, useSiteSettings } from "@/hooks/useWooCommerce";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { safeImageSrc } from "@/lib/utils";
 
+function stripMeetTeamSection(html: string): string {
+  if (!html || typeof window === "undefined") return html;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const meetHeading = Array.from(
+    doc.querySelectorAll("h1, h2, h3, h4, h5, h6")
+  ).find((node) => /meet\s*the\s*team/i.test(node.textContent || ""));
+
+  if (!meetHeading) return html;
+
+  // Remove the closest meaningful container so no empty spacing remains.
+  const removableContainer =
+    meetHeading.closest("section") ||
+    meetHeading.closest(".wp-block-group") ||
+    meetHeading.closest(".wp-block-columns") ||
+    meetHeading.closest("div");
+
+  if (removableContainer) {
+    removableContainer.remove();
+  } else {
+    meetHeading.remove();
+  }
+
+  return doc.body.innerHTML;
+}
+
 export default function AboutPage() {
   const { data: page, isLoading } = usePage("about");
   const { data: settings } = useSiteSettings();
+  const aboutHtml = useMemo(
+    () => stripMeetTeamSection(page?.content?.rendered || settings?.about_preview || ""),
+    [page?.content?.rendered, settings?.about_preview]
+  );
 
   return (
     <div className="pb-12 pt-2 md:pb-16">
@@ -49,8 +81,7 @@ export default function AboutPage() {
             <div
               className="prose prose-neutral max-w-none text-ink prose-headings:text-ink prose-p:text-ink-soft dark:prose-invert"
               dangerouslySetInnerHTML={{
-                __html:
-                  page?.content?.rendered || settings?.about_preview || "",
+                __html: aboutHtml,
               }}
             />
           )}
