@@ -2,7 +2,7 @@
 /**
  * Plugin Name: House of Parampara – Hero Banners
  * Description: Adds Appearance → Customize → Hero Slider (desktop + mobile images) and exposes GET /wp-json/hop/v1/banners for the Next.js storefront.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: House of Parampara
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -14,7 +14,12 @@
  *   3. WP Admin → Hero Banners (left sidebar) — upload Desktop + Mobile images
  *      OR Appearance → Customize → Hero Slider
  *   4. Confirm: https://yoursite.com/wp-json/hop/v1/banners
+ *      Each slide must show "mobile_image": "https://..." (not null)
  */
+
+if (!defined('HOP_BANNERS_OPTION')) {
+  define('HOP_BANNERS_OPTION', 'hop_hero_banners_v1');
+}
 
 if (!defined('ABSPATH')) {
   exit;
@@ -376,7 +381,13 @@ function hop_banners_handle_admin_save() {
     $title = isset($_POST["hop_hero_{$i}_title"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_title"])) : '';
     $subtitle = isset($_POST["hop_hero_{$i}_subtitle"]) ? sanitize_textarea_field(wp_unslash($_POST["hop_hero_{$i}_subtitle"])) : '';
     $button_text = isset($_POST["hop_hero_{$i}_button_text"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_button_text"])) : 'Shop Now';
-    $button_url = isset($_POST["hop_hero_{$i}_button_url"]) ? esc_url_raw(wp_unslash($_POST["hop_hero_{$i}_button_url"])) : '/shop';
+    $button_url_raw = isset($_POST["hop_hero_{$i}_button_url"]) ? wp_unslash($_POST["hop_hero_{$i}_button_url"]) : '/shop';
+    $button_url = preg_match('#^/#', $button_url_raw)
+      ? sanitize_text_field($button_url_raw)
+      : esc_url_raw($button_url_raw);
+    if ($button_url === '') {
+      $button_url = '/shop';
+    }
     $position = isset($_POST["hop_hero_{$i}_position"]) ? sanitize_text_field(wp_unslash($_POST["hop_hero_{$i}_position"])) : 'left';
     if (!in_array($position, array('left', 'center', 'right'), true)) {
       $position = 'left';
@@ -391,6 +402,10 @@ function hop_banners_handle_admin_save() {
     set_theme_mod("hop_hero_{$i}_button_url", $button_url);
     set_theme_mod("hop_hero_{$i}_position", $position);
   }
+
+  // Purge Hostinger LiteSpeed so mobile images appear immediately.
+  do_action('litespeed_purge_all', 'hop banners saved');
+  do_action('litespeed_purge_url', rest_url('hop/v1/banners'));
 
   add_settings_error('hop_banners', 'hop_banners_saved', __('Hero banners saved. Mobile images will show on phones.', 'hop-banners'), 'updated');
 }
@@ -498,7 +513,10 @@ function hop_banners_admin_page() {
             </tr>
             <tr>
               <th scope="row"><?php echo esc_html__('Button URL', 'hop-banners'); ?></th>
-              <td><input type="url" class="regular-text" name="hop_hero_<?php echo (int) $i; ?>_button_url" value="<?php echo esc_attr((string) (hop_banners_mod("hop_hero_{$i}_button_url", '') ?: '/shop')); ?>" /></td>
+              <td>
+                <input type="text" class="regular-text" name="hop_hero_<?php echo (int) $i; ?>_button_url" value="<?php echo esc_attr((string) (hop_banners_mod("hop_hero_{$i}_button_url", '') ?: '/shop')); ?>" placeholder="/shop" />
+                <p class="description"><?php echo esc_html__('Use /shop or a full https:// URL to your live storefront.', 'hop-banners'); ?></p>
+              </td>
             </tr>
             <tr>
               <th scope="row"><?php echo esc_html__('Text position', 'hop-banners'); ?></th>
@@ -530,7 +548,19 @@ add_action('rest_api_init', function () {
     'methods'             => 'GET',
     'permission_callback' => '__return_true',
     'callback'            => function () {
-      return rest_ensure_response(hop_banners_from_customizer());
+      // Hostinger LiteSpeed was caching stale banner JSON without mobile_image.
+      do_action('litespeed_control_set_nocache', 'hop banners');
+      $response = rest_ensure_response(hop_banners_from_customizer());
+      $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+      $response->header('Pragma', 'no-cache');
+      $response->header('Expires', '0');
+      $response->header('X-LiteSpeed-Cache-Control', 'no-cache');
+      return $response;
     },
   ));
+});
+
+add_action('customize_save_after', function () {
+  do_action('litespeed_purge_all', 'hop banners customize save');
+  do_action('litespeed_purge_url', rest_url('hop/v1/banners'));
 });

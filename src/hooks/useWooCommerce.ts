@@ -330,6 +330,8 @@ export function useHeroBanners() {
       const { data } = await clientApi.get<HeroBanner[]>("/banners");
       return data;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

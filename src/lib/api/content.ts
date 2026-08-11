@@ -69,7 +69,15 @@ export async function getHeroBanners(): Promise<HeroBanner[]> {
     } else {
       path = endpoint.replace(/^\/wp-json/, "") || path;
     }
-    const response = await wpApi.get<HeroBanner[]>(path);
+    // Cache-bust so Hostinger LiteSpeed does not serve stale banners
+    // missing mobile_image after admin uploads.
+    const response = await wpApi.get<HeroBanner[]>(path, {
+      params: { _: Date.now() },
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    });
     if (Array.isArray(response.data) && response.data.length) {
       return response.data;
     }
