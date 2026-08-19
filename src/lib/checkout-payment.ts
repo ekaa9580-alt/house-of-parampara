@@ -40,11 +40,33 @@ export function absoluteWcUrl(url: string, wcBase = getWcPublicBaseUrl()): strin
   return trimmed.startsWith("/") ? `${base}${trimmed}` : `${base}/${trimmed}`;
 }
 
+export function getStorefrontBaseUrl(): string {
+  return stripTrailingSlash(process.env.NEXT_PUBLIC_SITE_URL || "");
+}
+
+/** After Razorpay+WooCommerce verify payment, customer must land here. */
+export function buildStorefrontSuccessUrl(
+  orderId: number,
+  orderKey: string,
+  paid = false,
+  siteBase = getStorefrontBaseUrl()
+): string {
+  const base = stripTrailingSlash(siteBase);
+  if (!base || !orderId || !orderKey) return "";
+  const params = new URLSearchParams({
+    id: String(orderId),
+    key: orderKey,
+  });
+  if (paid) params.set("paid", "1");
+  return `${base}/checkout/success?${params.toString()}`;
+}
+
 /** WooCommerce “Pay for order” URL where Razorpay Checkout opens. */
 export function buildOrderPayUrl(
   orderId: number,
   orderKey: string,
-  wcBase = getWcPublicBaseUrl()
+  wcBase = getWcPublicBaseUrl(),
+  siteBase = getStorefrontBaseUrl()
 ): string {
   const base = stripTrailingSlash(wcBase);
   if (!base || !orderId || !orderKey) return "";
@@ -52,6 +74,8 @@ export function buildOrderPayUrl(
     pay_for_order: "true",
     key: orderKey,
   });
+  const hopReturn = buildStorefrontSuccessUrl(orderId, orderKey, false, siteBase);
+  if (hopReturn) params.set("hop_return", hopReturn);
   return `${base}/checkout/order-pay/${orderId}/?${params.toString()}`;
 }
 
@@ -74,7 +98,8 @@ function isOnlineGateway(paymentMethod: string): boolean {
 export function resolvePostCheckoutAction(
   data: CheckoutApiResult,
   paymentMethod: string,
-  wcBase = getWcPublicBaseUrl()
+  wcBase = getWcPublicBaseUrl(),
+  siteBase = getStorefrontBaseUrl()
 ): PostCheckoutAction {
   const orderStatus = (data.status || "").toLowerCase();
   const paymentStatus = (
@@ -96,27 +121,29 @@ export function resolvePostCheckoutAction(
     return { type: "success" };
   }
 
+  const payUrl =
+    data.order_id && data.order_key
+      ? buildOrderPayUrl(data.order_id, data.order_key, wcBase, siteBase)
+      : "";
+
   // Prefer gateway redirect when it is a payment page (not thank-you).
   if (redirect && !isThankYouUrl(redirect) && !isThankYouUrl(rawRedirect)) {
+    if (payUrl && /order-pay/i.test(redirect)) {
+      return { type: "redirect", url: payUrl };
+    }
     return { type: "redirect", url: redirect };
   }
 
   // Razorpay / online unpaid: force order-pay so Checkout can open.
-  if (online && data.order_id && data.order_key) {
-    const payUrl = buildOrderPayUrl(data.order_id, data.order_key, wcBase);
-    if (payUrl) {
-      return { type: "redirect", url: payUrl };
-    }
+  if (online && payUrl) {
+    return { type: "redirect", url: payUrl };
   }
 
   // Thank-you redirect without paid status is still pending for online methods.
   if (online) {
     return {
       type: "pending",
-      url:
-        data.order_id && data.order_key
-          ? buildOrderPayUrl(data.order_id, data.order_key, wcBase)
-          : redirect || undefined,
+      url: payUrl || redirect || undefined,
     };
   }
 

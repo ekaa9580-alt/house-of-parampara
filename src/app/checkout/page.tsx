@@ -11,6 +11,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { clientApi } from "@/lib/api/client";
 import { resolvePostCheckoutAction } from "@/lib/checkout-payment";
+import { isBillingReadyForStoreApi } from "@/lib/checkout-address";
 import type {
   WooAddress,
   WooShippingPackage,
@@ -92,12 +93,7 @@ export default function CheckoutPage() {
 
   const shipAddress = sameAsBilling ? billing : shipping;
   const addressReady =
-    !!billing.first_name &&
-    !!billing.last_name &&
-    !!billing.address_1 &&
-    !!billing.city &&
-    !!billing.postcode &&
-    !!billing.country &&
+    isBillingReadyForStoreApi(billing) &&
     !!shipAddress.address_1 &&
     !!shipAddress.city &&
     !!shipAddress.postcode &&
@@ -200,7 +196,12 @@ export default function CheckoutPage() {
       },
       {
         onSuccess: (data) => {
-          const action = resolvePostCheckoutAction(data, paymentMethod);
+          const action = resolvePostCheckoutAction(
+            data,
+            paymentMethod,
+            undefined,
+            typeof window !== "undefined" ? window.location.origin : undefined
+          );
 
           // Online payment: leave this app and open WooCommerce order-pay
           // (Razorpay Checkout lives there). Never show success yet.

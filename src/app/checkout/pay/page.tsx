@@ -13,7 +13,12 @@ function PayContent() {
 
   const payUrl = useMemo(() => {
     if (!orderId || !orderKey) return "";
-    return buildOrderPayUrl(orderId, orderKey, getWcPublicBaseUrl());
+    return buildOrderPayUrl(
+      orderId,
+      orderKey,
+      getWcPublicBaseUrl(),
+      typeof window !== "undefined" ? window.location.origin : undefined
+    );
   }, [orderId, orderKey]);
 
   useEffect(() => {

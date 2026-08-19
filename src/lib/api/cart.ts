@@ -12,6 +12,10 @@ import type {
   WooShippingMethod,
   WooShippingPackage,
 } from "@/types/woocommerce";
+import {
+  sanitizeBillingAddress,
+  sanitizeShippingAddress,
+} from "@/lib/checkout-address";
 
 export type CartSession = {
   nonce: string | null;
@@ -177,12 +181,14 @@ export async function updateCustomer(
   session: CartSession = { nonce: null, token: null }
 ): Promise<CartResult> {
   let s = await ensureSession(session);
+  const billingAddress = sanitizeBillingAddress(billing);
+  const shippingAddress = sanitizeShippingAddress(shipping);
+  const body: Record<string, unknown> = {};
+  if (billingAddress) body.billing_address = billingAddress;
+  if (shippingAddress) body.shipping_address = shippingAddress;
   const response = await storeApi.post<WooCart>(
     "/cart/update-customer",
-    {
-      billing_address: billing,
-      shipping_address: shipping,
-    },
+    body,
     { headers: cartHeaders(s) }
   );
   s = captureTokens(s, response.headers as Record<string, unknown>);
@@ -297,8 +303,8 @@ export async function checkout(
   }
 
   const body = {
-    billing_address: payload.billing_address,
-    shipping_address: payload.shipping_address,
+    billing_address: sanitizeBillingAddress(payload.billing_address),
+    shipping_address: sanitizeShippingAddress(payload.shipping_address),
     customer_note: payload.customer_note || "",
     create_account: payload.create_account || false,
     payment_method: payload.payment_method,
