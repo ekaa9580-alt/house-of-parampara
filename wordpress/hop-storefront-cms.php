@@ -35,6 +35,7 @@ function hop_cms_defaults() {
     'site_name'          => get_bloginfo('name') ?: 'House of Parampara',
     'tagline'            => get_bloginfo('description') ?: '',
     'storefront_url'     => '',
+    'canonical_site_url' => 'https://www.houseofparampara.net',
     'logo'               => '',
     'logo_dark'          => '',
     'favicon'            => '',
@@ -201,7 +202,7 @@ function hop_cms_sanitize($input) {
 
   $urls = array(
     'logo', 'logo_dark', 'favicon', 'maps_url', 'facebook', 'instagram', 'youtube', 'pinterest',
-    'about_image', 'seo_og_image', 'announcement_link', 'storefront_url',
+    'about_image', 'seo_og_image', 'announcement_link', 'storefront_url', 'canonical_site_url',
     'home_featured_cta_url', 'home_latest_cta_url', 'home_bestsellers_cta_url',
     'home_hero_fallback_cta_url', 'home_about_cta_url', 'home_sale_cta_url', 'mega_menu_cta_url',
   );
@@ -352,7 +353,8 @@ function hop_cms_render_admin() {
         <?php
         hop_cms_field('site_name', 'Site title');
         hop_cms_field('tagline', 'Tagline');
-        hop_cms_field('storefront_url', 'Next.js storefront URL', 'url', 'e.g. https://your-frontend.vercel.app — used to return after Razorpay');
+        hop_cms_field('storefront_url', 'Next.js storefront URL', 'url', 'e.g. https://www.houseofparampara.net — used to return after Razorpay');
+        hop_cms_field('canonical_site_url', 'Canonical production URL (Razorpay)', 'url', 'Must match Razorpay-approved website, e.g. https://www.houseofparampara.net');
         hop_cms_field('logo', 'Logo URL', 'url');
         hop_cms_field('logo_dark', 'Logo URL (dark)', 'url');
         hop_cms_field('favicon', 'Favicon URL', 'url');

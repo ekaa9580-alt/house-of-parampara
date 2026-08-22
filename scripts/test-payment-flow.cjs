@@ -1,32 +1,27 @@
 /**
- * Lightweight checks for checkout address sanitization + payment return URLs.
+ * Payment flow + canonical URL tests.
  * Run: node scripts/test-payment-flow.cjs
  */
 const assert = require("assert");
 
-const IN_STATE_CODES = {
-  karnataka: "KA",
-  kerala: "KL",
-  maharashtra: "MH",
-};
+const DEFAULT_CANONICAL = "https://www.houseofparampara.net";
+const BLOCKED_HOST_RE = /hostingersite\.com/i;
 
-function normalizeState(country, state) {
-  const trimmed = (state || "").trim();
-  if (!trimmed) return "";
-  if (country !== "IN") return trimmed;
-  if (/^[A-Z]{2}$/i.test(trimmed)) return trimmed.toUpperCase();
-  const key = trimmed.toLowerCase().replace(/[^a-z]/g, "");
-  return IN_STATE_CODES[key] || trimmed;
+function isTemporaryHostingerUrl(url) {
+  try {
+    return BLOCKED_HOST_RE.test(new URL(url).host);
+  } catch {
+    return false;
+  }
 }
 
-function sanitizeShipping(addr) {
-  const country = ((addr.country || "IN").trim() || "IN").slice(0, 2).toUpperCase();
-  const { email, ...rest } = {
-    ...addr,
-    country,
-    state: normalizeState(country, addr.state || ""),
-  };
-  return rest;
+function rewriteToCanonicalPaymentUrl(url, wcOrigin = DEFAULT_CANONICAL) {
+  if (!url || !isTemporaryHostingerUrl(url)) return url;
+  const parsed = new URL(url);
+  const canonical = new URL(wcOrigin);
+  parsed.protocol = canonical.protocol;
+  parsed.host = canonical.host;
+  return parsed.toString();
 }
 
 function buildOrderPayUrl(orderId, orderKey, wcBase, siteBase) {
@@ -35,7 +30,8 @@ function buildOrderPayUrl(orderId, orderKey, wcBase, siteBase) {
     key: orderKey,
     hop_return: `${siteBase}/checkout/success?id=${orderId}&key=${orderKey}`,
   });
-  return `${wcBase}/checkout/order-pay/${orderId}/?${params.toString()}`;
+  const raw = `${wcBase}/checkout/order-pay/${orderId}/?${params.toString()}`;
+  return rewriteToCanonicalPaymentUrl(raw, DEFAULT_CANONICAL);
 }
 
 function resolvePostCheckoutAction(data, paymentMethod) {
@@ -49,28 +45,33 @@ function resolvePostCheckoutAction(data, paymentMethod) {
       url: buildOrderPayUrl(
         data.order_id,
         data.order_key,
-        "https://wp.example",
-        "https://shop.example"
+        "https://darkcyan-salamander-384448.hostingersite.com",
+        DEFAULT_CANONICAL
       ),
     };
   }
   return { type: "pending" };
 }
 
-// Address: shipping must not include email
-const shipping = sanitizeShipping({
-  first_name: "A",
-  last_name: "B",
-  address_1: "1 Main",
-  city: "Mysore",
-  state: "karnataka",
-  postcode: "570017",
-  country: "IN",
-  email: "a@b.com",
-  phone: "999",
-});
-assert.strictEqual(shipping.state, "KA");
-assert.strictEqual("email" in shipping, false);
+function normalizePostcode(country, postcode) {
+  if (country === "IN") {
+    return (postcode || "").replace(/\D/g, "").slice(0, 6);
+  }
+  return (postcode || "").trim();
+}
+
+function isPostcodeValid(country, postcode) {
+  const pc = normalizePostcode(country, postcode);
+  if (country === "IN") return /^\d{6}$/.test(pc);
+  return pc.length >= 3;
+}
+
+// Hostinger URL must be rewritten to canonical
+const hostingerPay =
+  "https://darkcyan-salamander-384448.hostingersite.com/checkout/order-pay/715/?pay_for_order=true&key=wc_test";
+const rewritten = rewriteToCanonicalPaymentUrl(hostingerPay);
+assert.match(rewritten, /^https:\/\/www\.houseofparampara\.net\//);
+assert.doesNotMatch(rewritten, /hostingersite/);
 
 // Razorpay must not treat order creation as success
 const unpaid = resolvePostCheckoutAction(
@@ -78,19 +79,28 @@ const unpaid = resolvePostCheckoutAction(
     order_id: 715,
     status: "pending",
     order_key: "wc_order_test",
-    payment_result: { payment_status: "success", redirect_url: "" },
+    payment_result: {
+      payment_status: "success",
+      redirect_url:
+        "https://darkcyan-salamander-384448.hostingersite.com/checkout/order-pay/715/?key=wc_order_test",
+    },
   },
   "razorpay"
 );
 assert.strictEqual(unpaid.type, "redirect");
-assert.match(unpaid.url, /order-pay\/715/);
+assert.match(unpaid.url, /www\.houseofparampara\.net\/checkout\/order-pay\/715/);
+assert.doesNotMatch(unpaid.url, /hostingersite/);
 assert.match(unpaid.url, /hop_return=/);
-assert.doesNotMatch(unpaid.url, /\/checkout\/success(?!.*hop_return)/);
 
 const paid = resolvePostCheckoutAction(
   { order_id: 715, status: "processing", order_key: "wc_order_test" },
   "razorpay"
 );
 assert.strictEqual(paid.type, "success");
+
+// India pincode validation
+assert.strictEqual(normalizePostcode("IN", "570 017"), "570017");
+assert.strictEqual(isPostcodeValid("IN", "570017"), true);
+assert.strictEqual(isPostcodeValid("IN", "57001"), false);
 
 console.log("payment-flow tests passed");

@@ -11,7 +11,11 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { clientApi } from "@/lib/api/client";
 import { resolvePostCheckoutAction } from "@/lib/checkout-payment";
-import { isBillingReadyForStoreApi } from "@/lib/checkout-address";
+import {
+  isBillingReadyForStoreApi,
+  isPostcodeValidForStoreApi,
+} from "@/lib/checkout-address";
+import { resolveClientStorefrontOrigin } from "@/lib/checkout-payment";
 import type {
   WooAddress,
   WooShippingPackage,
@@ -171,6 +175,14 @@ export default function CheckoutPage() {
       toast.error("Please select a payment method");
       return;
     }
+    if (
+      !isPostcodeValidForStoreApi(billing.country, billing.postcode) ||
+      (!sameAsBilling &&
+        !isPostcodeValidForStoreApi(shipping.country, shipping.postcode))
+    ) {
+      toast.error("Enter a valid 6-digit PIN code for India");
+      return;
+    }
     const ship = sameAsBilling ? billing : shipping;
     checkout.mutate(
       {
@@ -200,7 +212,9 @@ export default function CheckoutPage() {
             data,
             paymentMethod,
             undefined,
-            typeof window !== "undefined" ? window.location.origin : undefined
+            resolveClientStorefrontOrigin(
+              typeof window !== "undefined" ? window.location.origin : undefined
+            )
           );
 
           // Online payment: leave this app and open WooCommerce order-pay

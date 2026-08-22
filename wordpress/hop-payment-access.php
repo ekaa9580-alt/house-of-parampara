@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: House of Parampara – Payment Access
- * Description: Lets customers complete Razorpay on WooCommerce order-pay, then returns them to the Next.js /checkout/success page after WooCommerce/Razorpay verifies the payment. Also bypasses Coming Soon for payment URLs.
- * Version: 1.1.0
+ * Description: Canonical payment URLs on the production domain (never Hostinger temp), Razorpay order-pay access, and redirect to Next.js /checkout/success after verified payment.
+ * Version: 1.2.0
  * Author: House of Parampara
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -15,6 +15,8 @@
 if (!defined('ABSPATH')) {
   exit;
 }
+
+define('HOP_DEFAULT_CANONICAL_ORIGIN', 'https://www.houseofparampara.net');
 
 /**
  * Bypass Coming Soon for payment-critical URLs.
@@ -57,12 +59,61 @@ add_action('init', function () {
   add_filter('woocommerce_coming_soon_exclude', '__return_true', 1);
 }, 0);
 
+function hop_is_temp_hostinger_url($url) {
+  return (bool) preg_match('/hostingersite\.com/i', (string) $url);
+}
+
+/**
+ * Canonical public site URL — must match Razorpay-approved domain.
+ */
+function hop_canonical_origin() {
+  $settings = get_option('hop_settings', array());
+  if (is_array($settings) && !empty($settings['canonical_site_url'])) {
+    $url = esc_url_raw($settings['canonical_site_url']);
+    if ($url && !hop_is_temp_hostinger_url($url)) {
+      return untrailingslashit($url);
+    }
+  }
+  if (defined('HOP_CANONICAL_SITE_URL') && HOP_CANONICAL_SITE_URL) {
+    return untrailingslashit(HOP_CANONICAL_SITE_URL);
+  }
+  return HOP_DEFAULT_CANONICAL_ORIGIN;
+}
+
+/**
+ * Rewrite Hostinger temporary URLs to canonical production origin.
+ */
+function hop_rewrite_canonical_url($url) {
+  if (!$url || !hop_is_temp_hostinger_url($url)) {
+    return $url;
+  }
+  $canonical = hop_canonical_origin();
+  $parts = wp_parse_url($url);
+  if (empty($parts['path'])) {
+    return $canonical;
+  }
+  $query = !empty($parts['query']) ? '?' . $parts['query'] : '';
+  $fragment = !empty($parts['fragment']) ? '#' . $parts['fragment'] : '';
+  return $canonical . $parts['path'] . $query . $fragment;
+}
+
+/** WooCommerce checkout + order-pay URLs must use canonical domain for Razorpay. */
+add_filter('woocommerce_get_checkout_url', 'hop_rewrite_canonical_url', 99);
+add_filter('woocommerce_get_checkout_payment_url', 'hop_rewrite_canonical_url', 99);
+
+add_filter('woocommerce_get_endpoint_url', function ($url, $endpoint, $value, $permalink) {
+  if (in_array($endpoint, array('order-pay', 'order-received'), true)) {
+    return hop_rewrite_canonical_url($url);
+  }
+  return $url;
+}, 99, 4);
+
 /**
  * Only allow return URLs that point at the Next.js success route.
  */
 function hop_sanitize_storefront_success_base($url) {
   $url = esc_url_raw($url);
-  if (!$url) {
+  if (!$url || hop_is_temp_hostinger_url($url)) {
     return '';
   }
   $parsed = wp_parse_url($url);
@@ -82,18 +133,8 @@ function hop_sanitize_storefront_success_base($url) {
 }
 
 function hop_cms_storefront_url() {
-  $settings = get_option('hop_settings', array());
-  if (is_array($settings) && !empty($settings['storefront_url'])) {
-    return hop_sanitize_storefront_success_base(trailingslashit($settings['storefront_url']) . 'checkout/success');
-  }
-  $opt = get_option('hop_storefront_url');
-  if ($opt) {
-    return hop_sanitize_storefront_success_base(trailingslashit($opt) . 'checkout/success');
-  }
-  if (defined('HOP_STOREFRONT_URL') && HOP_STOREFRONT_URL) {
-    return hop_sanitize_storefront_success_base(trailingslashit(HOP_STOREFRONT_URL) . 'checkout/success');
-  }
-  return '';
+  $canonical = hop_canonical_origin();
+  return hop_sanitize_storefront_success_base(trailingslashit($canonical) . 'checkout/success');
 }
 
 function hop_order_success_url($order) {
@@ -137,7 +178,7 @@ function hop_allow_host_for_url($url) {
 
 add_filter('woocommerce_get_return_url', function ($return_url, $order) {
   $next = hop_order_success_url($order);
-  return $next ? $next : $return_url;
+  return $next ? $next : hop_rewrite_canonical_url($return_url);
 }, 99, 2);
 
 add_action('template_redirect', function () {

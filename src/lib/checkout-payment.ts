@@ -6,6 +6,13 @@
  * Creating an order is NOT the same as a successful payment.
  */
 
+import {
+  getCanonicalStorefrontOrigin,
+  getCanonicalWcOrigin,
+  rewriteToCanonicalPaymentUrl,
+  resolveClientStorefrontOrigin,
+} from "@/lib/canonical-urls";
+
 export type CheckoutApiResult = {
   order_id: number;
   status?: string;
@@ -26,22 +33,26 @@ function stripTrailingSlash(url: string): string {
   return url.replace(/\/$/, "");
 }
 
+/** @deprecated use getCanonicalWcOrigin — kept for imports */
 export function getWcPublicBaseUrl(): string {
-  return stripTrailingSlash(process.env.NEXT_PUBLIC_WC_URL || "");
+  return getCanonicalWcOrigin();
 }
 
-export function absoluteWcUrl(url: string, wcBase = getWcPublicBaseUrl()): string {
+export function absoluteWcUrl(url: string, wcBase = getCanonicalWcOrigin()): string {
   if (!url) return "";
   const trimmed = url.trim();
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  if (trimmed.startsWith("//")) return `https:${trimmed}`;
-  if (!wcBase) return trimmed;
+  const rewritten = rewriteToCanonicalPaymentUrl(trimmed, wcBase);
+  if (/^https?:\/\//i.test(rewritten)) return rewritten;
+  if (rewritten.startsWith("//")) return `https:${rewritten}`;
+  if (!wcBase) return rewritten;
   const base = stripTrailingSlash(wcBase);
-  return trimmed.startsWith("/") ? `${base}${trimmed}` : `${base}/${trimmed}`;
+  const path = rewritten.startsWith("/") ? rewritten : `/${rewritten}`;
+  return `${base}${path}`;
 }
 
+/** @deprecated use getCanonicalStorefrontOrigin */
 export function getStorefrontBaseUrl(): string {
-  return stripTrailingSlash(process.env.NEXT_PUBLIC_SITE_URL || "");
+  return getCanonicalStorefrontOrigin();
 }
 
 /** After Razorpay+WooCommerce verify payment, customer must land here. */
@@ -49,7 +60,7 @@ export function buildStorefrontSuccessUrl(
   orderId: number,
   orderKey: string,
   paid = false,
-  siteBase = getStorefrontBaseUrl()
+  siteBase = getCanonicalStorefrontOrigin()
 ): string {
   const base = stripTrailingSlash(siteBase);
   if (!base || !orderId || !orderKey) return "";
@@ -65,8 +76,8 @@ export function buildStorefrontSuccessUrl(
 export function buildOrderPayUrl(
   orderId: number,
   orderKey: string,
-  wcBase = getWcPublicBaseUrl(),
-  siteBase = getStorefrontBaseUrl()
+  wcBase = getCanonicalWcOrigin(),
+  siteBase = getCanonicalStorefrontOrigin()
 ): string {
   const base = stripTrailingSlash(wcBase);
   if (!base || !orderId || !orderKey) return "";
@@ -76,7 +87,8 @@ export function buildOrderPayUrl(
   });
   const hopReturn = buildStorefrontSuccessUrl(orderId, orderKey, false, siteBase);
   if (hopReturn) params.set("hop_return", hopReturn);
-  return `${base}/checkout/order-pay/${orderId}/?${params.toString()}`;
+  const url = `${base}/checkout/order-pay/${orderId}/?${params.toString()}`;
+  return rewriteToCanonicalPaymentUrl(url, wcBase);
 }
 
 function isThankYouUrl(url: string): boolean {
@@ -98,48 +110,49 @@ function isOnlineGateway(paymentMethod: string): boolean {
 export function resolvePostCheckoutAction(
   data: CheckoutApiResult,
   paymentMethod: string,
-  wcBase = getWcPublicBaseUrl(),
-  siteBase = getStorefrontBaseUrl()
+  wcBase = getCanonicalWcOrigin(),
+  siteBase?: string
 ): PostCheckoutAction {
+  const storefrontBase =
+    siteBase && !siteBase.includes("hostingersite.com")
+      ? stripTrailingSlash(siteBase)
+      : getCanonicalStorefrontOrigin();
+
   const orderStatus = (data.status || "").toLowerCase();
   const paymentStatus = (
     data.payment_result?.payment_status || ""
   ).toLowerCase();
   const rawRedirect = data.payment_result?.redirect_url || "";
-  const redirect = absoluteWcUrl(rawRedirect, wcBase);
+  const redirect = rewriteToCanonicalPaymentUrl(
+    absoluteWcUrl(rawRedirect, wcBase),
+    wcBase
+  );
   const isRazorpay = /razorpay/i.test(paymentMethod);
   const online = isOnlineGateway(paymentMethod) || isRazorpay;
   const orderPaid = ["processing", "completed"].includes(orderStatus);
 
-  // Only treat as paid when WooCommerce order status says so.
   if (orderPaid) {
     return { type: "success" };
   }
 
-  // COD / offline: gateway may return success without a pay redirect.
   if (!online && (paymentStatus === "success" || orderStatus === "on-hold")) {
     return { type: "success" };
   }
 
   const payUrl =
     data.order_id && data.order_key
-      ? buildOrderPayUrl(data.order_id, data.order_key, wcBase, siteBase)
+      ? buildOrderPayUrl(data.order_id, data.order_key, wcBase, storefrontBase)
       : "";
 
-  // Prefer gateway redirect when it is a payment page (not thank-you).
-  if (redirect && !isThankYouUrl(redirect) && !isThankYouUrl(rawRedirect)) {
-    if (payUrl && /order-pay/i.test(redirect)) {
-      return { type: "redirect", url: payUrl };
-    }
-    return { type: "redirect", url: redirect };
-  }
-
-  // Razorpay / online unpaid: force order-pay so Checkout can open.
+  // Always prefer our canonical order-pay URL for online gateways.
   if (online && payUrl) {
     return { type: "redirect", url: payUrl };
   }
 
-  // Thank-you redirect without paid status is still pending for online methods.
+  if (redirect && !isThankYouUrl(redirect) && !isThankYouUrl(rawRedirect)) {
+    return { type: "redirect", url: redirect };
+  }
+
   if (online) {
     return {
       type: "pending",
@@ -153,3 +166,5 @@ export function resolvePostCheckoutAction(
 
   return { type: "pending", url: redirect || undefined };
 }
+
+export { resolveClientStorefrontOrigin };

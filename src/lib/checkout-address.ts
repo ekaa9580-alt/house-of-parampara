@@ -52,6 +52,26 @@ function normalizeState(country: string, state: string): string {
   return IN_STATE_CODES[key] || trimmed;
 }
 
+/** India: 6-digit pincode only (WooCommerce Store API rejects invalid pincodes). */
+export function normalizePostcode(country: string, postcode: string): string {
+  const trimmed = (postcode || "").trim();
+  if (country === "IN") {
+    const digits = trimmed.replace(/\D/g, "");
+    return digits.slice(0, 6);
+  }
+  return trimmed;
+}
+
+export function isPostcodeValidForStoreApi(
+  country: string,
+  postcode: string
+): boolean {
+  const c = (country || "IN").trim().toUpperCase();
+  const pc = normalizePostcode(c, postcode);
+  if (c === "IN") return /^\d{6}$/.test(pc);
+  return pc.length >= 3;
+}
+
 export function sanitizeBillingAddress(
   addr?: Partial<WooAddress> | null
 ): WooAddress | undefined {
@@ -65,7 +85,7 @@ export function sanitizeBillingAddress(
     address_2: addr.address_2 || "",
     city: (addr.city || "").trim(),
     state: normalizeState(country, addr.state || ""),
-    postcode: (addr.postcode || "").trim(),
+    postcode: normalizePostcode(country, addr.postcode || ""),
     country,
     email: (addr.email || "").trim(),
     phone: (addr.phone || "").trim(),
@@ -78,7 +98,8 @@ export function sanitizeShippingAddress(
 ): Omit<WooAddress, "email"> | undefined {
   const billing = sanitizeBillingAddress(addr);
   if (!billing) return undefined;
-  const { email: _email, ...shipping } = billing;
+  const { email, ...shipping } = billing;
+  void email;
   return shipping;
 }
 
@@ -93,6 +114,7 @@ export function isBillingReadyForStoreApi(addr?: Partial<WooAddress> | null): bo
     b.postcode &&
     b.country &&
     b.email &&
-    b.phone
+    b.phone &&
+    isPostcodeValidForStoreApi(b.country, b.postcode)
   );
 }

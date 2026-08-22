@@ -3,7 +3,11 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { buildOrderPayUrl, getWcPublicBaseUrl } from "@/lib/checkout-payment";
+import {
+  buildOrderPayUrl,
+  resolveClientStorefrontOrigin,
+} from "@/lib/checkout-payment";
+import { getCanonicalWcOrigin } from "@/lib/canonical-urls";
 
 function PayContent() {
   const searchParams = useSearchParams();
@@ -16,8 +20,10 @@ function PayContent() {
     return buildOrderPayUrl(
       orderId,
       orderKey,
-      getWcPublicBaseUrl(),
-      typeof window !== "undefined" ? window.location.origin : undefined
+      getCanonicalWcOrigin(),
+      resolveClientStorefrontOrigin(
+        typeof window !== "undefined" ? window.location.origin : undefined
+      )
     );
   }, [orderId, orderKey]);
 
